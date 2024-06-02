@@ -25,7 +25,7 @@ features:
   - icon: 🏫
     title: 就读学校
     details: 赤峰二中<br/>明德敏学，穷高极远
-    link: https://www.cf2z.cn/
+    link: http://www.cf2z.cn/
 
   - icon: 💻
     title: 信息技术

@@ -23,9 +23,9 @@ hero:
 
 features:
 - icon: 🏫
-  title: School of study
+  title: School
   details: Chifeng No.2 Middle School<br/>Mingde Minxue, extremely high and far away
-  link:  https://www.cf2z.cn/
+  link:  http://www.cf2z.cn/
 
 - icon: 💻
   title: Information Technology

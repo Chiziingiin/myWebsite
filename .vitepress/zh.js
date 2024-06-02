@@ -10,7 +10,7 @@ export const zh = defineConfig({
   themeConfig: {
     nav: nav(),
     sidebar: {
-      '/': { base: '/project/', items: sidebarProject() },
+      '/project/': { base: '/project/', items: sidebarProject() },
       '/record/': { base: '/record/', items: sidebarRecord() },
       '/about/': { base: '/about/', items: sidebarAbout() }
     },
@@ -44,14 +44,15 @@ export const zh = defineConfig({
 function nav() {
   return [
     { text: '首页', link: '/' },
-    { text: '作品', link: '/project/' },
+    { text: '作品', link: '/project/project' },
     { text: '记录', link: '/record/' },
-    { text: '关于', link: '/about/' }
+    { text: '关于', link: '/about/who-am-i' }
   ];
 }
 
 function sidebarProject() {
   return [
+    { text: '项目',link: 'project' },
     {
       text: 'Scheduler',
       collapsed: false,
@@ -64,9 +65,9 @@ function sidebarProject() {
     },
     {
       text: '盲人机械狗项目',
-      collapsed: true,
+      collapsed: false,
       items: [
-        { text: '历史', link: 'dog/index' },
+        { text: '历史', link: 'dog/' },
       ]
     },
   ]
