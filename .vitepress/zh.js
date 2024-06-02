@@ -53,17 +53,10 @@ function nav() {
 function sidebarProject() {
   return [
     {
-      text: '简介',
-      collapsed: false,
-      items: [
-        { text: '概览', link: 'index' },
-      ]
-    },
-    {
       text: 'Scheduler',
       collapsed: false,
       items: [
-        { text: '开始', link: 'Scheduler/start' },
+        { text: '开始', link: 'Scheduler/' },
         { text: '安装', link: 'Scheduler/install' },
         { text: '指南', link: 'Scheduler/guide' },
         { text: '历史', link: 'Scheduler/history' },
@@ -73,7 +66,7 @@ function sidebarProject() {
       text: '盲人机械狗项目',
       collapsed: true,
       items: [
-        { text: '历史', link: 'custom-theme' },
+        { text: '历史', link: 'dog/index' },
       ]
     },
   ]
