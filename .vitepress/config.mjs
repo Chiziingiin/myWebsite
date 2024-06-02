@@ -4,6 +4,9 @@ import { en } from './en'
 import { shared } from './shared'
 export default defineConfig({
   ...shared,
+  image: {
+    lazyLoading: true
+  },
   locales: {
     root: { label: '简体中文', ...zh },
     en: { label: 'English', ...en },

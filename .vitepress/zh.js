@@ -10,9 +10,9 @@ export const zh = defineConfig({
   themeConfig: {
     nav: nav(),
     sidebar: {
-      '/zh/': { base: '/zh/project/', items: sidebarProject() },
-      '/zh/record/': { base: '/zh/record/', items: sidebarRecord() },
-      '/zh/about/': { base: '/zh/about/', items: sidebarAbout() }
+      '/': { base: '/project/', items: sidebarProject() },
+      '/record/': { base: '/record/', items: sidebarRecord() },
+      '/about/': { base: '/about/', items: sidebarAbout() }
     },
     footer: {
       message: '感谢所有支持和关注我们的人 ❤️ 本网站由 Cloudfalre 和 VitePress 驱动',
@@ -34,7 +34,7 @@ export const zh = defineConfig({
     },
     langMenuLabel: '多语言',
     returnToTopLabel: '回到顶部',
-    sidebarMenuLabel: '大纲',
+    sidebarMenuLabel: '菜单',
     darkModeSwitchLabel: '暗色主题',
     lightModeSwitchTitle: '切换到浅色模式',
     darkModeSwitchTitle: '切换到深色模式'
@@ -44,9 +44,9 @@ export const zh = defineConfig({
 function nav() {
   return [
     { text: '首页', link: '/' },
-    { text: '作品', link: '/zh/project/' },
-    { text: '记录', link: '/zh/record/' },
-    { text: '关于', link: '/zh/about/' }
+    { text: '作品', link: '/project/' },
+    { text: '记录', link: '/record/' },
+    { text: '关于', link: '/about/' }
   ];
 }
 
