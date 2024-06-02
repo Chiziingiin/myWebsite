@@ -29,7 +29,7 @@ export const shared = defineConfig({
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-090FBQC34B');`
-    ]
+    ],
     [
       'script',
       {},
