@@ -8,7 +8,7 @@
 ## 线上体验
 推荐使用 [Chiziingiin Scheduler](https://production-scheduler.chiziingiin.top) 来访问我们项目
 
-## 使用源码
+## 使用源码编译
 
 
 ### 下载源码
@@ -21,9 +21,12 @@
 
 ### 环境配置
 
-1. 安装最新版 [node.js](https://nodejs.org/)
-2. 安装最新版 [Google Chrome](https://www.google.com/chrome/index.html) （国内请访问 [Google Chrome](https://www.google.cn/chrome/index.html) ）
+安装最新版 [node.js](https://nodejs.org/)
+::: tip 推荐
+本软件推荐使用Google Chrome或Chromium内核的浏览器访问
 
+点击此处安装最新版 [Google Chrome(google.com)](https://www.google.com/chrome/index.html) （国内请访问 [Google Chrome(google.cn)](https://www.google.cn/chrome/index.html) ）
+:::
 
 ### 开始安装
 打开 `软件程序` 文件夹，您应看到以下目录结构

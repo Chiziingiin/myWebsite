@@ -9,10 +9,10 @@ hero:
   tagline: 记录学习与思考🤔
   actions:
     - theme: brand
-      text: 我是谁
-      link: /about/who-am-i
+      text: 去看作品
+      link: /project/project
     - theme: alt
-      text: 了解赤子英金
+      text: 我们是谁
       link: /about/who-are-we
     - theme: alt
       text: GitHub
