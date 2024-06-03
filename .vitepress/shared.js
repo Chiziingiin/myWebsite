@@ -1,10 +1,11 @@
 import { defineConfig } from 'vitepress'
 export const shared = defineConfig({
-  title: "赤子英金",
+  title: "Chiziingiin",
   description: "The Website of Chiziingiin",
   lastUpdated: true,
   cleanUrls: true,
   metaChunk: true,
+
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: 'https://www.chiziingiin.top/logo_mini.svg' }],
     ['link', { rel: 'icon', type: 'image/png', href: 'https://www.chiziingiin.top/logo.png' }],
@@ -59,8 +60,19 @@ export const shared = defineConfig({
 
   ],
   themeConfig: {
+    search:{
+      provider: 'local',
+      options: {
+        appId: '31IY2WV1HC',
+        apiKey: '3e04c5a0346eda91f9e5649056c9d2d0',
+        indexName: 'chiziingiin.top'
+      }
+    },
+    
+    logo:'/logo_cn_en colored.png',
+    siteTitle:false,
     socialLinks: [
       { icon: 'github', link: 'https://github.com/Chiziingiin/myWebsite/' }
-    ]
+    ],
   },
 })
