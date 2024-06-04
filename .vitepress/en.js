@@ -6,8 +6,7 @@ const pkg = require('vitepress/package.json')
 
 export const en = defineConfig({
   lang: 'en-US',
-  title: 'Chiziingiin',
-  description: 'Chiziingiin Website',
+  title: 'Chiziingiin - Dreams are just the beginning, exploration never stops.',
   themeConfig: {
     nav: nav(),
     sidebar: {

@@ -1,13 +1,13 @@
 import { defineConfig } from 'vitepress'
 export const shared = defineConfig({
-  title: "Chiziingiin",
-  description: "The Website of Chiziingiin",
+  title: "赤子英金 - 梦想只是开始，探索永不止步",
+  description: "赤子英金于2021年8月成立，是一个学生团体，目前主要致力于开发利于学生团体的一些轻项目。Founded in 2021, Chiziingiin is a student organization that focuses on developing light projects that are beneficial to student organizations.",
   lastUpdated: true,
   cleanUrls: true,
   metaChunk: true,
 
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: 'https://www.chiziingiin.top/logo_mini.svg' }],
+    ['meta', { name:'description', content:'赤子英金于2021年8月成立，是一个学生团体，目前主要致力于开发利于学生团体的一些轻项目。Founded in 2021, Chiziingiin is a student organization that focuses on developing light projects that are beneficial to student organizations.'} ],
     ['link', { rel: 'icon', type: 'image/png', href: 'https://www.chiziingiin.top/logo.png' }],
     ['meta', { name: 'theme-color', content: '#5f67ee' }],
     ['meta', { property: 'og:type', content: 'website' }],
@@ -17,7 +17,7 @@ export const shared = defineConfig({
     ['meta', { property: 'og:image', content: 'https://www.chiziingiin.top/logo.png' }],
     ['meta', { property: 'og:url', content: 'https://www.chiziingiin.top/' }],
     ['meta', { name:"google-adsense-account", content:"ca-pub-6253158297867597"}],
-
+    
     //Anlysis
     [
       'script',

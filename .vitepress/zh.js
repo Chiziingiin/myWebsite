@@ -6,7 +6,6 @@ const pkg = require('vitepress/package.json')
 
 export const zh = defineConfig({
   lang: 'zh-Hans',
-  description: '赤子英金网站',
   themeConfig: {
     nav: nav(),
     sidebar: {
