@@ -1,11 +1,26 @@
 # 赤子英金是谁
 赤子英金是一个学生团体，创办于2022年，旨在服务学生群体，分享技术内容，传播社会正能量。
+
 ![](https://rainydreams.chiziingiin.top/assets/ingiinriver-265cf9c9.jpg)
+
 赤子英金诞生于美丽的英金河畔，怀着一颗赤子之心，创造更好的产品。
 
 # 我们的团队
 
-<VPTeamMembers size="small" :members="members" />
+<VPTeamMembers size="small" :members="members" style="margin-bottom:2em;"/>
+
+# 关注 {#focus}
+### 赤子英金公众号
+![二维码](https://rainydreams.chiziingiin.top/assets/qrcode_mp-ee56d019.jpg)
+
+
+
+
+
+
+
+
+
 <script setup>
 import { VPTeamMembers } from 'vitepress/theme';
 const members = [

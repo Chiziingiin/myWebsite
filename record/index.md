@@ -1,11 +1,2 @@
-YOU
-
-AND
-
-ME
-
-FOR
-
-THE
-
-FUTHER
+# 记录
+本版块用于写点思考类内容

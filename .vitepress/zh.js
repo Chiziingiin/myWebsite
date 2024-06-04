@@ -90,8 +90,8 @@ function sidebarAbout(){
       text: '关于',
       items: [
         { text: '我是谁', link: 'who-am-i' },
-        { text: '赤子英金', link: 'who-are-we' },
-        { text: '关注', link: 'focus' },
+        { text: '了解赤子英金', link: 'who-are-we' },
+        { text: '致谢', link: 'thanks' },
       ]
     }
   ]
