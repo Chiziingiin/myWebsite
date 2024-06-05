@@ -61,11 +61,11 @@ export const shared = defineConfig({
   ],
   themeConfig: {
     search:{
-      provider: 'local',
+      provider: 'algolia',
       options: {
-        appId: '31IY2WV1HC',
-        apiKey: '3e04c5a0346eda91f9e5649056c9d2d0',
-        indexName: 'chiziingiin.top'
+        appId: '01EE2AO7BT',
+        apiKey: 'd8a788d0a445edc6ac28bd4fdddbd02e',
+        indexName: 'chiziingiin'
       }
     },
     
