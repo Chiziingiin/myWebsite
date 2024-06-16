@@ -64,6 +64,13 @@ function sidebarProject() {
       ]
     },
     {
+      text: '赤子英金学生网络社区',
+      collapsed: false,
+      items: [
+        { text: '隐私政策', link: 'blog/privacy-policy' },
+      ]
+    },
+    {
       text: '盲人机械狗项目',
       collapsed: false,
       items: [
