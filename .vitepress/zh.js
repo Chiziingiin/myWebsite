@@ -44,6 +44,7 @@ function nav() {
   return [
     { text: '首页', link: '/' },
     { text: '作品', link: '/project/project' },
+    { text: '文章', link: '/passage/passage' },
     { text: '记录', link: '/record/' },
     { text: '关于', link: '/about/who-am-i' }
   ];
@@ -78,6 +79,19 @@ function sidebarRecord(){
       text: '记录',
       items: [
         
+      ]
+    }
+  ]
+}
+
+function sidebarPassage(){
+  return [
+    {
+      text: '文章',
+      items: [
+        { text: '我是谁', link: 'who-am-i' },
+        { text: '了解赤子英金', link: 'who-are-we' },
+        { text: '致谢', link: 'thanks' },
       ]
     }
   ]
