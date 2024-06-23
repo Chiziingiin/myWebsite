@@ -54,7 +54,7 @@ function sidebarProject() {
   return [
     { text: '项目',link: 'project' },
     {
-      text: 'Scheduler',
+      text: '专注翼航',
       collapsed: false,
       items: [
         { text: '开始', link: 'Scheduler/' },

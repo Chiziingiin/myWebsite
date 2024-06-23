@@ -14,10 +14,10 @@
 ### 下载源码
 
 您可以从我们提供的镜像地址下载本软件源码
-[Chiziingiin Scheduler Resoures](https://production-scheduler.chiziingiin.top/resoures)
-::: warning 需要注意的是
-由于作品正在参赛，目前未开放源码下载
-:::
+[Chiziingiin Scheduler Resoures](https://resources.chiziingiin.top/scheduler-master.7z)
+
+源码Github仓库
+[Github Repository](https://github.com/RainyDreams/scheduler)
 
 ### 环境配置
 

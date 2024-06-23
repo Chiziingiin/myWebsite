@@ -7,5 +7,9 @@
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "markdown-it-mathjax3": "^4.3.2"
   }
 }

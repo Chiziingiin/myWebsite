@@ -10,5 +10,8 @@ export default defineConfig({
   locales: {
     root: { label: '简体中文', ...zh },
     en: { label: 'English', ...en },
+  },
+  sitemap: {
+    hostname: 'https://www.chiziingiin.top'
   }
 })

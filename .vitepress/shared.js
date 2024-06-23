@@ -1,4 +1,6 @@
 import { defineConfig } from 'vitepress'
+// Import our custom CSS
+
 export const shared = defineConfig({
   title: "赤子英金 - 梦想只是开始，探索永不止步",
   description: "赤子英金于2021年8月成立，是一个学生团体，目前主要致力于开发利于学生团体的一些轻项目。Founded in 2021, Chiziingiin is a student organization that focuses on developing light projects that are beneficial to student organizations.",
