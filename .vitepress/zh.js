@@ -10,6 +10,7 @@ export const zh = defineConfig({
     nav: nav(),
     sidebar: {
       '/project/': { base: '/project/', items: sidebarProject() },
+      '/passage/': { base: '/passage', items: sidebarPassage() },
       '/record/': { base: '/record/', items: sidebarRecord() },
       '/about/': { base: '/about/', items: sidebarAbout() }
     },
@@ -45,14 +46,13 @@ function nav() {
     { text: '首页', link: '/' },
     { text: '作品', link: '/project/project' },
     { text: '文章', link: '/passage/passage' },
-    { text: '记录', link: '/record/' },
+    { text: '笔记', link: '/record/' },
     { text: '关于', link: '/about/who-am-i' }
   ];
 }
 
 function sidebarProject() {
   return [
-    { text: '项目',link: 'project' },
     {
       text: '专注翼航',
       collapsed: false,
@@ -71,6 +71,11 @@ function sidebarProject() {
       ]
     },
     {
+      text: '赤峰二中2023级研究性学习',
+      collapsed: false,
+      items:[]
+    },
+    {
       text: '盲人机械狗项目',
       collapsed: false,
       items: [
@@ -83,10 +88,7 @@ function sidebarProject() {
 function sidebarRecord(){
   return [
     {
-      text: '记录',
-      items: [
-        
-      ]
+      text: '笔记',
     }
   ]
 }
@@ -95,11 +97,6 @@ function sidebarPassage(){
   return [
     {
       text: '文章',
-      items: [
-        { text: '我是谁', link: 'who-am-i' },
-        { text: '了解赤子英金', link: 'who-are-we' },
-        { text: '致谢', link: 'thanks' },
-      ]
     }
   ]
 }

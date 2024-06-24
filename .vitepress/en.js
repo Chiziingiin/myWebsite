@@ -11,6 +11,7 @@ export const en = defineConfig({
     nav: nav(),
     sidebar: {
       '/en/': { base: '/en/project/', items: sidebarProject() },
+      '/en/passage/': { base: '/en/passage/', items: sidebarPassage() },
       '/en/record/': { base: '/en/record/', items: sidebarRecord() },
       '/en/about/': { base: '/en/about/', items: sidebarAbout() }
     },
@@ -44,9 +45,10 @@ export const en = defineConfig({
 function nav() {
   return [
     { text: 'Home', link: '/en/' },
-    { text: 'Works', link: '/en/project/' },
+    { text: 'Proejct', link: '/en/project/project' },
+    { text: 'Passage', link: '/en/passage/passage' },
     { text: 'Record', link: '/en/record/' },
-    { text: 'About', link: '/en/about/' }
+    { text: 'About', link: '/en/about/who-am-i' }
   ];
 }
 
@@ -63,17 +65,29 @@ function sidebarProject() {
       text: 'Scheduler',
       collapsed: false,
       items: [
-        { text: 'Start', link: 'Scheduler/start' },
+        { text: 'Start', link: 'Scheduler/' },
         { text: 'Install', link: 'Scheduler/install' },
         { text: 'Guide', link: 'Scheduler/guide' },
         { text: 'History', link: 'Scheduler/history' },
       ]
     },
     {
+      text: 'Chiziingiin Student Network Community',
+      collapsed: false,
+      items: [
+        {text: 'Privacy Policy', link: 'blog/privacy-policy' },
+      ]
+      },
+    {
+      text: 'Research based learning for the 2023 level of Chifeng No.2 Middle School',
+      collapsed: false,
+      items:[]
+    },
+    {
       text: 'Blind Man Mechanical Dog Project',
       collapsed: true,
       items: [
-        { text: 'History', link: 'custom-theme' },
+        { text: 'History', link: 'dog/' },
       ]
     },
   ]
@@ -89,7 +103,13 @@ function sidebarRecord(){
     }
   ]
 }
-
+function sidebarPassage(){
+  return [
+    {
+      text: 'Passage',
+    }
+  ]
+}
 function sidebarAbout(){
   return [
     {
