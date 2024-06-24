@@ -55,7 +55,7 @@ $ npm run dev
 ```
 :::
 
-After successful execution, open http://localhost:8080/ in your browser to use the software.
+After successful execution, open `http://localhost:8080/` in your browser to use the software.
 ::: warning Note
 This software recommends opening only one tab in the browser, as opening multiple tabs may cause browser database errors and result in a blank screen due to browser policies.
 :::
