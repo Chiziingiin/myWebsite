@@ -1,19 +1,16 @@
 <!-- <template> -->
   <div>
-    <el-date-picker
+    <p nm><el-date-picker
       v-model="birthDate"
       type="date"
       placeholder="选择出生日期"
-      @change="calculateBiorhythm"
-      :default-value="new Date(2008, 5, 1)"
-    ></el-date-picker>
-    <el-date-picker
+    ></el-date-picker></p>
+    <p nm><el-date-picker
       v-model="targetDate"
       type="date"
       placeholder="选择目标日期"
-      @change="calculateBiorhythm"
-      :default-value="new Date()"
-    ></el-date-picker>
+    ></el-date-picker></p>
+    <p nm><el-button @click="calculateBiorhythm">计算</el-button></p>
     <div v-if="result">
       <p>{{ result.day}}天</p>
       <p>体力周期: {{ result.physicalCycle }}</p>
@@ -126,3 +123,10 @@
   //   });
   // });
 </script>
+
+
+<style scoped>
+[nm]{
+  margin:5px;
+}
+</style>
