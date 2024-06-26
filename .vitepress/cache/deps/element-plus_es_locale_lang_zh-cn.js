@@ -1,12 +1,9 @@
-import "./chunk-LQ2VYIYD.js";
+import "./chunk-ZS7NZCD4.js";
 
 // node_modules/element-plus/es/locale/lang/zh-cn.mjs
 var zhCn = {
   name: "zh-cn",
   el: {
-    breadcrumb: {
-      label: "面包屑"
-    },
     colorpicker: {
       confirm: "确定",
       clear: "清空"
@@ -133,11 +130,6 @@ var zhCn = {
     popconfirm: {
       confirmButtonText: "确定",
       cancelButtonText: "取消"
-    },
-    carousel: {
-      leftArrow: "上一张幻灯片",
-      rightArrow: "下一张幻灯片",
-      indicator: "幻灯片切换至索引 {index}"
     }
   }
 };

@@ -13,6 +13,7 @@ import {
   capitalize,
   cloneVNode,
   computed,
+  computed2,
   createApp,
   createBaseVNode,
   createBlock,
@@ -21,7 +22,6 @@ import {
   createSlots,
   createTextVNode,
   createVNode,
-  customRef,
   defineComponent,
   effectScope,
   getCurrentInstance,
@@ -68,7 +68,6 @@ import {
   shallowReactive,
   shallowRef,
   toDisplayString,
-  toHandlerKey,
   toHandlers,
   toRaw,
   toRawType,
@@ -88,11 +87,11 @@ import {
   withDirectives,
   withKeys,
   withModifiers
-} from "./chunk-W7CXCETU.js";
+} from "./chunk-SWYVVCLY.js";
 import {
   __commonJS,
   __toESM
-} from "./chunk-LQ2VYIYD.js";
+} from "./chunk-ZS7NZCD4.js";
 
 // node_modules/dayjs/dayjs.min.js
 var require_dayjs_min = __commonJS({
@@ -759,8 +758,8 @@ var FOCUSABLE_ELEMENT_SELECTORS = `a[href],button:not([disabled]),button:not([hi
 var isVisible = (element) => {
   if (false)
     return true;
-  const computed2 = getComputedStyle(element);
-  return computed2.position === "fixed" ? false : element.offsetParent !== null;
+  const computed3 = getComputedStyle(element);
+  return computed3.position === "fixed" ? false : element.offsetParent !== null;
 };
 var obtainAllFocusableElements = (element) => {
   return Array.from(element.querySelectorAll(FOCUSABLE_ELEMENT_SELECTORS)).filter((item) => isFocusable(item) && isVisible(item));
@@ -972,39 +971,6 @@ function throttleFilter(ms, trailing = true, leading = true, rejectOnCancel = fa
 function identity(arg) {
   return arg;
 }
-function computedWithControl(source, fn2) {
-  let v2 = void 0;
-  let track;
-  let trigger;
-  const dirty = ref(true);
-  const update2 = () => {
-    dirty.value = true;
-    trigger();
-  };
-  watch(source, update2, { flush: "sync" });
-  const get2 = isFunction2(fn2) ? fn2 : fn2.get;
-  const set3 = isFunction2(fn2) ? void 0 : fn2.set;
-  const result2 = customRef((_track, _trigger) => {
-    track = _track;
-    trigger = _trigger;
-    return {
-      get() {
-        if (dirty.value) {
-          v2 = get2();
-          dirty.value = false;
-        }
-        track();
-        return v2;
-      },
-      set(v22) {
-        set3 == null ? void 0 : set3(v22);
-      }
-    };
-  });
-  if (Object.isExtensible(result2))
-    result2.trigger = update2;
-  return result2;
-}
 function tryOnScopeDispose(fn2) {
   if (getCurrentScope()) {
     onScopeDispose(fn2);
@@ -1050,7 +1016,7 @@ function useTimeoutFn(cb, interval, options = {}) {
     isPending.value = false;
     clear();
   }
-  function start2(...args) {
+  function start(...args) {
     clear();
     isPending.value = true;
     timer = setTimeout(() => {
@@ -1062,12 +1028,12 @@ function useTimeoutFn(cb, interval, options = {}) {
   if (immediate) {
     isPending.value = true;
     if (isClient)
-      start2();
+      start();
   }
   tryOnScopeDispose(stop);
   return {
     isPending: readonly(isPending),
-    start: start2,
+    start,
     stop
   };
 }
@@ -1172,21 +1138,6 @@ function onClickOutside(target2, handler, options = {}) {
   const stop = () => cleanup.forEach((fn2) => fn2());
   return stop;
 }
-function useActiveElement(options = {}) {
-  var _a2;
-  const { window: window2 = defaultWindow } = options;
-  const document2 = (_a2 = options.document) != null ? _a2 : window2 == null ? void 0 : window2.document;
-  const activeElement = computedWithControl(() => null, () => document2 == null ? void 0 : document2.activeElement);
-  if (window2) {
-    useEventListener(window2, "blur", (event) => {
-      if (event.relatedTarget !== null)
-        return;
-      activeElement.trigger();
-    }, true);
-    useEventListener(window2, "focus", activeElement.trigger, true);
-  }
-  return activeElement;
-}
 function useSupported(callback, sync = false) {
   const isSupported = ref();
   const update2 = () => isSupported.value = Boolean(callback());
@@ -1203,7 +1154,7 @@ _global[globalKey] = _global[globalKey] || {};
 var handlers = _global[globalKey];
 function useCssVar(prop, target2, { window: window2 = defaultWindow, initialValue = "" } = {}) {
   const variable = ref(initialValue);
-  const elRef = computed(() => {
+  const elRef = computed2(() => {
     var _a2;
     return unrefElement(target2) || ((_a2 = window2 == null ? void 0 : window2.document) == null ? void 0 : _a2.documentElement);
   });
@@ -1280,10 +1231,10 @@ function useElementBounding(target2, options = {}) {
     immediate = true
   } = options;
   const height = ref(0);
-  const bottom2 = ref(0);
-  const left3 = ref(0);
-  const right3 = ref(0);
-  const top2 = ref(0);
+  const bottom = ref(0);
+  const left2 = ref(0);
+  const right2 = ref(0);
+  const top = ref(0);
   const width = ref(0);
   const x2 = ref(0);
   const y = ref(0);
@@ -1292,10 +1243,10 @@ function useElementBounding(target2, options = {}) {
     if (!el) {
       if (reset) {
         height.value = 0;
-        bottom2.value = 0;
-        left3.value = 0;
-        right3.value = 0;
-        top2.value = 0;
+        bottom.value = 0;
+        left2.value = 0;
+        right2.value = 0;
+        top.value = 0;
         width.value = 0;
         x2.value = 0;
         y.value = 0;
@@ -1304,10 +1255,10 @@ function useElementBounding(target2, options = {}) {
     }
     const rect = el.getBoundingClientRect();
     height.value = rect.height;
-    bottom2.value = rect.bottom;
-    left3.value = rect.left;
-    right3.value = rect.right;
-    top2.value = rect.top;
+    bottom.value = rect.bottom;
+    left2.value = rect.left;
+    right2.value = rect.right;
+    top.value = rect.top;
     width.value = rect.width;
     x2.value = rect.x;
     y.value = rect.y;
@@ -1324,10 +1275,10 @@ function useElementBounding(target2, options = {}) {
   });
   return {
     height,
-    bottom: bottom2,
-    left: left3,
-    right: right3,
-    top: top2,
+    bottom,
+    left: left2,
+    right: right2,
+    top,
     width,
     x: x2,
     y,
@@ -1446,7 +1397,7 @@ function useVModel(props, key, emit, options = {}) {
   var _a2, _b, _c, _d, _e;
   const {
     clone: clone2 = false,
-    passive: passive2 = false,
+    passive = false,
     eventName,
     deep = false,
     defaultValue
@@ -1467,7 +1418,7 @@ function useVModel(props, key, emit, options = {}) {
   event = eventName || event || `update:${key.toString()}`;
   const cloneFn = (val) => !clone2 ? val : isFunction2(clone2) ? clone2(val) : cloneFnJSON(val);
   const getValue3 = () => isDef(props[key]) ? cloneFn(props[key]) : defaultValue;
-  if (passive2) {
+  if (passive) {
     const initialValue = getValue3();
     const proxy = ref(initialValue);
     watch(() => props[key], (v2) => proxy.value = cloneFn(v2));
@@ -1477,7 +1428,7 @@ function useVModel(props, key, emit, options = {}) {
     }, { deep });
     return proxy;
   } else {
-    return computed({
+    return computed2({
       get() {
         return getValue3();
       },
@@ -1550,13 +1501,13 @@ var isInContainer = (el, container) => {
   return elRect.top < containerRect.bottom && elRect.bottom > containerRect.top && elRect.right > containerRect.left && elRect.left < containerRect.right;
 };
 var getOffsetTop = (el) => {
-  let offset4 = 0;
+  let offset3 = 0;
   let parent2 = el;
   while (parent2) {
-    offset4 += parent2.offsetTop;
+    offset3 += parent2.offsetTop;
     parent2 = parent2.offsetParent;
   }
-  return offset4;
+  return offset3;
 };
 var getOffsetTopDistance = (el, containerEl) => {
   return Math.abs(getOffsetTop(el) - getOffsetTop(containerEl));
@@ -1579,16 +1530,6 @@ var getClientXY = (event) => {
     clientY
   };
 };
-
-// node_modules/element-plus/es/utils/easings.mjs
-function easeInOutCubic(t, b2, c2, d2) {
-  const cc = c2 - b2;
-  t /= d2 / 2;
-  if (t < 1) {
-    return cc / 2 * t * t * t + b2;
-  }
-  return cc / 2 * ((t -= 2) * t * t + 2) + b2;
-}
 
 // node_modules/lodash-es/_freeGlobal.js
 var freeGlobal = typeof global == "object" && global && global.Object === Object && global;
@@ -2029,13 +1970,13 @@ function composeArgsRight(args, partials, holders, isCurried) {
   while (++argsIndex < rangeLength) {
     result2[argsIndex] = args[argsIndex];
   }
-  var offset4 = argsIndex;
+  var offset3 = argsIndex;
   while (++rightIndex < rightLength) {
-    result2[offset4 + rightIndex] = partials[rightIndex];
+    result2[offset3 + rightIndex] = partials[rightIndex];
   }
   while (++holdersIndex < holdersLength) {
     if (isUncurried || argsIndex < argsLength) {
-      result2[offset4 + holders[holdersIndex]] = args[argsIndex++];
+      result2[offset3 + holders[holdersIndex]] = args[argsIndex++];
     }
   }
   return result2;
@@ -2342,8 +2283,8 @@ function updateWrapDetails(details, bitmask) {
 var updateWrapDetails_default = updateWrapDetails;
 
 // node_modules/lodash-es/_setWrapToString.js
-function setWrapToString(wrapper, reference2, bitmask) {
-  var source = reference2 + "";
+function setWrapToString(wrapper, reference, bitmask) {
+  var source = reference + "";
   return setToString_default(wrapper, insertWrapDetails_default(source, updateWrapDetails_default(getWrapDetails_default(source), bitmask)));
 }
 var setWrapToString_default = setWrapToString;
@@ -2710,27 +2651,27 @@ var copyObject_default = copyObject;
 
 // node_modules/lodash-es/_overRest.js
 var nativeMax4 = Math.max;
-function overRest(func, start2, transform2) {
-  start2 = nativeMax4(start2 === void 0 ? func.length - 1 : start2, 0);
+function overRest(func, start, transform2) {
+  start = nativeMax4(start === void 0 ? func.length - 1 : start, 0);
   return function() {
-    var args = arguments, index = -1, length = nativeMax4(args.length - start2, 0), array4 = Array(length);
+    var args = arguments, index = -1, length = nativeMax4(args.length - start, 0), array4 = Array(length);
     while (++index < length) {
-      array4[index] = args[start2 + index];
+      array4[index] = args[start + index];
     }
     index = -1;
-    var otherArgs = Array(start2 + 1);
-    while (++index < start2) {
+    var otherArgs = Array(start + 1);
+    while (++index < start) {
       otherArgs[index] = args[index];
     }
-    otherArgs[start2] = transform2(array4);
+    otherArgs[start] = transform2(array4);
     return apply_default(func, this, otherArgs);
   };
 }
 var overRest_default = overRest;
 
 // node_modules/lodash-es/_baseRest.js
-function baseRest(func, start2) {
-  return setToString_default(overRest_default(func, start2, identity_default), func + "");
+function baseRest(func, start) {
+  return setToString_default(overRest_default(func, start, identity_default), func + "");
 }
 var baseRest_default = baseRest;
 
@@ -3360,9 +3301,9 @@ var baseAt_default = baseAt;
 
 // node_modules/lodash-es/_arrayPush.js
 function arrayPush(array4, values2) {
-  var index = -1, length = values2.length, offset4 = array4.length;
+  var index = -1, length = values2.length, offset3 = array4.length;
   while (++index < length) {
-    array4[offset4 + index] = values2[index];
+    array4[offset3 + index] = values2[index];
   }
   return array4;
 }
@@ -3519,30 +3460,30 @@ bindKey.placeholder = {};
 var bindKey_default = bindKey;
 
 // node_modules/lodash-es/_baseSlice.js
-function baseSlice(array4, start2, end3) {
+function baseSlice(array4, start, end2) {
   var index = -1, length = array4.length;
-  if (start2 < 0) {
-    start2 = -start2 > length ? 0 : length + start2;
+  if (start < 0) {
+    start = -start > length ? 0 : length + start;
   }
-  end3 = end3 > length ? length : end3;
-  if (end3 < 0) {
-    end3 += length;
+  end2 = end2 > length ? length : end2;
+  if (end2 < 0) {
+    end2 += length;
   }
-  length = start2 > end3 ? 0 : end3 - start2 >>> 0;
-  start2 >>>= 0;
+  length = start > end2 ? 0 : end2 - start >>> 0;
+  start >>>= 0;
   var result2 = Array(length);
   while (++index < length) {
-    result2[index] = array4[index + start2];
+    result2[index] = array4[index + start];
   }
   return result2;
 }
 var baseSlice_default = baseSlice;
 
 // node_modules/lodash-es/_castSlice.js
-function castSlice(array4, start2, end3) {
+function castSlice(array4, start, end2) {
   var length = array4.length;
-  end3 = end3 === void 0 ? length : end3;
-  return !start2 && end3 >= length ? array4 : baseSlice_default(array4, start2, end3);
+  end2 = end2 === void 0 ? length : end2;
+  return !start && end2 >= length ? array4 : baseSlice_default(array4, start, end2);
 }
 var castSlice_default = castSlice;
 
@@ -5473,17 +5414,17 @@ function baseDifference(array4, values2, iteratee2, comparator) {
   }
   outer:
     while (++index < length) {
-      var value = array4[index], computed2 = iteratee2 == null ? value : iteratee2(value);
+      var value = array4[index], computed3 = iteratee2 == null ? value : iteratee2(value);
       value = comparator || value !== 0 ? value : 0;
-      if (isCommon && computed2 === computed2) {
+      if (isCommon && computed3 === computed3) {
         var valuesIndex = valuesLength;
         while (valuesIndex--) {
-          if (values2[valuesIndex] === computed2) {
+          if (values2[valuesIndex] === computed3) {
             continue outer;
           }
         }
         result2.push(value);
-      } else if (!includes2(values2, computed2, comparator)) {
+      } else if (!includes2(values2, computed3, comparator)) {
         result2.push(value);
       }
     }
@@ -5626,9 +5567,9 @@ function endsWith(string3, target2, position) {
   target2 = baseToString_default(target2);
   var length = string3.length;
   position = position === void 0 ? length : baseClamp_default(toInteger_default(position), 0, length);
-  var end3 = position;
+  var end2 = position;
   position -= target2.length;
-  return position >= 0 && string3.slice(position, end3) == target2;
+  return position >= 0 && string3.slice(position, end2) == target2;
 }
 var endsWith_default = endsWith;
 
@@ -5745,35 +5686,35 @@ function toLength(value) {
 var toLength_default = toLength;
 
 // node_modules/lodash-es/_baseFill.js
-function baseFill(array4, value, start2, end3) {
+function baseFill(array4, value, start, end2) {
   var length = array4.length;
-  start2 = toInteger_default(start2);
-  if (start2 < 0) {
-    start2 = -start2 > length ? 0 : length + start2;
+  start = toInteger_default(start);
+  if (start < 0) {
+    start = -start > length ? 0 : length + start;
   }
-  end3 = end3 === void 0 || end3 > length ? length : toInteger_default(end3);
-  if (end3 < 0) {
-    end3 += length;
+  end2 = end2 === void 0 || end2 > length ? length : toInteger_default(end2);
+  if (end2 < 0) {
+    end2 += length;
   }
-  end3 = start2 > end3 ? 0 : toLength_default(end3);
-  while (start2 < end3) {
-    array4[start2++] = value;
+  end2 = start > end2 ? 0 : toLength_default(end2);
+  while (start < end2) {
+    array4[start++] = value;
   }
   return array4;
 }
 var baseFill_default = baseFill;
 
 // node_modules/lodash-es/fill.js
-function fill(array4, value, start2, end3) {
+function fill(array4, value, start, end2) {
   var length = array4 == null ? 0 : array4.length;
   if (!length) {
     return [];
   }
-  if (start2 && typeof start2 != "number" && isIterateeCall_default(array4, value, start2)) {
-    start2 = 0;
-    end3 = length;
+  if (start && typeof start != "number" && isIterateeCall_default(array4, value, start)) {
+    start = 0;
+    end2 = length;
   }
-  return baseFill_default(array4, value, start2, end3);
+  return baseFill_default(array4, value, start, end2);
 }
 var fill_default = fill;
 
@@ -6117,22 +6058,22 @@ var has_default = has;
 // node_modules/lodash-es/_baseInRange.js
 var nativeMax9 = Math.max;
 var nativeMin6 = Math.min;
-function baseInRange(number4, start2, end3) {
-  return number4 >= nativeMin6(start2, end3) && number4 < nativeMax9(start2, end3);
+function baseInRange(number4, start, end2) {
+  return number4 >= nativeMin6(start, end2) && number4 < nativeMax9(start, end2);
 }
 var baseInRange_default = baseInRange;
 
 // node_modules/lodash-es/inRange.js
-function inRange(number4, start2, end3) {
-  start2 = toFinite_default(start2);
-  if (end3 === void 0) {
-    end3 = start2;
-    start2 = 0;
+function inRange(number4, start, end2) {
+  start = toFinite_default(start);
+  if (end2 === void 0) {
+    end2 = start;
+    start = 0;
   } else {
-    end3 = toFinite_default(end3);
+    end2 = toFinite_default(end2);
   }
   number4 = toNumber_default(number4);
-  return baseInRange_default(number4, start2, end3);
+  return baseInRange_default(number4, start, end2);
 }
 var inRange_default = inRange;
 
@@ -6208,18 +6149,18 @@ function baseIntersection(arrays, iteratee2, comparator) {
   var index = -1, seen = caches[0];
   outer:
     while (++index < length && result2.length < maxLength) {
-      var value = array4[index], computed2 = iteratee2 ? iteratee2(value) : value;
+      var value = array4[index], computed3 = iteratee2 ? iteratee2(value) : value;
       value = comparator || value !== 0 ? value : 0;
-      if (!(seen ? cacheHas_default(seen, computed2) : includes2(result2, computed2, comparator))) {
+      if (!(seen ? cacheHas_default(seen, computed3) : includes2(result2, computed3, comparator))) {
         othIndex = othLength;
         while (--othIndex) {
           var cache2 = caches[othIndex];
-          if (!(cache2 ? cacheHas_default(cache2, computed2) : includes2(arrays[othIndex], computed2, comparator))) {
+          if (!(cache2 ? cacheHas_default(cache2, computed3) : includes2(arrays[othIndex], computed3, comparator))) {
             continue outer;
           }
         }
         if (seen) {
-          seen.push(computed2);
+          seen.push(computed3);
         }
         result2.push(value);
       }
@@ -6643,8 +6584,8 @@ function baseExtremum(array4, iteratee2, comparator) {
   var index = -1, length = array4.length;
   while (++index < length) {
     var value = array4[index], current = iteratee2(value);
-    if (current != null && (computed2 === void 0 ? current === current && !isSymbol_default(current) : comparator(current, computed2))) {
-      var computed2 = current, result2 = value;
+    if (current != null && (computed3 === void 0 ? current === current && !isSymbol_default(current) : comparator(current, computed3))) {
+      var computed3 = current, result2 = value;
     }
   }
   return result2;
@@ -6991,8 +6932,8 @@ function compareMultiple(object4, other, orders) {
       if (index >= ordersLength) {
         return result2;
       }
-      var order2 = orders[index];
-      return result2 * (order2 == "desc" ? -1 : 1);
+      var order = orders[index];
+      return result2 * (order == "desc" ? -1 : 1);
     }
   }
   return object4.index - other.index;
@@ -7300,8 +7241,8 @@ function basePullAll(array4, values2, iteratee2, comparator) {
     seen = arrayMap_default(array4, baseUnary_default(iteratee2));
   }
   while (++index < length) {
-    var fromIndex = 0, value = values2[index], computed2 = iteratee2 ? iteratee2(value) : value;
-    while ((fromIndex = indexOf2(seen, computed2, fromIndex, comparator)) > -1) {
+    var fromIndex = 0, value = values2[index], computed3 = iteratee2 ? iteratee2(value) : value;
+    while ((fromIndex = indexOf2(seen, computed3, fromIndex, comparator)) > -1) {
       if (seen !== array4) {
         splice2.call(seen, fromIndex, 1);
       }
@@ -7417,11 +7358,11 @@ var random_default = random;
 // node_modules/lodash-es/_baseRange.js
 var nativeCeil4 = Math.ceil;
 var nativeMax13 = Math.max;
-function baseRange(start2, end3, step, fromRight) {
-  var index = -1, length = nativeMax13(nativeCeil4((end3 - start2) / (step || 1)), 0), result2 = Array(length);
+function baseRange(start, end2, step, fromRight) {
+  var index = -1, length = nativeMax13(nativeCeil4((end2 - start) / (step || 1)), 0), result2 = Array(length);
   while (length--) {
-    result2[fromRight ? length : ++index] = start2;
-    start2 += step;
+    result2[fromRight ? length : ++index] = start;
+    start += step;
   }
   return result2;
 }
@@ -7429,19 +7370,19 @@ var baseRange_default = baseRange;
 
 // node_modules/lodash-es/_createRange.js
 function createRange(fromRight) {
-  return function(start2, end3, step) {
-    if (step && typeof step != "number" && isIterateeCall_default(start2, end3, step)) {
-      end3 = step = void 0;
+  return function(start, end2, step) {
+    if (step && typeof step != "number" && isIterateeCall_default(start, end2, step)) {
+      end2 = step = void 0;
     }
-    start2 = toFinite_default(start2);
-    if (end3 === void 0) {
-      end3 = start2;
-      start2 = 0;
+    start = toFinite_default(start);
+    if (end2 === void 0) {
+      end2 = start;
+      start = 0;
     } else {
-      end3 = toFinite_default(end3);
+      end2 = toFinite_default(end2);
     }
-    step = step === void 0 ? start2 < end3 ? 1 : -1 : toFinite_default(step);
-    return baseRange_default(start2, end3, step, fromRight);
+    step = step === void 0 ? start < end2 ? 1 : -1 : toFinite_default(step);
+    return baseRange_default(start, end2, step, fromRight);
   };
 }
 var createRange_default = createRange;
@@ -7544,12 +7485,12 @@ var replace_default = replace;
 
 // node_modules/lodash-es/rest.js
 var FUNC_ERROR_TEXT10 = "Expected a function";
-function rest(func, start2) {
+function rest(func, start) {
   if (typeof func != "function") {
     throw new TypeError(FUNC_ERROR_TEXT10);
   }
-  start2 = start2 === void 0 ? start2 : toInteger_default(start2);
-  return baseRest_default(func, start2);
+  start = start === void 0 ? start : toInteger_default(start);
+  return baseRest_default(func, start);
 }
 var rest_default = rest;
 
@@ -7695,19 +7636,19 @@ function size(collection) {
 var size_default = size;
 
 // node_modules/lodash-es/slice.js
-function slice(array4, start2, end3) {
+function slice(array4, start, end2) {
   var length = array4 == null ? 0 : array4.length;
   if (!length) {
     return [];
   }
-  if (end3 && typeof end3 != "number" && isIterateeCall_default(array4, start2, end3)) {
-    start2 = 0;
-    end3 = length;
+  if (end2 && typeof end2 != "number" && isIterateeCall_default(array4, start, end2)) {
+    start = 0;
+    end2 = length;
   } else {
-    start2 = start2 == null ? 0 : toInteger_default(start2);
-    end3 = end3 === void 0 ? length : toInteger_default(end3);
+    start = start == null ? 0 : toInteger_default(start);
+    end2 = end2 === void 0 ? length : toInteger_default(end2);
   }
-  return baseSlice_default(array4, start2, end3);
+  return baseSlice_default(array4, start, end2);
 }
 var slice_default = slice;
 
@@ -7766,7 +7707,7 @@ function baseSortedIndexBy(array4, value, iteratee2, retHighest) {
   value = iteratee2(value);
   var valIsNaN = value !== value, valIsNull = value === null, valIsSymbol = isSymbol_default(value), valIsUndefined = value === void 0;
   while (low < high) {
-    var mid = nativeFloor4((low + high) / 2), computed2 = iteratee2(array4[mid]), othIsDefined = computed2 !== void 0, othIsNull = computed2 === null, othIsReflexive = computed2 === computed2, othIsSymbol = isSymbol_default(computed2);
+    var mid = nativeFloor4((low + high) / 2), computed3 = iteratee2(array4[mid]), othIsDefined = computed3 !== void 0, othIsNull = computed3 === null, othIsReflexive = computed3 === computed3, othIsSymbol = isSymbol_default(computed3);
     if (valIsNaN) {
       var setLow = retHighest || othIsReflexive;
     } else if (valIsUndefined) {
@@ -7778,7 +7719,7 @@ function baseSortedIndexBy(array4, value, iteratee2, retHighest) {
     } else if (othIsNull || othIsSymbol) {
       setLow = false;
     } else {
-      setLow = retHighest ? computed2 <= value : computed2 < value;
+      setLow = retHighest ? computed3 <= value : computed3 < value;
     }
     if (setLow) {
       low = mid + 1;
@@ -7797,8 +7738,8 @@ function baseSortedIndex(array4, value, retHighest) {
   var low = 0, high = array4 == null ? low : array4.length;
   if (typeof value == "number" && value === value && high <= HALF_MAX_ARRAY_LENGTH) {
     while (low < high) {
-      var mid = low + high >>> 1, computed2 = array4[mid];
-      if (computed2 !== null && !isSymbol_default(computed2) && (retHighest ? computed2 <= value : computed2 < value)) {
+      var mid = low + high >>> 1, computed3 = array4[mid];
+      if (computed3 !== null && !isSymbol_default(computed3) && (retHighest ? computed3 <= value : computed3 < value)) {
         low = mid + 1;
       } else {
         high = mid;
@@ -7864,9 +7805,9 @@ var sortedLastIndexOf_default = sortedLastIndexOf;
 function baseSortedUniq(array4, iteratee2) {
   var index = -1, length = array4.length, resIndex = 0, result2 = [];
   while (++index < length) {
-    var value = array4[index], computed2 = iteratee2 ? iteratee2(value) : value;
-    if (!index || !eq_default(computed2, seen)) {
-      var seen = computed2;
+    var value = array4[index], computed3 = iteratee2 ? iteratee2(value) : value;
+    if (!index || !eq_default(computed3, seen)) {
+      var seen = computed3;
       result2[resIndex++] = value === 0 ? 0 : value;
     }
   }
@@ -7910,13 +7851,13 @@ var split_default = split;
 // node_modules/lodash-es/spread.js
 var FUNC_ERROR_TEXT11 = "Expected a function";
 var nativeMax14 = Math.max;
-function spread(func, start2) {
+function spread(func, start) {
   if (typeof func != "function") {
     throw new TypeError(FUNC_ERROR_TEXT11);
   }
-  start2 = start2 == null ? 0 : nativeMax14(toInteger_default(start2), 0);
+  start = start == null ? 0 : nativeMax14(toInteger_default(start), 0);
   return baseRest_default(function(args) {
-    var array4 = args[start2], otherArgs = castSlice_default(args, 0, start2);
+    var array4 = args[start], otherArgs = castSlice_default(args, 0, start);
     if (array4) {
       arrayPush_default(otherArgs, array4);
     }
@@ -8134,9 +8075,9 @@ function template(string3, options, guard) {
     "g"
   );
   var sourceURL = hasOwnProperty24.call(options, "sourceURL") ? "//# sourceURL=" + (options.sourceURL + "").replace(/\s/g, " ") + "\n" : "";
-  string3.replace(reDelimiters, function(match, escapeValue, interpolateValue, esTemplateValue, evaluateValue, offset4) {
+  string3.replace(reDelimiters, function(match, escapeValue, interpolateValue, esTemplateValue, evaluateValue, offset3) {
     interpolateValue || (interpolateValue = esTemplateValue);
-    source += string3.slice(index, offset4).replace(reUnescapedString, escapeStringChar_default);
+    source += string3.slice(index, offset3).replace(reUnescapedString, escapeStringChar_default);
     if (escapeValue) {
       isEscaping = true;
       source += "' +\n__e(" + escapeValue + ") +\n'";
@@ -8148,7 +8089,7 @@ function template(string3, options, guard) {
     if (interpolateValue) {
       source += "' +\n((__t = (" + interpolateValue + ")) == null ? '' : __t) +\n'";
     }
-    index = offset4 + match.length;
+    index = offset3 + match.length;
     return match;
   });
   source += "';\n";
@@ -8316,8 +8257,8 @@ function trim(string3, chars, guard) {
   if (!string3 || !(chars = baseToString_default(chars))) {
     return string3;
   }
-  var strSymbols = stringToArray_default(string3), chrSymbols = stringToArray_default(chars), start2 = charsStartIndex_default(strSymbols, chrSymbols), end3 = charsEndIndex_default(strSymbols, chrSymbols) + 1;
-  return castSlice_default(strSymbols, start2, end3).join("");
+  var strSymbols = stringToArray_default(string3), chrSymbols = stringToArray_default(chars), start = charsStartIndex_default(strSymbols, chrSymbols), end2 = charsEndIndex_default(strSymbols, chrSymbols) + 1;
+  return castSlice_default(strSymbols, start, end2).join("");
 }
 var trim_default = trim;
 
@@ -8330,8 +8271,8 @@ function trimEnd(string3, chars, guard) {
   if (!string3 || !(chars = baseToString_default(chars))) {
     return string3;
   }
-  var strSymbols = stringToArray_default(string3), end3 = charsEndIndex_default(strSymbols, stringToArray_default(chars)) + 1;
-  return castSlice_default(strSymbols, 0, end3).join("");
+  var strSymbols = stringToArray_default(string3), end2 = charsEndIndex_default(strSymbols, stringToArray_default(chars)) + 1;
+  return castSlice_default(strSymbols, 0, end2).join("");
 }
 var trimEnd_default = trimEnd;
 
@@ -8345,8 +8286,8 @@ function trimStart(string3, chars, guard) {
   if (!string3 || !(chars = baseToString_default(chars))) {
     return string3;
   }
-  var strSymbols = stringToArray_default(string3), start2 = charsStartIndex_default(strSymbols, stringToArray_default(chars));
-  return castSlice_default(strSymbols, start2).join("");
+  var strSymbols = stringToArray_default(string3), start = charsStartIndex_default(strSymbols, stringToArray_default(chars));
+  return castSlice_default(strSymbols, start).join("");
 }
 var trimStart_default = trimStart;
 
@@ -8370,19 +8311,19 @@ function truncate(string3, options) {
   if (length >= strLength) {
     return string3;
   }
-  var end3 = length - stringSize_default(omission);
-  if (end3 < 1) {
+  var end2 = length - stringSize_default(omission);
+  if (end2 < 1) {
     return omission;
   }
-  var result2 = strSymbols ? castSlice_default(strSymbols, 0, end3).join("") : string3.slice(0, end3);
+  var result2 = strSymbols ? castSlice_default(strSymbols, 0, end2).join("") : string3.slice(0, end2);
   if (separator === void 0) {
     return result2 + omission;
   }
   if (strSymbols) {
-    end3 += result2.length - end3;
+    end2 += result2.length - end2;
   }
   if (isRegExp_default(separator)) {
-    if (string3.slice(end3).search(separator)) {
+    if (string3.slice(end2).search(separator)) {
       var match, substring = result2;
       if (!separator.global) {
         separator = RegExp(separator.source, toString_default(reFlags2.exec(separator)) + "g");
@@ -8391,9 +8332,9 @@ function truncate(string3, options) {
       while (match = separator.exec(substring)) {
         var newEnd = match.index;
       }
-      result2 = result2.slice(0, newEnd === void 0 ? end3 : newEnd);
+      result2 = result2.slice(0, newEnd === void 0 ? end2 : newEnd);
     }
-  } else if (string3.indexOf(baseToString_default(separator), end3) != end3) {
+  } else if (string3.indexOf(baseToString_default(separator), end2) != end2) {
     var index = result2.lastIndexOf(separator);
     if (index > -1) {
       result2 = result2.slice(0, index);
@@ -8456,22 +8397,22 @@ function baseUniq(array4, iteratee2, comparator) {
   }
   outer:
     while (++index < length) {
-      var value = array4[index], computed2 = iteratee2 ? iteratee2(value) : value;
+      var value = array4[index], computed3 = iteratee2 ? iteratee2(value) : value;
       value = comparator || value !== 0 ? value : 0;
-      if (isCommon && computed2 === computed2) {
+      if (isCommon && computed3 === computed3) {
         var seenIndex = seen.length;
         while (seenIndex--) {
-          if (seen[seenIndex] === computed2) {
+          if (seen[seenIndex] === computed3) {
             continue outer;
           }
         }
         if (iteratee2) {
-          seen.push(computed2);
+          seen.push(computed3);
         }
         result2.push(value);
-      } else if (!includes2(seen, computed2, comparator)) {
+      } else if (!includes2(seen, computed3, comparator)) {
         if (seen !== result2) {
-          seen.push(computed2);
+          seen.push(computed3);
         }
         result2.push(value);
       }
@@ -8616,13 +8557,13 @@ var wrap_default = wrap;
 
 // node_modules/lodash-es/wrapperAt.js
 var wrapperAt = flatRest_default(function(paths) {
-  var length = paths.length, start2 = length ? paths[0] : 0, value = this.__wrapped__, interceptor = function(object4) {
+  var length = paths.length, start = length ? paths[0] : 0, value = this.__wrapped__, interceptor = function(object4) {
     return baseAt_default(object4, paths);
   };
-  if (length > 1 || this.__actions__.length || !(value instanceof LazyWrapper_default) || !isIndex_default(start2)) {
+  if (length > 1 || this.__actions__.length || !(value instanceof LazyWrapper_default) || !isIndex_default(start)) {
     return this.thru(interceptor);
   }
-  value = value.slice(start2, +start2 + (length ? 1 : 0));
+  value = value.slice(start, +start + (length ? 1 : 0));
   value.__actions__.push({
     "func": thru_default,
     "args": [interceptor],
@@ -9130,26 +9071,26 @@ var lazyReverse_default = lazyReverse;
 // node_modules/lodash-es/_getView.js
 var nativeMax16 = Math.max;
 var nativeMin13 = Math.min;
-function getView(start2, end3, transforms) {
+function getView(start, end2, transforms) {
   var index = -1, length = transforms.length;
   while (++index < length) {
     var data = transforms[index], size3 = data.size;
     switch (data.type) {
       case "drop":
-        start2 += size3;
+        start += size3;
         break;
       case "dropRight":
-        end3 -= size3;
+        end2 -= size3;
         break;
       case "take":
-        end3 = nativeMin13(end3, start2 + size3);
+        end2 = nativeMin13(end2, start + size3);
         break;
       case "takeRight":
-        start2 = nativeMax16(start2, end3 - size3);
+        start = nativeMax16(start, end2 - size3);
         break;
     }
   }
-  return { "start": start2, "end": end3 };
+  return { "start": start, "end": end2 };
 }
 var getView_default = getView;
 
@@ -9158,7 +9099,7 @@ var LAZY_FILTER_FLAG = 1;
 var LAZY_MAP_FLAG = 2;
 var nativeMin14 = Math.min;
 function lazyValue() {
-  var array4 = this.__wrapped__.value(), dir = this.__dir__, isArr = isArray_default(array4), isRight = dir < 0, arrLength = isArr ? array4.length : 0, view = getView_default(0, arrLength, this.__views__), start2 = view.start, end3 = view.end, length = end3 - start2, index = isRight ? end3 : start2 - 1, iteratees = this.__iteratees__, iterLength = iteratees.length, resIndex = 0, takeCount = nativeMin14(length, this.__takeCount__);
+  var array4 = this.__wrapped__.value(), dir = this.__dir__, isArr = isArray_default(array4), isRight = dir < 0, arrLength = isArr ? array4.length : 0, view = getView_default(0, arrLength, this.__views__), start = view.start, end2 = view.end, length = end2 - start, index = isRight ? end2 : start - 1, iteratees = this.__iteratees__, iterLength = iteratees.length, resIndex = 0, takeCount = nativeMin14(length, this.__takeCount__);
   if (!isArr || !isRight && arrLength == length && takeCount == length) {
     return baseWrapperValue_default(array4, this.__actions__);
   }
@@ -9168,10 +9109,10 @@ function lazyValue() {
       index += dir;
       var iterIndex = -1, value = array4[index];
       while (++iterIndex < iterLength) {
-        var data = iteratees[iterIndex], iteratee2 = data.iteratee, type4 = data.type, computed2 = iteratee2(value);
+        var data = iteratees[iterIndex], iteratee2 = data.iteratee, type4 = data.type, computed3 = iteratee2(value);
         if (type4 == LAZY_MAP_FLAG) {
-          value = computed2;
-        } else if (!computed2) {
+          value = computed3;
+        } else if (!computed3) {
           if (type4 == LAZY_FILTER_FLAG) {
             continue outer;
           } else {
@@ -9590,20 +9531,20 @@ LazyWrapper_default.prototype.invokeMap = baseRest_default(function(path, args) 
 LazyWrapper_default.prototype.reject = function(predicate) {
   return this.filter(negate_default(baseIteratee_default(predicate)));
 };
-LazyWrapper_default.prototype.slice = function(start2, end3) {
-  start2 = toInteger_default(start2);
+LazyWrapper_default.prototype.slice = function(start, end2) {
+  start = toInteger_default(start);
   var result2 = this;
-  if (result2.__filtered__ && (start2 > 0 || end3 < 0)) {
+  if (result2.__filtered__ && (start > 0 || end2 < 0)) {
     return new LazyWrapper_default(result2);
   }
-  if (start2 < 0) {
-    result2 = result2.takeRight(-start2);
-  } else if (start2) {
-    result2 = result2.drop(start2);
+  if (start < 0) {
+    result2 = result2.takeRight(-start);
+  } else if (start) {
+    result2 = result2.drop(start);
   }
-  if (end3 !== void 0) {
-    end3 = toInteger_default(end3);
-    result2 = end3 < 0 ? result2.dropRight(-end3) : result2.take(end3 - start2);
+  if (end2 !== void 0) {
+    end2 = toInteger_default(end2);
+    result2 = end2 < 0 ? result2.dropRight(-end2) : result2.take(end2 - start);
   }
   return result2;
 };
@@ -9702,13 +9643,6 @@ var isStringNumber = (val) => {
   }
   return !Number.isNaN(Number(val));
 };
-var isWindow = (val) => {
-  return val === window;
-};
-
-// node_modules/element-plus/es/utils/raf.mjs
-var rAF = (fn2) => isClient ? window.requestAnimationFrame(fn2) : setTimeout(fn2, 16);
-var cAF = (handle) => isClient ? window.cancelAnimationFrame(handle) : clearTimeout(handle);
 
 // node_modules/element-plus/es/utils/strings.mjs
 var escapeStringRegexp = (string3 = "") => string3.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&").replace(/-/g, "\\x2d");
@@ -9776,8 +9710,8 @@ var getStyle = (element, styleName) => {
     const style = element.style[key];
     if (style)
       return style;
-    const computed2 = (_a2 = document.defaultView) == null ? void 0 : _a2.getComputedStyle(element, "");
-    return computed2 ? computed2[key] : "";
+    const computed3 = (_a2 = document.defaultView) == null ? void 0 : _a2.getComputedStyle(element, "");
+    return computed3 ? computed3[key] : "";
   } catch (e) {
     return element.style[key];
   }
@@ -9855,65 +9789,16 @@ function scrollIntoView(container, selected) {
     offsetParents.push(pointer);
     pointer = pointer.offsetParent;
   }
-  const top2 = selected.offsetTop + offsetParents.reduce((prev, curr) => prev + curr.offsetTop, 0);
-  const bottom2 = top2 + selected.offsetHeight;
+  const top = selected.offsetTop + offsetParents.reduce((prev, curr) => prev + curr.offsetTop, 0);
+  const bottom = top + selected.offsetHeight;
   const viewRectTop = container.scrollTop;
   const viewRectBottom = viewRectTop + container.clientHeight;
-  if (top2 < viewRectTop) {
-    container.scrollTop = top2;
-  } else if (bottom2 > viewRectBottom) {
-    container.scrollTop = bottom2 - container.clientHeight;
+  if (top < viewRectTop) {
+    container.scrollTop = top;
+  } else if (bottom > viewRectBottom) {
+    container.scrollTop = bottom - container.clientHeight;
   }
 }
-function animateScrollTo(container, from, to, duration, callback) {
-  const startTime = Date.now();
-  let handle;
-  const scroll = () => {
-    const timestamp2 = Date.now();
-    const time = timestamp2 - startTime;
-    const nextScrollTop = easeInOutCubic(time > duration ? duration : time, from, to, duration);
-    if (isWindow(container)) {
-      container.scrollTo(window.pageXOffset, nextScrollTop);
-    } else {
-      container.scrollTop = nextScrollTop;
-    }
-    if (time < duration) {
-      handle = rAF(scroll);
-    } else if (typeof callback === "function") {
-      callback();
-    }
-  };
-  scroll();
-  return () => {
-    handle && cAF(handle);
-  };
-}
-var getScrollElement = (target2, container) => {
-  if (isWindow(container)) {
-    return target2.ownerDocument.documentElement;
-  }
-  return container;
-};
-var getScrollTop = (container) => {
-  if (isWindow(container)) {
-    return window.scrollY;
-  }
-  return container.scrollTop;
-};
-
-// node_modules/element-plus/es/utils/dom/element.mjs
-var getElement = (target2) => {
-  if (!isClient || target2 === "")
-    return null;
-  if (isString(target2)) {
-    try {
-      return document.querySelector(target2);
-    } catch (e) {
-      return null;
-    }
-  }
-  return target2;
-};
 
 // node_modules/element-plus/es/utils/vue/global-node.mjs
 var globalNodes = [];
@@ -14925,20 +14810,20 @@ var ValidateComponentsMap = {
 };
 
 // node_modules/element-plus/es/utils/vue/install.mjs
-var withInstall = (main2, extra) => {
+var withInstall = (main, extra) => {
   ;
-  main2.install = (app) => {
-    for (const comp of [main2, ...Object.values(extra != null ? extra : {})]) {
+  main.install = (app) => {
+    for (const comp of [main, ...Object.values(extra != null ? extra : {})]) {
       app.component(comp.name, comp);
     }
   };
   if (extra) {
     for (const [key, comp] of Object.entries(extra)) {
       ;
-      main2[key] = comp;
+      main[key] = comp;
     }
   }
-  return main2;
+  return main;
 };
 var withInstallFunction = (fn2, name) => {
   ;
@@ -14997,7 +14882,6 @@ var EVENT_CODE = {
 // node_modules/element-plus/es/constants/date.mjs
 var datePickTypes = [
   "year",
-  "years",
   "month",
   "date",
   "dates",
@@ -15117,42 +15001,27 @@ var castArray2 = (arr) => {
 // node_modules/element-plus/es/utils/i18n.mjs
 var isKorean = (text) => /([\uAC00-\uD7AF\u3130-\u318F])+/gi.test(text);
 
+// node_modules/element-plus/es/utils/raf.mjs
+var rAF = (fn2) => isClient ? window.requestAnimationFrame(fn2) : setTimeout(fn2, 16);
+var cAF = (handle) => isClient ? window.cancelAnimationFrame(handle) : clearTimeout(handle);
+
 // node_modules/element-plus/es/utils/typescript.mjs
 var mutable = (val) => val;
-
-// node_modules/element-plus/es/utils/throttleByRaf.mjs
-function throttleByRaf(cb) {
-  let timer = 0;
-  const throttle2 = (...args) => {
-    if (timer) {
-      cAF(timer);
-    }
-    timer = rAF(() => {
-      cb(...args);
-      timer = 0;
-    });
-  };
-  throttle2.cancel = () => {
-    cAF(timer);
-    timer = 0;
-  };
-  return throttle2;
-}
 
 // node_modules/element-plus/es/hooks/use-attrs/index.mjs
 var DEFAULT_EXCLUDE_KEYS = ["class", "style"];
 var LISTENER_PREFIX = /^on[A-Z]/;
 var useAttrs2 = (params = {}) => {
   const { excludeListeners = false, excludeKeys } = params;
-  const allExcludeKeys = computed(() => {
+  const allExcludeKeys = computed2(() => {
     return ((excludeKeys == null ? void 0 : excludeKeys.value) || []).concat(DEFAULT_EXCLUDE_KEYS);
   });
   const instance = getCurrentInstance();
   if (!instance) {
     debugWarn("use-attrs", "getCurrentInstance() returned null. useAttrs() must be called at the top of a setup function");
-    return computed(() => ({}));
+    return computed2(() => ({}));
   }
-  return computed(() => {
+  return computed2(() => {
     var _a2;
     return fromPairs_default(Object.entries((_a2 = instance.proxy) == null ? void 0 : _a2.$attrs).filter(([key]) => !allExcludeKeys.value.includes(key) && !(excludeListeners && LISTENER_PREFIX.test(key))));
   });
@@ -15252,9 +15121,6 @@ var useFocus = (el) => {
 var English = {
   name: "en",
   el: {
-    breadcrumb: {
-      label: "Breadcrumb"
-    },
     colorpicker: {
       confirm: "OK",
       clear: "Clear",
@@ -15416,11 +15282,6 @@ var English = {
     popconfirm: {
       confirmButtonText: "Yes",
       cancelButtonText: "No"
-    },
-    carousel: {
-      leftArrow: "Carousel arrow left",
-      rightArrow: "Carousel arrow right",
-      indicator: "Carousel switch to index {index}"
     }
   }
 };
@@ -15432,7 +15293,7 @@ var translate = (path, option, locale) => get_default(locale, path, path).replac
   return `${(_a2 = option == null ? void 0 : option[key]) != null ? _a2 : `{${key}}`}`;
 });
 var buildLocaleContext = (locale) => {
-  const lang = computed(() => unref(locale).name);
+  const lang = computed2(() => unref(locale).name);
   const localeRef = isRef(locale) ? locale : ref(locale);
   return {
     lang,
@@ -15443,7 +15304,7 @@ var buildLocaleContext = (locale) => {
 var localeContextKey = Symbol("localeContextKey");
 var useLocale = (localeOverrides) => {
   const locale = localeOverrides || inject(localeContextKey, ref());
-  return buildLocaleContext(computed(() => locale.value || English));
+  return buildLocaleContext(computed2(() => locale.value || English));
 };
 
 // node_modules/element-plus/es/hooks/use-namespace/index.mjs
@@ -15465,7 +15326,7 @@ var _bem = (namespace, block, blockSuffix, element, modifier) => {
 var namespaceContextKey = Symbol("namespaceContextKey");
 var useGetDerivedNamespace = (namespaceOverrides) => {
   const derivedNamespace = namespaceOverrides || (getCurrentInstance() ? inject(namespaceContextKey, ref(defaultNamespace)) : ref(defaultNamespace));
-  const namespace = computed(() => {
+  const namespace = computed2(() => {
     return unref(derivedNamespace) || defaultNamespace;
   });
   return namespace;
@@ -15475,7 +15336,7 @@ var useNamespace = (block, namespaceOverrides) => {
   const b2 = (blockSuffix = "") => _bem(namespace.value, block, blockSuffix, "", "");
   const e = (element) => element ? _bem(namespace.value, block, "", element, "") : "";
   const m2 = (modifier) => modifier ? _bem(namespace.value, block, "", "", modifier) : "";
-  const be = (blockSuffix, element) => blockSuffix && element ? _bem(namespace.value, block, blockSuffix, element, "") : "";
+  const be2 = (blockSuffix, element) => blockSuffix && element ? _bem(namespace.value, block, blockSuffix, element, "") : "";
   const em = (element, modifier) => element && modifier ? _bem(namespace.value, block, "", element, modifier) : "";
   const bm = (blockSuffix, modifier) => blockSuffix && modifier ? _bem(namespace.value, block, blockSuffix, "", modifier) : "";
   const bem = (blockSuffix, element, modifier) => blockSuffix && element && modifier ? _bem(namespace.value, block, blockSuffix, element, modifier) : "";
@@ -15508,7 +15369,7 @@ var useNamespace = (block, namespaceOverrides) => {
     b: b2,
     e,
     m: m2,
-    be,
+    be: be2,
     em,
     bm,
     bem,
@@ -15611,8 +15472,8 @@ var createModelToggleComposable = (name) => {
     const instance = getCurrentInstance();
     const { emit } = instance;
     const props = instance.props;
-    const hasUpdateHandler = computed(() => isFunction(props[updateEventKeyRaw2]));
-    const isModelBindingAbsent = computed(() => props[name] === null);
+    const hasUpdateHandler = computed2(() => isFunction(props[updateEventKeyRaw2]));
+    const isModelBindingAbsent = computed2(() => props[name] === null);
     const doShow = (event) => {
       if (indicator.value === true) {
         return;
@@ -15648,7 +15509,7 @@ var createModelToggleComposable = (name) => {
         doShow(event);
       }
     };
-    const hide3 = (event) => {
+    const hide2 = (event) => {
       if (props.disabled === true || !isClient)
         return;
       const shouldEmit = hasUpdateHandler.value && isClient;
@@ -15676,7 +15537,7 @@ var createModelToggleComposable = (name) => {
     };
     const toggle = () => {
       if (indicator.value) {
-        hide3();
+        hide2();
       } else {
         show();
       }
@@ -15687,7 +15548,7 @@ var createModelToggleComposable = (name) => {
         ...instance.proxy.$route
       }), () => {
         if (shouldHideWhenRouteChanges.value && indicator.value) {
-          hide3();
+          hide2();
         }
       });
     }
@@ -15695,7 +15556,7 @@ var createModelToggleComposable = (name) => {
       onChange(props[name]);
     });
     return {
-      hide: hide3,
+      hide: hide2,
       show,
       toggle,
       hasUpdateHandler
@@ -15728,1476 +15589,591 @@ var usePreventGlobal = (indicator, evt, cb) => {
 // node_modules/element-plus/es/hooks/use-prop/index.mjs
 var useProp = (name) => {
   const vm = getCurrentInstance();
-  return computed(() => {
+  return computed2(() => {
     var _a2, _b;
     return (_b = (_a2 = vm == null ? void 0 : vm.proxy) == null ? void 0 : _a2.$props) == null ? void 0 : _b[name];
   });
 };
 
-// node_modules/@popperjs/core/lib/enums.js
-var top = "top";
-var bottom = "bottom";
-var right = "right";
-var left = "left";
-var auto = "auto";
-var basePlacements = [top, bottom, right, left];
-var start = "start";
-var end = "end";
-var clippingParents = "clippingParents";
-var viewport = "viewport";
-var popper = "popper";
-var reference = "reference";
-var variationPlacements = basePlacements.reduce(function(acc, placement) {
-  return acc.concat([placement + "-" + start, placement + "-" + end]);
+// node_modules/@popperjs/core/dist/index.mjs
+var E = "top";
+var R = "bottom";
+var W = "right";
+var P = "left";
+var me = "auto";
+var G = [E, R, W, P];
+var U = "start";
+var J = "end";
+var Xe = "clippingParents";
+var je = "viewport";
+var K = "popper";
+var Ye = "reference";
+var De = G.reduce(function(t, e) {
+  return t.concat([e + "-" + U, e + "-" + J]);
 }, []);
-var placements = [].concat(basePlacements, [auto]).reduce(function(acc, placement) {
-  return acc.concat([placement, placement + "-" + start, placement + "-" + end]);
+var Ee = [].concat(G, [me]).reduce(function(t, e) {
+  return t.concat([e, e + "-" + U, e + "-" + J]);
 }, []);
-var beforeRead = "beforeRead";
-var read = "read";
-var afterRead = "afterRead";
-var beforeMain = "beforeMain";
-var main = "main";
-var afterMain = "afterMain";
-var beforeWrite = "beforeWrite";
-var write = "write";
-var afterWrite = "afterWrite";
-var modifierPhases = [beforeRead, read, afterRead, beforeMain, main, afterMain, beforeWrite, write, afterWrite];
-
-// node_modules/@popperjs/core/lib/dom-utils/getNodeName.js
-function getNodeName(element) {
-  return element ? (element.nodeName || "").toLowerCase() : null;
+var Ge = "beforeRead";
+var Je = "read";
+var Ke = "afterRead";
+var Qe = "beforeMain";
+var Ze = "main";
+var et = "afterMain";
+var tt = "beforeWrite";
+var nt = "write";
+var rt = "afterWrite";
+var ot = [Ge, Je, Ke, Qe, Ze, et, tt, nt, rt];
+function C(t) {
+  return t ? (t.nodeName || "").toLowerCase() : null;
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/getWindow.js
-function getWindow(node) {
-  if (node == null) {
+function H(t) {
+  if (t == null)
     return window;
+  if (t.toString() !== "[object Window]") {
+    var e = t.ownerDocument;
+    return e && e.defaultView || window;
   }
-  if (node.toString() !== "[object Window]") {
-    var ownerDocument = node.ownerDocument;
-    return ownerDocument ? ownerDocument.defaultView || window : window;
-  }
-  return node;
+  return t;
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/instanceOf.js
-function isElement3(node) {
-  var OwnElement = getWindow(node).Element;
-  return node instanceof OwnElement || node instanceof Element;
+function Q(t) {
+  var e = H(t).Element;
+  return t instanceof e || t instanceof Element;
 }
-function isHTMLElement(node) {
-  var OwnElement = getWindow(node).HTMLElement;
-  return node instanceof OwnElement || node instanceof HTMLElement;
+function B(t) {
+  var e = H(t).HTMLElement;
+  return t instanceof e || t instanceof HTMLElement;
 }
-function isShadowRoot(node) {
-  if (typeof ShadowRoot === "undefined") {
+function Pe(t) {
+  if (typeof ShadowRoot == "undefined")
     return false;
-  }
-  var OwnElement = getWindow(node).ShadowRoot;
-  return node instanceof OwnElement || node instanceof ShadowRoot;
+  var e = H(t).ShadowRoot;
+  return t instanceof e || t instanceof ShadowRoot;
 }
-
-// node_modules/@popperjs/core/lib/modifiers/applyStyles.js
-function applyStyles(_ref) {
-  var state = _ref.state;
-  Object.keys(state.elements).forEach(function(name) {
-    var style = state.styles[name] || {};
-    var attributes2 = state.attributes[name] || {};
-    var element = state.elements[name];
-    if (!isHTMLElement(element) || !getNodeName(element)) {
-      return;
-    }
-    Object.assign(element.style, style);
-    Object.keys(attributes2).forEach(function(name2) {
-      var value = attributes2[name2];
-      if (value === false) {
-        element.removeAttribute(name2);
-      } else {
-        element.setAttribute(name2, value === true ? "" : value);
-      }
-    });
+function Mt(t) {
+  var e = t.state;
+  Object.keys(e.elements).forEach(function(n) {
+    var r = e.styles[n] || {}, o2 = e.attributes[n] || {}, i = e.elements[n];
+    !B(i) || !C(i) || (Object.assign(i.style, r), Object.keys(o2).forEach(function(a2) {
+      var s2 = o2[a2];
+      s2 === false ? i.removeAttribute(a2) : i.setAttribute(a2, s2 === true ? "" : s2);
+    }));
   });
 }
-function effect(_ref2) {
-  var state = _ref2.state;
-  var initialStyles = {
-    popper: {
-      position: state.options.strategy,
-      left: "0",
-      top: "0",
-      margin: "0"
-    },
-    arrow: {
-      position: "absolute"
-    },
-    reference: {}
-  };
-  Object.assign(state.elements.popper.style, initialStyles.popper);
-  state.styles = initialStyles;
-  if (state.elements.arrow) {
-    Object.assign(state.elements.arrow.style, initialStyles.arrow);
-  }
-  return function() {
-    Object.keys(state.elements).forEach(function(name) {
-      var element = state.elements[name];
-      var attributes2 = state.attributes[name] || {};
-      var styleProperties = Object.keys(state.styles.hasOwnProperty(name) ? state.styles[name] : initialStyles[name]);
-      var style = styleProperties.reduce(function(style2, property2) {
-        style2[property2] = "";
-        return style2;
+function Rt(t) {
+  var e = t.state, n = { popper: { position: e.options.strategy, left: "0", top: "0", margin: "0" }, arrow: { position: "absolute" }, reference: {} };
+  return Object.assign(e.elements.popper.style, n.popper), e.styles = n, e.elements.arrow && Object.assign(e.elements.arrow.style, n.arrow), function() {
+    Object.keys(e.elements).forEach(function(r) {
+      var o2 = e.elements[r], i = e.attributes[r] || {}, a2 = Object.keys(e.styles.hasOwnProperty(r) ? e.styles[r] : n[r]), s2 = a2.reduce(function(f2, c2) {
+        return f2[c2] = "", f2;
       }, {});
-      if (!isHTMLElement(element) || !getNodeName(element)) {
-        return;
-      }
-      Object.assign(element.style, style);
-      Object.keys(attributes2).forEach(function(attribute) {
-        element.removeAttribute(attribute);
-      });
+      !B(o2) || !C(o2) || (Object.assign(o2.style, s2), Object.keys(i).forEach(function(f2) {
+        o2.removeAttribute(f2);
+      }));
     });
   };
 }
-var applyStyles_default = {
-  name: "applyStyles",
-  enabled: true,
-  phase: "write",
-  fn: applyStyles,
-  effect,
-  requires: ["computeStyles"]
-};
-
-// node_modules/@popperjs/core/lib/utils/getBasePlacement.js
-function getBasePlacement(placement) {
-  return placement.split("-")[0];
+var Ae = { name: "applyStyles", enabled: true, phase: "write", fn: Mt, effect: Rt, requires: ["computeStyles"] };
+function q(t) {
+  return t.split("-")[0];
 }
-
-// node_modules/@popperjs/core/lib/utils/math.js
-var max2 = Math.max;
-var min2 = Math.min;
-var round2 = Math.round;
-
-// node_modules/@popperjs/core/lib/utils/userAgent.js
-function getUAString() {
-  var uaData = navigator.userAgentData;
-  if (uaData != null && uaData.brands && Array.isArray(uaData.brands)) {
-    return uaData.brands.map(function(item) {
-      return item.brand + "/" + item.version;
-    }).join(" ");
+var X = Math.max;
+var ve = Math.min;
+var Z = Math.round;
+function ee(t, e) {
+  e === void 0 && (e = false);
+  var n = t.getBoundingClientRect(), r = 1, o2 = 1;
+  if (B(t) && e) {
+    var i = t.offsetHeight, a2 = t.offsetWidth;
+    a2 > 0 && (r = Z(n.width) / a2 || 1), i > 0 && (o2 = Z(n.height) / i || 1);
   }
-  return navigator.userAgent;
+  return { width: n.width / r, height: n.height / o2, top: n.top / o2, right: n.right / r, bottom: n.bottom / o2, left: n.left / r, x: n.left / r, y: n.top / o2 };
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/isLayoutViewport.js
-function isLayoutViewport() {
-  return !/^((?!chrome|android).)*safari/i.test(getUAString());
+function ke(t) {
+  var e = ee(t), n = t.offsetWidth, r = t.offsetHeight;
+  return Math.abs(e.width - n) <= 1 && (n = e.width), Math.abs(e.height - r) <= 1 && (r = e.height), { x: t.offsetLeft, y: t.offsetTop, width: n, height: r };
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/getBoundingClientRect.js
-function getBoundingClientRect(element, includeScale, isFixedStrategy) {
-  if (includeScale === void 0) {
-    includeScale = false;
-  }
-  if (isFixedStrategy === void 0) {
-    isFixedStrategy = false;
-  }
-  var clientRect = element.getBoundingClientRect();
-  var scaleX = 1;
-  var scaleY = 1;
-  if (includeScale && isHTMLElement(element)) {
-    scaleX = element.offsetWidth > 0 ? round2(clientRect.width) / element.offsetWidth || 1 : 1;
-    scaleY = element.offsetHeight > 0 ? round2(clientRect.height) / element.offsetHeight || 1 : 1;
-  }
-  var _ref = isElement3(element) ? getWindow(element) : window, visualViewport = _ref.visualViewport;
-  var addVisualOffsets = !isLayoutViewport() && isFixedStrategy;
-  var x2 = (clientRect.left + (addVisualOffsets && visualViewport ? visualViewport.offsetLeft : 0)) / scaleX;
-  var y = (clientRect.top + (addVisualOffsets && visualViewport ? visualViewport.offsetTop : 0)) / scaleY;
-  var width = clientRect.width / scaleX;
-  var height = clientRect.height / scaleY;
-  return {
-    width,
-    height,
-    top: y,
-    right: x2 + width,
-    bottom: y + height,
-    left: x2,
-    x: x2,
-    y
-  };
-}
-
-// node_modules/@popperjs/core/lib/dom-utils/getLayoutRect.js
-function getLayoutRect(element) {
-  var clientRect = getBoundingClientRect(element);
-  var width = element.offsetWidth;
-  var height = element.offsetHeight;
-  if (Math.abs(clientRect.width - width) <= 1) {
-    width = clientRect.width;
-  }
-  if (Math.abs(clientRect.height - height) <= 1) {
-    height = clientRect.height;
-  }
-  return {
-    x: element.offsetLeft,
-    y: element.offsetTop,
-    width,
-    height
-  };
-}
-
-// node_modules/@popperjs/core/lib/dom-utils/contains.js
-function contains(parent2, child) {
-  var rootNode = child.getRootNode && child.getRootNode();
-  if (parent2.contains(child)) {
+function it(t, e) {
+  var n = e.getRootNode && e.getRootNode();
+  if (t.contains(e))
     return true;
-  } else if (rootNode && isShadowRoot(rootNode)) {
-    var next = child;
+  if (n && Pe(n)) {
+    var r = e;
     do {
-      if (next && parent2.isSameNode(next)) {
+      if (r && t.isSameNode(r))
         return true;
-      }
-      next = next.parentNode || next.host;
-    } while (next);
+      r = r.parentNode || r.host;
+    } while (r);
   }
   return false;
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/getComputedStyle.js
-function getComputedStyle2(element) {
-  return getWindow(element).getComputedStyle(element);
+function N(t) {
+  return H(t).getComputedStyle(t);
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/isTableElement.js
-function isTableElement(element) {
-  return ["table", "td", "th"].indexOf(getNodeName(element)) >= 0;
+function Wt(t) {
+  return ["table", "td", "th"].indexOf(C(t)) >= 0;
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/getDocumentElement.js
-function getDocumentElement(element) {
-  return ((isElement3(element) ? element.ownerDocument : (
-    // $FlowFixMe[prop-missing]
-    element.document
-  )) || window.document).documentElement;
+function I(t) {
+  return ((Q(t) ? t.ownerDocument : t.document) || window.document).documentElement;
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/getParentNode.js
-function getParentNode(element) {
-  if (getNodeName(element) === "html") {
-    return element;
-  }
-  return (
-    // this is a quicker (but less type safe) way to save quite some bytes from the bundle
-    // $FlowFixMe[incompatible-return]
-    // $FlowFixMe[prop-missing]
-    element.assignedSlot || // step into the shadow DOM of the parent of a slotted node
-    element.parentNode || // DOM Element detected
-    (isShadowRoot(element) ? element.host : null) || // ShadowRoot detected
-    // $FlowFixMe[incompatible-call]: HTMLElement is a Node
-    getDocumentElement(element)
-  );
+function ge(t) {
+  return C(t) === "html" ? t : t.assignedSlot || t.parentNode || (Pe(t) ? t.host : null) || I(t);
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/getOffsetParent.js
-function getTrueOffsetParent(element) {
-  if (!isHTMLElement(element) || // https://github.com/popperjs/popper-core/issues/837
-  getComputedStyle2(element).position === "fixed") {
-    return null;
-  }
-  return element.offsetParent;
+function at2(t) {
+  return !B(t) || N(t).position === "fixed" ? null : t.offsetParent;
 }
-function getContainingBlock(element) {
-  var isFirefox2 = /firefox/i.test(getUAString());
-  var isIE = /Trident/i.test(getUAString());
-  if (isIE && isHTMLElement(element)) {
-    var elementCss = getComputedStyle2(element);
-    if (elementCss.position === "fixed") {
+function Bt(t) {
+  var e = navigator.userAgent.toLowerCase().indexOf("firefox") !== -1, n = navigator.userAgent.indexOf("Trident") !== -1;
+  if (n && B(t)) {
+    var r = N(t);
+    if (r.position === "fixed")
       return null;
-    }
   }
-  var currentNode = getParentNode(element);
-  if (isShadowRoot(currentNode)) {
-    currentNode = currentNode.host;
-  }
-  while (isHTMLElement(currentNode) && ["html", "body"].indexOf(getNodeName(currentNode)) < 0) {
-    var css = getComputedStyle2(currentNode);
-    if (css.transform !== "none" || css.perspective !== "none" || css.contain === "paint" || ["transform", "perspective"].indexOf(css.willChange) !== -1 || isFirefox2 && css.willChange === "filter" || isFirefox2 && css.filter && css.filter !== "none") {
-      return currentNode;
-    } else {
-      currentNode = currentNode.parentNode;
-    }
+  var o2 = ge(t);
+  for (Pe(o2) && (o2 = o2.host); B(o2) && ["html", "body"].indexOf(C(o2)) < 0; ) {
+    var i = N(o2);
+    if (i.transform !== "none" || i.perspective !== "none" || i.contain === "paint" || ["transform", "perspective"].indexOf(i.willChange) !== -1 || e && i.willChange === "filter" || e && i.filter && i.filter !== "none")
+      return o2;
+    o2 = o2.parentNode;
   }
   return null;
 }
-function getOffsetParent(element) {
-  var window2 = getWindow(element);
-  var offsetParent = getTrueOffsetParent(element);
-  while (offsetParent && isTableElement(offsetParent) && getComputedStyle2(offsetParent).position === "static") {
-    offsetParent = getTrueOffsetParent(offsetParent);
-  }
-  if (offsetParent && (getNodeName(offsetParent) === "html" || getNodeName(offsetParent) === "body" && getComputedStyle2(offsetParent).position === "static")) {
-    return window2;
-  }
-  return offsetParent || getContainingBlock(element) || window2;
+function se(t) {
+  for (var e = H(t), n = at2(t); n && Wt(n) && N(n).position === "static"; )
+    n = at2(n);
+  return n && (C(n) === "html" || C(n) === "body" && N(n).position === "static") ? e : n || Bt(t) || e;
 }
-
-// node_modules/@popperjs/core/lib/utils/getMainAxisFromPlacement.js
-function getMainAxisFromPlacement(placement) {
-  return ["top", "bottom"].indexOf(placement) >= 0 ? "x" : "y";
+function Le(t) {
+  return ["top", "bottom"].indexOf(t) >= 0 ? "x" : "y";
 }
-
-// node_modules/@popperjs/core/lib/utils/within.js
-function within(min5, value, max5) {
-  return max2(min5, min2(value, max5));
+function fe(t, e, n) {
+  return X(t, ve(e, n));
 }
-function withinMaxClamp(min5, value, max5) {
-  var v2 = within(min5, value, max5);
-  return v2 > max5 ? max5 : v2;
+function St(t, e, n) {
+  var r = fe(t, e, n);
+  return r > n ? n : r;
 }
-
-// node_modules/@popperjs/core/lib/utils/getFreshSideObject.js
-function getFreshSideObject() {
-  return {
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0
-  };
+function st() {
+  return { top: 0, right: 0, bottom: 0, left: 0 };
 }
-
-// node_modules/@popperjs/core/lib/utils/mergePaddingObject.js
-function mergePaddingObject(paddingObject) {
-  return Object.assign({}, getFreshSideObject(), paddingObject);
+function ft(t) {
+  return Object.assign({}, st(), t);
 }
-
-// node_modules/@popperjs/core/lib/utils/expandToHashMap.js
-function expandToHashMap(value, keys3) {
-  return keys3.reduce(function(hashMap, key) {
-    hashMap[key] = value;
-    return hashMap;
+function ct(t, e) {
+  return e.reduce(function(n, r) {
+    return n[r] = t, n;
   }, {});
 }
-
-// node_modules/@popperjs/core/lib/modifiers/arrow.js
-var toPaddingObject = function toPaddingObject2(padding, state) {
-  padding = typeof padding === "function" ? padding(Object.assign({}, state.rects, {
-    placement: state.placement
-  })) : padding;
-  return mergePaddingObject(typeof padding !== "number" ? padding : expandToHashMap(padding, basePlacements));
+var Tt = function(t, e) {
+  return t = typeof t == "function" ? t(Object.assign({}, e.rects, { placement: e.placement })) : t, ft(typeof t != "number" ? t : ct(t, G));
 };
-function arrow(_ref) {
-  var _state$modifiersData$;
-  var state = _ref.state, name = _ref.name, options = _ref.options;
-  var arrowElement = state.elements.arrow;
-  var popperOffsets2 = state.modifiersData.popperOffsets;
-  var basePlacement = getBasePlacement(state.placement);
-  var axis = getMainAxisFromPlacement(basePlacement);
-  var isVertical = [left, right].indexOf(basePlacement) >= 0;
-  var len = isVertical ? "height" : "width";
-  if (!arrowElement || !popperOffsets2) {
-    return;
+function Ht(t) {
+  var e, n = t.state, r = t.name, o2 = t.options, i = n.elements.arrow, a2 = n.modifiersData.popperOffsets, s2 = q(n.placement), f2 = Le(s2), c2 = [P, W].indexOf(s2) >= 0, u2 = c2 ? "height" : "width";
+  if (!(!i || !a2)) {
+    var m2 = Tt(o2.padding, n), v2 = ke(i), l2 = f2 === "y" ? E : P, h3 = f2 === "y" ? R : W, p2 = n.rects.reference[u2] + n.rects.reference[f2] - a2[f2] - n.rects.popper[u2], g = a2[f2] - n.rects.reference[f2], x2 = se(i), y = x2 ? f2 === "y" ? x2.clientHeight || 0 : x2.clientWidth || 0 : 0, $ = p2 / 2 - g / 2, d2 = m2[l2], b2 = y - v2[u2] - m2[h3], w2 = y / 2 - v2[u2] / 2 + $, O2 = fe(d2, w2, b2), j = f2;
+    n.modifiersData[r] = (e = {}, e[j] = O2, e.centerOffset = O2 - w2, e);
   }
-  var paddingObject = toPaddingObject(options.padding, state);
-  var arrowRect = getLayoutRect(arrowElement);
-  var minProp = axis === "y" ? top : left;
-  var maxProp = axis === "y" ? bottom : right;
-  var endDiff = state.rects.reference[len] + state.rects.reference[axis] - popperOffsets2[axis] - state.rects.popper[len];
-  var startDiff = popperOffsets2[axis] - state.rects.reference[axis];
-  var arrowOffsetParent = getOffsetParent(arrowElement);
-  var clientSize = arrowOffsetParent ? axis === "y" ? arrowOffsetParent.clientHeight || 0 : arrowOffsetParent.clientWidth || 0 : 0;
-  var centerToReference = endDiff / 2 - startDiff / 2;
-  var min5 = paddingObject[minProp];
-  var max5 = clientSize - arrowRect[len] - paddingObject[maxProp];
-  var center = clientSize / 2 - arrowRect[len] / 2 + centerToReference;
-  var offset4 = within(min5, center, max5);
-  var axisProp = axis;
-  state.modifiersData[name] = (_state$modifiersData$ = {}, _state$modifiersData$[axisProp] = offset4, _state$modifiersData$.centerOffset = offset4 - center, _state$modifiersData$);
 }
-function effect2(_ref2) {
-  var state = _ref2.state, options = _ref2.options;
-  var _options$element = options.element, arrowElement = _options$element === void 0 ? "[data-popper-arrow]" : _options$element;
-  if (arrowElement == null) {
-    return;
-  }
-  if (typeof arrowElement === "string") {
-    arrowElement = state.elements.popper.querySelector(arrowElement);
-    if (!arrowElement) {
-      return;
+function Ct(t) {
+  var e = t.state, n = t.options, r = n.element, o2 = r === void 0 ? "[data-popper-arrow]" : r;
+  o2 != null && (typeof o2 == "string" && (o2 = e.elements.popper.querySelector(o2), !o2) || !it(e.elements.popper, o2) || (e.elements.arrow = o2));
+}
+var pt = { name: "arrow", enabled: true, phase: "main", fn: Ht, effect: Ct, requires: ["popperOffsets"], requiresIfExists: ["preventOverflow"] };
+function te(t) {
+  return t.split("-")[1];
+}
+var qt = { top: "auto", right: "auto", bottom: "auto", left: "auto" };
+function Vt(t) {
+  var e = t.x, n = t.y, r = window, o2 = r.devicePixelRatio || 1;
+  return { x: Z(e * o2) / o2 || 0, y: Z(n * o2) / o2 || 0 };
+}
+function ut(t) {
+  var e, n = t.popper, r = t.popperRect, o2 = t.placement, i = t.variation, a2 = t.offsets, s2 = t.position, f2 = t.gpuAcceleration, c2 = t.adaptive, u2 = t.roundOffsets, m2 = t.isFixed, v2 = a2.x, l2 = v2 === void 0 ? 0 : v2, h3 = a2.y, p2 = h3 === void 0 ? 0 : h3, g = typeof u2 == "function" ? u2({ x: l2, y: p2 }) : { x: l2, y: p2 };
+  l2 = g.x, p2 = g.y;
+  var x2 = a2.hasOwnProperty("x"), y = a2.hasOwnProperty("y"), $ = P, d2 = E, b2 = window;
+  if (c2) {
+    var w2 = se(n), O2 = "clientHeight", j = "clientWidth";
+    if (w2 === H(n) && (w2 = I(n), N(w2).position !== "static" && s2 === "absolute" && (O2 = "scrollHeight", j = "scrollWidth")), w2 = w2, o2 === E || (o2 === P || o2 === W) && i === J) {
+      d2 = R;
+      var A2 = m2 && w2 === b2 && b2.visualViewport ? b2.visualViewport.height : w2[O2];
+      p2 -= A2 - r.height, p2 *= f2 ? 1 : -1;
+    }
+    if (o2 === P || (o2 === E || o2 === R) && i === J) {
+      $ = W;
+      var k = m2 && w2 === b2 && b2.visualViewport ? b2.visualViewport.width : w2[j];
+      l2 -= k - r.width, l2 *= f2 ? 1 : -1;
     }
   }
-  if (!contains(state.elements.popper, arrowElement)) {
-    return;
+  var D2 = Object.assign({ position: s2 }, c2 && qt), S2 = u2 === true ? Vt({ x: l2, y: p2 }) : { x: l2, y: p2 };
+  if (l2 = S2.x, p2 = S2.y, f2) {
+    var L;
+    return Object.assign({}, D2, (L = {}, L[d2] = y ? "0" : "", L[$] = x2 ? "0" : "", L.transform = (b2.devicePixelRatio || 1) <= 1 ? "translate(" + l2 + "px, " + p2 + "px)" : "translate3d(" + l2 + "px, " + p2 + "px, 0)", L));
   }
-  state.elements.arrow = arrowElement;
+  return Object.assign({}, D2, (e = {}, e[d2] = y ? p2 + "px" : "", e[$] = x2 ? l2 + "px" : "", e.transform = "", e));
 }
-var arrow_default = {
-  name: "arrow",
-  enabled: true,
-  phase: "main",
-  fn: arrow,
-  effect: effect2,
-  requires: ["popperOffsets"],
-  requiresIfExists: ["preventOverflow"]
-};
-
-// node_modules/@popperjs/core/lib/utils/getVariation.js
-function getVariation(placement) {
-  return placement.split("-")[1];
+function Nt(t) {
+  var e = t.state, n = t.options, r = n.gpuAcceleration, o2 = r === void 0 ? true : r, i = n.adaptive, a2 = i === void 0 ? true : i, s2 = n.roundOffsets, f2 = s2 === void 0 ? true : s2, c2 = { placement: q(e.placement), variation: te(e.placement), popper: e.elements.popper, popperRect: e.rects.popper, gpuAcceleration: o2, isFixed: e.options.strategy === "fixed" };
+  e.modifiersData.popperOffsets != null && (e.styles.popper = Object.assign({}, e.styles.popper, ut(Object.assign({}, c2, { offsets: e.modifiersData.popperOffsets, position: e.options.strategy, adaptive: a2, roundOffsets: f2 })))), e.modifiersData.arrow != null && (e.styles.arrow = Object.assign({}, e.styles.arrow, ut(Object.assign({}, c2, { offsets: e.modifiersData.arrow, position: "absolute", adaptive: false, roundOffsets: f2 })))), e.attributes.popper = Object.assign({}, e.attributes.popper, { "data-popper-placement": e.placement });
 }
-
-// node_modules/@popperjs/core/lib/modifiers/computeStyles.js
-var unsetSides = {
-  top: "auto",
-  right: "auto",
-  bottom: "auto",
-  left: "auto"
-};
-function roundOffsetsByDPR(_ref, win) {
-  var x2 = _ref.x, y = _ref.y;
-  var dpr = win.devicePixelRatio || 1;
-  return {
-    x: round2(x2 * dpr) / dpr || 0,
-    y: round2(y * dpr) / dpr || 0
+var Me = { name: "computeStyles", enabled: true, phase: "beforeWrite", fn: Nt, data: {} };
+var ye = { passive: true };
+function It(t) {
+  var e = t.state, n = t.instance, r = t.options, o2 = r.scroll, i = o2 === void 0 ? true : o2, a2 = r.resize, s2 = a2 === void 0 ? true : a2, f2 = H(e.elements.popper), c2 = [].concat(e.scrollParents.reference, e.scrollParents.popper);
+  return i && c2.forEach(function(u2) {
+    u2.addEventListener("scroll", n.update, ye);
+  }), s2 && f2.addEventListener("resize", n.update, ye), function() {
+    i && c2.forEach(function(u2) {
+      u2.removeEventListener("scroll", n.update, ye);
+    }), s2 && f2.removeEventListener("resize", n.update, ye);
   };
 }
-function mapToStyles(_ref2) {
-  var _Object$assign2;
-  var popper2 = _ref2.popper, popperRect = _ref2.popperRect, placement = _ref2.placement, variation = _ref2.variation, offsets = _ref2.offsets, position = _ref2.position, gpuAcceleration = _ref2.gpuAcceleration, adaptive = _ref2.adaptive, roundOffsets = _ref2.roundOffsets, isFixed = _ref2.isFixed;
-  var _offsets$x = offsets.x, x2 = _offsets$x === void 0 ? 0 : _offsets$x, _offsets$y = offsets.y, y = _offsets$y === void 0 ? 0 : _offsets$y;
-  var _ref3 = typeof roundOffsets === "function" ? roundOffsets({
-    x: x2,
-    y
-  }) : {
-    x: x2,
-    y
-  };
-  x2 = _ref3.x;
-  y = _ref3.y;
-  var hasX = offsets.hasOwnProperty("x");
-  var hasY = offsets.hasOwnProperty("y");
-  var sideX = left;
-  var sideY = top;
-  var win = window;
-  if (adaptive) {
-    var offsetParent = getOffsetParent(popper2);
-    var heightProp = "clientHeight";
-    var widthProp = "clientWidth";
-    if (offsetParent === getWindow(popper2)) {
-      offsetParent = getDocumentElement(popper2);
-      if (getComputedStyle2(offsetParent).position !== "static" && position === "absolute") {
-        heightProp = "scrollHeight";
-        widthProp = "scrollWidth";
-      }
-    }
-    offsetParent = offsetParent;
-    if (placement === top || (placement === left || placement === right) && variation === end) {
-      sideY = bottom;
-      var offsetY = isFixed && offsetParent === win && win.visualViewport ? win.visualViewport.height : (
-        // $FlowFixMe[prop-missing]
-        offsetParent[heightProp]
-      );
-      y -= offsetY - popperRect.height;
-      y *= gpuAcceleration ? 1 : -1;
-    }
-    if (placement === left || (placement === top || placement === bottom) && variation === end) {
-      sideX = right;
-      var offsetX = isFixed && offsetParent === win && win.visualViewport ? win.visualViewport.width : (
-        // $FlowFixMe[prop-missing]
-        offsetParent[widthProp]
-      );
-      x2 -= offsetX - popperRect.width;
-      x2 *= gpuAcceleration ? 1 : -1;
-    }
-  }
-  var commonStyles = Object.assign({
-    position
-  }, adaptive && unsetSides);
-  var _ref4 = roundOffsets === true ? roundOffsetsByDPR({
-    x: x2,
-    y
-  }, getWindow(popper2)) : {
-    x: x2,
-    y
-  };
-  x2 = _ref4.x;
-  y = _ref4.y;
-  if (gpuAcceleration) {
-    var _Object$assign;
-    return Object.assign({}, commonStyles, (_Object$assign = {}, _Object$assign[sideY] = hasY ? "0" : "", _Object$assign[sideX] = hasX ? "0" : "", _Object$assign.transform = (win.devicePixelRatio || 1) <= 1 ? "translate(" + x2 + "px, " + y + "px)" : "translate3d(" + x2 + "px, " + y + "px, 0)", _Object$assign));
-  }
-  return Object.assign({}, commonStyles, (_Object$assign2 = {}, _Object$assign2[sideY] = hasY ? y + "px" : "", _Object$assign2[sideX] = hasX ? x2 + "px" : "", _Object$assign2.transform = "", _Object$assign2));
-}
-function computeStyles(_ref5) {
-  var state = _ref5.state, options = _ref5.options;
-  var _options$gpuAccelerat = options.gpuAcceleration, gpuAcceleration = _options$gpuAccelerat === void 0 ? true : _options$gpuAccelerat, _options$adaptive = options.adaptive, adaptive = _options$adaptive === void 0 ? true : _options$adaptive, _options$roundOffsets = options.roundOffsets, roundOffsets = _options$roundOffsets === void 0 ? true : _options$roundOffsets;
-  var commonStyles = {
-    placement: getBasePlacement(state.placement),
-    variation: getVariation(state.placement),
-    popper: state.elements.popper,
-    popperRect: state.rects.popper,
-    gpuAcceleration,
-    isFixed: state.options.strategy === "fixed"
-  };
-  if (state.modifiersData.popperOffsets != null) {
-    state.styles.popper = Object.assign({}, state.styles.popper, mapToStyles(Object.assign({}, commonStyles, {
-      offsets: state.modifiersData.popperOffsets,
-      position: state.options.strategy,
-      adaptive,
-      roundOffsets
-    })));
-  }
-  if (state.modifiersData.arrow != null) {
-    state.styles.arrow = Object.assign({}, state.styles.arrow, mapToStyles(Object.assign({}, commonStyles, {
-      offsets: state.modifiersData.arrow,
-      position: "absolute",
-      adaptive: false,
-      roundOffsets
-    })));
-  }
-  state.attributes.popper = Object.assign({}, state.attributes.popper, {
-    "data-popper-placement": state.placement
+var Re = { name: "eventListeners", enabled: true, phase: "write", fn: function() {
+}, effect: It, data: {} };
+var _t = { left: "right", right: "left", bottom: "top", top: "bottom" };
+function be(t) {
+  return t.replace(/left|right|bottom|top/g, function(e) {
+    return _t[e];
   });
 }
-var computeStyles_default = {
-  name: "computeStyles",
-  enabled: true,
-  phase: "beforeWrite",
-  fn: computeStyles,
-  data: {}
-};
-
-// node_modules/@popperjs/core/lib/modifiers/eventListeners.js
-var passive = {
-  passive: true
-};
-function effect3(_ref) {
-  var state = _ref.state, instance = _ref.instance, options = _ref.options;
-  var _options$scroll = options.scroll, scroll = _options$scroll === void 0 ? true : _options$scroll, _options$resize = options.resize, resize = _options$resize === void 0 ? true : _options$resize;
-  var window2 = getWindow(state.elements.popper);
-  var scrollParents = [].concat(state.scrollParents.reference, state.scrollParents.popper);
-  if (scroll) {
-    scrollParents.forEach(function(scrollParent) {
-      scrollParent.addEventListener("scroll", instance.update, passive);
-    });
-  }
-  if (resize) {
-    window2.addEventListener("resize", instance.update, passive);
-  }
-  return function() {
-    if (scroll) {
-      scrollParents.forEach(function(scrollParent) {
-        scrollParent.removeEventListener("scroll", instance.update, passive);
-      });
-    }
-    if (resize) {
-      window2.removeEventListener("resize", instance.update, passive);
-    }
-  };
-}
-var eventListeners_default = {
-  name: "eventListeners",
-  enabled: true,
-  phase: "write",
-  fn: function fn() {
-  },
-  effect: effect3,
-  data: {}
-};
-
-// node_modules/@popperjs/core/lib/utils/getOppositePlacement.js
-var hash = {
-  left: "right",
-  right: "left",
-  bottom: "top",
-  top: "bottom"
-};
-function getOppositePlacement(placement) {
-  return placement.replace(/left|right|bottom|top/g, function(matched) {
-    return hash[matched];
+var zt = { start: "end", end: "start" };
+function lt2(t) {
+  return t.replace(/start|end/g, function(e) {
+    return zt[e];
   });
 }
-
-// node_modules/@popperjs/core/lib/utils/getOppositeVariationPlacement.js
-var hash2 = {
-  start: "end",
-  end: "start"
-};
-function getOppositeVariationPlacement(placement) {
-  return placement.replace(/start|end/g, function(matched) {
-    return hash2[matched];
-  });
+function We(t) {
+  var e = H(t), n = e.pageXOffset, r = e.pageYOffset;
+  return { scrollLeft: n, scrollTop: r };
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/getWindowScroll.js
-function getWindowScroll(node) {
-  var win = getWindow(node);
-  var scrollLeft = win.pageXOffset;
-  var scrollTop = win.pageYOffset;
-  return {
-    scrollLeft,
-    scrollTop
-  };
+function Be(t) {
+  return ee(I(t)).left + We(t).scrollLeft;
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/getWindowScrollBarX.js
-function getWindowScrollBarX(element) {
-  return getBoundingClientRect(getDocumentElement(element)).left + getWindowScroll(element).scrollLeft;
+function Ft(t) {
+  var e = H(t), n = I(t), r = e.visualViewport, o2 = n.clientWidth, i = n.clientHeight, a2 = 0, s2 = 0;
+  return r && (o2 = r.width, i = r.height, /^((?!chrome|android).)*safari/i.test(navigator.userAgent) || (a2 = r.offsetLeft, s2 = r.offsetTop)), { width: o2, height: i, x: a2 + Be(t), y: s2 };
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/getViewportRect.js
-function getViewportRect(element, strategy) {
-  var win = getWindow(element);
-  var html = getDocumentElement(element);
-  var visualViewport = win.visualViewport;
-  var width = html.clientWidth;
-  var height = html.clientHeight;
-  var x2 = 0;
-  var y = 0;
-  if (visualViewport) {
-    width = visualViewport.width;
-    height = visualViewport.height;
-    var layoutViewport = isLayoutViewport();
-    if (layoutViewport || !layoutViewport && strategy === "fixed") {
-      x2 = visualViewport.offsetLeft;
-      y = visualViewport.offsetTop;
-    }
-  }
-  return {
-    width,
-    height,
-    x: x2 + getWindowScrollBarX(element),
-    y
-  };
+function Ut(t) {
+  var e, n = I(t), r = We(t), o2 = (e = t.ownerDocument) == null ? void 0 : e.body, i = X(n.scrollWidth, n.clientWidth, o2 ? o2.scrollWidth : 0, o2 ? o2.clientWidth : 0), a2 = X(n.scrollHeight, n.clientHeight, o2 ? o2.scrollHeight : 0, o2 ? o2.clientHeight : 0), s2 = -r.scrollLeft + Be(t), f2 = -r.scrollTop;
+  return N(o2 || n).direction === "rtl" && (s2 += X(n.clientWidth, o2 ? o2.clientWidth : 0) - i), { width: i, height: a2, x: s2, y: f2 };
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/getDocumentRect.js
-function getDocumentRect(element) {
-  var _element$ownerDocumen;
-  var html = getDocumentElement(element);
-  var winScroll = getWindowScroll(element);
-  var body = (_element$ownerDocumen = element.ownerDocument) == null ? void 0 : _element$ownerDocumen.body;
-  var width = max2(html.scrollWidth, html.clientWidth, body ? body.scrollWidth : 0, body ? body.clientWidth : 0);
-  var height = max2(html.scrollHeight, html.clientHeight, body ? body.scrollHeight : 0, body ? body.clientHeight : 0);
-  var x2 = -winScroll.scrollLeft + getWindowScrollBarX(element);
-  var y = -winScroll.scrollTop;
-  if (getComputedStyle2(body || html).direction === "rtl") {
-    x2 += max2(html.clientWidth, body ? body.clientWidth : 0) - width;
-  }
-  return {
-    width,
-    height,
-    x: x2,
-    y
-  };
+function Se(t) {
+  var e = N(t), n = e.overflow, r = e.overflowX, o2 = e.overflowY;
+  return /auto|scroll|overlay|hidden/.test(n + o2 + r);
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/isScrollParent.js
-function isScrollParent(element) {
-  var _getComputedStyle = getComputedStyle2(element), overflow = _getComputedStyle.overflow, overflowX = _getComputedStyle.overflowX, overflowY = _getComputedStyle.overflowY;
-  return /auto|scroll|overlay|hidden/.test(overflow + overflowY + overflowX);
+function dt(t) {
+  return ["html", "body", "#document"].indexOf(C(t)) >= 0 ? t.ownerDocument.body : B(t) && Se(t) ? t : dt(ge(t));
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/getScrollParent.js
-function getScrollParent(node) {
-  if (["html", "body", "#document"].indexOf(getNodeName(node)) >= 0) {
-    return node.ownerDocument.body;
-  }
-  if (isHTMLElement(node) && isScrollParent(node)) {
-    return node;
-  }
-  return getScrollParent(getParentNode(node));
+function ce(t, e) {
+  var n;
+  e === void 0 && (e = []);
+  var r = dt(t), o2 = r === ((n = t.ownerDocument) == null ? void 0 : n.body), i = H(r), a2 = o2 ? [i].concat(i.visualViewport || [], Se(r) ? r : []) : r, s2 = e.concat(a2);
+  return o2 ? s2 : s2.concat(ce(ge(a2)));
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/listScrollParents.js
-function listScrollParents(element, list) {
-  var _element$ownerDocumen;
-  if (list === void 0) {
-    list = [];
-  }
-  var scrollParent = getScrollParent(element);
-  var isBody = scrollParent === ((_element$ownerDocumen = element.ownerDocument) == null ? void 0 : _element$ownerDocumen.body);
-  var win = getWindow(scrollParent);
-  var target2 = isBody ? [win].concat(win.visualViewport || [], isScrollParent(scrollParent) ? scrollParent : []) : scrollParent;
-  var updatedList = list.concat(target2);
-  return isBody ? updatedList : (
-    // $FlowFixMe[incompatible-call]: isBody tells us target will be an HTMLElement here
-    updatedList.concat(listScrollParents(getParentNode(target2)))
-  );
+function Te(t) {
+  return Object.assign({}, t, { left: t.x, top: t.y, right: t.x + t.width, bottom: t.y + t.height });
 }
-
-// node_modules/@popperjs/core/lib/utils/rectToClientRect.js
-function rectToClientRect(rect) {
-  return Object.assign({}, rect, {
-    left: rect.x,
-    top: rect.y,
-    right: rect.x + rect.width,
-    bottom: rect.y + rect.height
-  });
+function Xt(t) {
+  var e = ee(t);
+  return e.top = e.top + t.clientTop, e.left = e.left + t.clientLeft, e.bottom = e.top + t.clientHeight, e.right = e.left + t.clientWidth, e.width = t.clientWidth, e.height = t.clientHeight, e.x = e.left, e.y = e.top, e;
 }
-
-// node_modules/@popperjs/core/lib/dom-utils/getClippingRect.js
-function getInnerBoundingClientRect(element, strategy) {
-  var rect = getBoundingClientRect(element, false, strategy === "fixed");
-  rect.top = rect.top + element.clientTop;
-  rect.left = rect.left + element.clientLeft;
-  rect.bottom = rect.top + element.clientHeight;
-  rect.right = rect.left + element.clientWidth;
-  rect.width = element.clientWidth;
-  rect.height = element.clientHeight;
-  rect.x = rect.left;
-  rect.y = rect.top;
-  return rect;
+function ht(t, e) {
+  return e === je ? Te(Ft(t)) : Q(e) ? Xt(e) : Te(Ut(I(t)));
 }
-function getClientRectFromMixedType(element, clippingParent, strategy) {
-  return clippingParent === viewport ? rectToClientRect(getViewportRect(element, strategy)) : isElement3(clippingParent) ? getInnerBoundingClientRect(clippingParent, strategy) : rectToClientRect(getDocumentRect(getDocumentElement(element)));
+function Yt(t) {
+  var e = ce(ge(t)), n = ["absolute", "fixed"].indexOf(N(t).position) >= 0, r = n && B(t) ? se(t) : t;
+  return Q(r) ? e.filter(function(o2) {
+    return Q(o2) && it(o2, r) && C(o2) !== "body";
+  }) : [];
 }
-function getClippingParents(element) {
-  var clippingParents2 = listScrollParents(getParentNode(element));
-  var canEscapeClipping = ["absolute", "fixed"].indexOf(getComputedStyle2(element).position) >= 0;
-  var clipperElement = canEscapeClipping && isHTMLElement(element) ? getOffsetParent(element) : element;
-  if (!isElement3(clipperElement)) {
-    return [];
-  }
-  return clippingParents2.filter(function(clippingParent) {
-    return isElement3(clippingParent) && contains(clippingParent, clipperElement) && getNodeName(clippingParent) !== "body";
-  });
+function Gt(t, e, n) {
+  var r = e === "clippingParents" ? Yt(t) : [].concat(e), o2 = [].concat(r, [n]), i = o2[0], a2 = o2.reduce(function(s2, f2) {
+    var c2 = ht(t, f2);
+    return s2.top = X(c2.top, s2.top), s2.right = ve(c2.right, s2.right), s2.bottom = ve(c2.bottom, s2.bottom), s2.left = X(c2.left, s2.left), s2;
+  }, ht(t, i));
+  return a2.width = a2.right - a2.left, a2.height = a2.bottom - a2.top, a2.x = a2.left, a2.y = a2.top, a2;
 }
-function getClippingRect(element, boundary, rootBoundary, strategy) {
-  var mainClippingParents = boundary === "clippingParents" ? getClippingParents(element) : [].concat(boundary);
-  var clippingParents2 = [].concat(mainClippingParents, [rootBoundary]);
-  var firstClippingParent = clippingParents2[0];
-  var clippingRect = clippingParents2.reduce(function(accRect, clippingParent) {
-    var rect = getClientRectFromMixedType(element, clippingParent, strategy);
-    accRect.top = max2(rect.top, accRect.top);
-    accRect.right = min2(rect.right, accRect.right);
-    accRect.bottom = min2(rect.bottom, accRect.bottom);
-    accRect.left = max2(rect.left, accRect.left);
-    return accRect;
-  }, getClientRectFromMixedType(element, firstClippingParent, strategy));
-  clippingRect.width = clippingRect.right - clippingRect.left;
-  clippingRect.height = clippingRect.bottom - clippingRect.top;
-  clippingRect.x = clippingRect.left;
-  clippingRect.y = clippingRect.top;
-  return clippingRect;
-}
-
-// node_modules/@popperjs/core/lib/utils/computeOffsets.js
-function computeOffsets(_ref) {
-  var reference2 = _ref.reference, element = _ref.element, placement = _ref.placement;
-  var basePlacement = placement ? getBasePlacement(placement) : null;
-  var variation = placement ? getVariation(placement) : null;
-  var commonX = reference2.x + reference2.width / 2 - element.width / 2;
-  var commonY = reference2.y + reference2.height / 2 - element.height / 2;
-  var offsets;
-  switch (basePlacement) {
-    case top:
-      offsets = {
-        x: commonX,
-        y: reference2.y - element.height
-      };
+function mt(t) {
+  var e = t.reference, n = t.element, r = t.placement, o2 = r ? q(r) : null, i = r ? te(r) : null, a2 = e.x + e.width / 2 - n.width / 2, s2 = e.y + e.height / 2 - n.height / 2, f2;
+  switch (o2) {
+    case E:
+      f2 = { x: a2, y: e.y - n.height };
       break;
-    case bottom:
-      offsets = {
-        x: commonX,
-        y: reference2.y + reference2.height
-      };
+    case R:
+      f2 = { x: a2, y: e.y + e.height };
       break;
-    case right:
-      offsets = {
-        x: reference2.x + reference2.width,
-        y: commonY
-      };
+    case W:
+      f2 = { x: e.x + e.width, y: s2 };
       break;
-    case left:
-      offsets = {
-        x: reference2.x - element.width,
-        y: commonY
-      };
+    case P:
+      f2 = { x: e.x - n.width, y: s2 };
       break;
     default:
-      offsets = {
-        x: reference2.x,
-        y: reference2.y
-      };
+      f2 = { x: e.x, y: e.y };
   }
-  var mainAxis = basePlacement ? getMainAxisFromPlacement(basePlacement) : null;
-  if (mainAxis != null) {
-    var len = mainAxis === "y" ? "height" : "width";
-    switch (variation) {
-      case start:
-        offsets[mainAxis] = offsets[mainAxis] - (reference2[len] / 2 - element[len] / 2);
+  var c2 = o2 ? Le(o2) : null;
+  if (c2 != null) {
+    var u2 = c2 === "y" ? "height" : "width";
+    switch (i) {
+      case U:
+        f2[c2] = f2[c2] - (e[u2] / 2 - n[u2] / 2);
         break;
-      case end:
-        offsets[mainAxis] = offsets[mainAxis] + (reference2[len] / 2 - element[len] / 2);
+      case J:
+        f2[c2] = f2[c2] + (e[u2] / 2 - n[u2] / 2);
         break;
-      default:
     }
   }
-  return offsets;
+  return f2;
 }
-
-// node_modules/@popperjs/core/lib/utils/detectOverflow.js
-function detectOverflow(state, options) {
-  if (options === void 0) {
-    options = {};
-  }
-  var _options = options, _options$placement = _options.placement, placement = _options$placement === void 0 ? state.placement : _options$placement, _options$strategy = _options.strategy, strategy = _options$strategy === void 0 ? state.strategy : _options$strategy, _options$boundary = _options.boundary, boundary = _options$boundary === void 0 ? clippingParents : _options$boundary, _options$rootBoundary = _options.rootBoundary, rootBoundary = _options$rootBoundary === void 0 ? viewport : _options$rootBoundary, _options$elementConte = _options.elementContext, elementContext = _options$elementConte === void 0 ? popper : _options$elementConte, _options$altBoundary = _options.altBoundary, altBoundary = _options$altBoundary === void 0 ? false : _options$altBoundary, _options$padding = _options.padding, padding = _options$padding === void 0 ? 0 : _options$padding;
-  var paddingObject = mergePaddingObject(typeof padding !== "number" ? padding : expandToHashMap(padding, basePlacements));
-  var altContext = elementContext === popper ? reference : popper;
-  var popperRect = state.rects.popper;
-  var element = state.elements[altBoundary ? altContext : elementContext];
-  var clippingClientRect = getClippingRect(isElement3(element) ? element : element.contextElement || getDocumentElement(state.elements.popper), boundary, rootBoundary, strategy);
-  var referenceClientRect = getBoundingClientRect(state.elements.reference);
-  var popperOffsets2 = computeOffsets({
-    reference: referenceClientRect,
-    element: popperRect,
-    strategy: "absolute",
-    placement
-  });
-  var popperClientRect = rectToClientRect(Object.assign({}, popperRect, popperOffsets2));
-  var elementClientRect = elementContext === popper ? popperClientRect : referenceClientRect;
-  var overflowOffsets = {
-    top: clippingClientRect.top - elementClientRect.top + paddingObject.top,
-    bottom: elementClientRect.bottom - clippingClientRect.bottom + paddingObject.bottom,
-    left: clippingClientRect.left - elementClientRect.left + paddingObject.left,
-    right: elementClientRect.right - clippingClientRect.right + paddingObject.right
-  };
-  var offsetData = state.modifiersData.offset;
-  if (elementContext === popper && offsetData) {
-    var offset4 = offsetData[placement];
-    Object.keys(overflowOffsets).forEach(function(key) {
-      var multiply2 = [right, bottom].indexOf(key) >= 0 ? 1 : -1;
-      var axis = [top, bottom].indexOf(key) >= 0 ? "y" : "x";
-      overflowOffsets[key] += offset4[axis] * multiply2;
+function ne(t, e) {
+  e === void 0 && (e = {});
+  var n = e, r = n.placement, o2 = r === void 0 ? t.placement : r, i = n.boundary, a2 = i === void 0 ? Xe : i, s2 = n.rootBoundary, f2 = s2 === void 0 ? je : s2, c2 = n.elementContext, u2 = c2 === void 0 ? K : c2, m2 = n.altBoundary, v2 = m2 === void 0 ? false : m2, l2 = n.padding, h3 = l2 === void 0 ? 0 : l2, p2 = ft(typeof h3 != "number" ? h3 : ct(h3, G)), g = u2 === K ? Ye : K, x2 = t.rects.popper, y = t.elements[v2 ? g : u2], $ = Gt(Q(y) ? y : y.contextElement || I(t.elements.popper), a2, f2), d2 = ee(t.elements.reference), b2 = mt({ reference: d2, element: x2, strategy: "absolute", placement: o2 }), w2 = Te(Object.assign({}, x2, b2)), O2 = u2 === K ? w2 : d2, j = { top: $.top - O2.top + p2.top, bottom: O2.bottom - $.bottom + p2.bottom, left: $.left - O2.left + p2.left, right: O2.right - $.right + p2.right }, A2 = t.modifiersData.offset;
+  if (u2 === K && A2) {
+    var k = A2[o2];
+    Object.keys(j).forEach(function(D2) {
+      var S2 = [W, R].indexOf(D2) >= 0 ? 1 : -1, L = [E, R].indexOf(D2) >= 0 ? "y" : "x";
+      j[D2] += k[L] * S2;
     });
   }
-  return overflowOffsets;
+  return j;
 }
-
-// node_modules/@popperjs/core/lib/utils/computeAutoPlacement.js
-function computeAutoPlacement(state, options) {
-  if (options === void 0) {
-    options = {};
-  }
-  var _options = options, placement = _options.placement, boundary = _options.boundary, rootBoundary = _options.rootBoundary, padding = _options.padding, flipVariations = _options.flipVariations, _options$allowedAutoP = _options.allowedAutoPlacements, allowedAutoPlacements = _options$allowedAutoP === void 0 ? placements : _options$allowedAutoP;
-  var variation = getVariation(placement);
-  var placements3 = variation ? flipVariations ? variationPlacements : variationPlacements.filter(function(placement2) {
-    return getVariation(placement2) === variation;
-  }) : basePlacements;
-  var allowedPlacements = placements3.filter(function(placement2) {
-    return allowedAutoPlacements.indexOf(placement2) >= 0;
+function Jt(t, e) {
+  e === void 0 && (e = {});
+  var n = e, r = n.placement, o2 = n.boundary, i = n.rootBoundary, a2 = n.padding, s2 = n.flipVariations, f2 = n.allowedAutoPlacements, c2 = f2 === void 0 ? Ee : f2, u2 = te(r), m2 = u2 ? s2 ? De : De.filter(function(h3) {
+    return te(h3) === u2;
+  }) : G, v2 = m2.filter(function(h3) {
+    return c2.indexOf(h3) >= 0;
   });
-  if (allowedPlacements.length === 0) {
-    allowedPlacements = placements3;
-  }
-  var overflows = allowedPlacements.reduce(function(acc, placement2) {
-    acc[placement2] = detectOverflow(state, {
-      placement: placement2,
-      boundary,
-      rootBoundary,
-      padding
-    })[getBasePlacement(placement2)];
-    return acc;
+  v2.length === 0 && (v2 = m2);
+  var l2 = v2.reduce(function(h3, p2) {
+    return h3[p2] = ne(t, { placement: p2, boundary: o2, rootBoundary: i, padding: a2 })[q(p2)], h3;
   }, {});
-  return Object.keys(overflows).sort(function(a2, b2) {
-    return overflows[a2] - overflows[b2];
+  return Object.keys(l2).sort(function(h3, p2) {
+    return l2[h3] - l2[p2];
   });
 }
-
-// node_modules/@popperjs/core/lib/modifiers/flip.js
-function getExpandedFallbackPlacements(placement) {
-  if (getBasePlacement(placement) === auto) {
+function Kt(t) {
+  if (q(t) === me)
     return [];
-  }
-  var oppositePlacement = getOppositePlacement(placement);
-  return [getOppositeVariationPlacement(placement), oppositePlacement, getOppositeVariationPlacement(oppositePlacement)];
+  var e = be(t);
+  return [lt2(t), e, lt2(e)];
 }
-function flip2(_ref) {
-  var state = _ref.state, options = _ref.options, name = _ref.name;
-  if (state.modifiersData[name]._skip) {
-    return;
-  }
-  var _options$mainAxis = options.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options.altAxis, checkAltAxis = _options$altAxis === void 0 ? true : _options$altAxis, specifiedFallbackPlacements = options.fallbackPlacements, padding = options.padding, boundary = options.boundary, rootBoundary = options.rootBoundary, altBoundary = options.altBoundary, _options$flipVariatio = options.flipVariations, flipVariations = _options$flipVariatio === void 0 ? true : _options$flipVariatio, allowedAutoPlacements = options.allowedAutoPlacements;
-  var preferredPlacement = state.options.placement;
-  var basePlacement = getBasePlacement(preferredPlacement);
-  var isBasePlacement = basePlacement === preferredPlacement;
-  var fallbackPlacements = specifiedFallbackPlacements || (isBasePlacement || !flipVariations ? [getOppositePlacement(preferredPlacement)] : getExpandedFallbackPlacements(preferredPlacement));
-  var placements3 = [preferredPlacement].concat(fallbackPlacements).reduce(function(acc, placement2) {
-    return acc.concat(getBasePlacement(placement2) === auto ? computeAutoPlacement(state, {
-      placement: placement2,
-      boundary,
-      rootBoundary,
-      padding,
-      flipVariations,
-      allowedAutoPlacements
-    }) : placement2);
-  }, []);
-  var referenceRect = state.rects.reference;
-  var popperRect = state.rects.popper;
-  var checksMap = /* @__PURE__ */ new Map();
-  var makeFallbackChecks = true;
-  var firstFittingPlacement = placements3[0];
-  for (var i = 0; i < placements3.length; i++) {
-    var placement = placements3[i];
-    var _basePlacement = getBasePlacement(placement);
-    var isStartVariation = getVariation(placement) === start;
-    var isVertical = [top, bottom].indexOf(_basePlacement) >= 0;
-    var len = isVertical ? "width" : "height";
-    var overflow = detectOverflow(state, {
-      placement,
-      boundary,
-      rootBoundary,
-      altBoundary,
-      padding
-    });
-    var mainVariationSide = isVertical ? isStartVariation ? right : left : isStartVariation ? bottom : top;
-    if (referenceRect[len] > popperRect[len]) {
-      mainVariationSide = getOppositePlacement(mainVariationSide);
-    }
-    var altVariationSide = getOppositePlacement(mainVariationSide);
-    var checks = [];
-    if (checkMainAxis) {
-      checks.push(overflow[_basePlacement] <= 0);
-    }
-    if (checkAltAxis) {
-      checks.push(overflow[mainVariationSide] <= 0, overflow[altVariationSide] <= 0);
-    }
-    if (checks.every(function(check) {
-      return check;
-    })) {
-      firstFittingPlacement = placement;
-      makeFallbackChecks = false;
-      break;
-    }
-    checksMap.set(placement, checks);
-  }
-  if (makeFallbackChecks) {
-    var numberOfChecks = flipVariations ? 3 : 1;
-    var _loop = function _loop2(_i2) {
-      var fittingPlacement = placements3.find(function(placement2) {
-        var checks2 = checksMap.get(placement2);
-        if (checks2) {
-          return checks2.slice(0, _i2).every(function(check) {
-            return check;
-          });
-        }
-      });
-      if (fittingPlacement) {
-        firstFittingPlacement = fittingPlacement;
-        return "break";
-      }
-    };
-    for (var _i = numberOfChecks; _i > 0; _i--) {
-      var _ret = _loop(_i);
-      if (_ret === "break")
+function Qt(t) {
+  var e = t.state, n = t.options, r = t.name;
+  if (!e.modifiersData[r]._skip) {
+    for (var o2 = n.mainAxis, i = o2 === void 0 ? true : o2, a2 = n.altAxis, s2 = a2 === void 0 ? true : a2, f2 = n.fallbackPlacements, c2 = n.padding, u2 = n.boundary, m2 = n.rootBoundary, v2 = n.altBoundary, l2 = n.flipVariations, h3 = l2 === void 0 ? true : l2, p2 = n.allowedAutoPlacements, g = e.options.placement, x2 = q(g), y = x2 === g, $ = f2 || (y || !h3 ? [be(g)] : Kt(g)), d2 = [g].concat($).reduce(function(z, V) {
+      return z.concat(q(V) === me ? Jt(e, { placement: V, boundary: u2, rootBoundary: m2, padding: c2, flipVariations: h3, allowedAutoPlacements: p2 }) : V);
+    }, []), b2 = e.rects.reference, w2 = e.rects.popper, O2 = /* @__PURE__ */ new Map(), j = true, A2 = d2[0], k = 0; k < d2.length; k++) {
+      var D2 = d2[k], S2 = q(D2), L = te(D2) === U, re = [E, R].indexOf(S2) >= 0, oe = re ? "width" : "height", M2 = ne(e, { placement: D2, boundary: u2, rootBoundary: m2, altBoundary: v2, padding: c2 }), T2 = re ? L ? W : P : L ? R : E;
+      b2[oe] > w2[oe] && (T2 = be(T2));
+      var pe = be(T2), _2 = [];
+      if (i && _2.push(M2[S2] <= 0), s2 && _2.push(M2[T2] <= 0, M2[pe] <= 0), _2.every(function(z) {
+        return z;
+      })) {
+        A2 = D2, j = false;
         break;
-    }
-  }
-  if (state.placement !== firstFittingPlacement) {
-    state.modifiersData[name]._skip = true;
-    state.placement = firstFittingPlacement;
-    state.reset = true;
-  }
-}
-var flip_default2 = {
-  name: "flip",
-  enabled: true,
-  phase: "main",
-  fn: flip2,
-  requiresIfExists: ["offset"],
-  data: {
-    _skip: false
-  }
-};
-
-// node_modules/@popperjs/core/lib/modifiers/hide.js
-function getSideOffsets(overflow, rect, preventedOffsets) {
-  if (preventedOffsets === void 0) {
-    preventedOffsets = {
-      x: 0,
-      y: 0
-    };
-  }
-  return {
-    top: overflow.top - rect.height - preventedOffsets.y,
-    right: overflow.right - rect.width + preventedOffsets.x,
-    bottom: overflow.bottom - rect.height + preventedOffsets.y,
-    left: overflow.left - rect.width - preventedOffsets.x
-  };
-}
-function isAnySideFullyClipped(overflow) {
-  return [top, right, bottom, left].some(function(side) {
-    return overflow[side] >= 0;
-  });
-}
-function hide(_ref) {
-  var state = _ref.state, name = _ref.name;
-  var referenceRect = state.rects.reference;
-  var popperRect = state.rects.popper;
-  var preventedOffsets = state.modifiersData.preventOverflow;
-  var referenceOverflow = detectOverflow(state, {
-    elementContext: "reference"
-  });
-  var popperAltOverflow = detectOverflow(state, {
-    altBoundary: true
-  });
-  var referenceClippingOffsets = getSideOffsets(referenceOverflow, referenceRect);
-  var popperEscapeOffsets = getSideOffsets(popperAltOverflow, popperRect, preventedOffsets);
-  var isReferenceHidden = isAnySideFullyClipped(referenceClippingOffsets);
-  var hasPopperEscaped = isAnySideFullyClipped(popperEscapeOffsets);
-  state.modifiersData[name] = {
-    referenceClippingOffsets,
-    popperEscapeOffsets,
-    isReferenceHidden,
-    hasPopperEscaped
-  };
-  state.attributes.popper = Object.assign({}, state.attributes.popper, {
-    "data-popper-reference-hidden": isReferenceHidden,
-    "data-popper-escaped": hasPopperEscaped
-  });
-}
-var hide_default2 = {
-  name: "hide",
-  enabled: true,
-  phase: "main",
-  requiresIfExists: ["preventOverflow"],
-  fn: hide
-};
-
-// node_modules/@popperjs/core/lib/modifiers/offset.js
-function distanceAndSkiddingToXY(placement, rects, offset4) {
-  var basePlacement = getBasePlacement(placement);
-  var invertDistance = [left, top].indexOf(basePlacement) >= 0 ? -1 : 1;
-  var _ref = typeof offset4 === "function" ? offset4(Object.assign({}, rects, {
-    placement
-  })) : offset4, skidding = _ref[0], distance = _ref[1];
-  skidding = skidding || 0;
-  distance = (distance || 0) * invertDistance;
-  return [left, right].indexOf(basePlacement) >= 0 ? {
-    x: distance,
-    y: skidding
-  } : {
-    x: skidding,
-    y: distance
-  };
-}
-function offset(_ref2) {
-  var state = _ref2.state, options = _ref2.options, name = _ref2.name;
-  var _options$offset = options.offset, offset4 = _options$offset === void 0 ? [0, 0] : _options$offset;
-  var data = placements.reduce(function(acc, placement) {
-    acc[placement] = distanceAndSkiddingToXY(placement, state.rects, offset4);
-    return acc;
-  }, {});
-  var _data$state$placement = data[state.placement], x2 = _data$state$placement.x, y = _data$state$placement.y;
-  if (state.modifiersData.popperOffsets != null) {
-    state.modifiersData.popperOffsets.x += x2;
-    state.modifiersData.popperOffsets.y += y;
-  }
-  state.modifiersData[name] = data;
-}
-var offset_default = {
-  name: "offset",
-  enabled: true,
-  phase: "main",
-  requires: ["popperOffsets"],
-  fn: offset
-};
-
-// node_modules/@popperjs/core/lib/modifiers/popperOffsets.js
-function popperOffsets(_ref) {
-  var state = _ref.state, name = _ref.name;
-  state.modifiersData[name] = computeOffsets({
-    reference: state.rects.reference,
-    element: state.rects.popper,
-    strategy: "absolute",
-    placement: state.placement
-  });
-}
-var popperOffsets_default = {
-  name: "popperOffsets",
-  enabled: true,
-  phase: "read",
-  fn: popperOffsets,
-  data: {}
-};
-
-// node_modules/@popperjs/core/lib/utils/getAltAxis.js
-function getAltAxis(axis) {
-  return axis === "x" ? "y" : "x";
-}
-
-// node_modules/@popperjs/core/lib/modifiers/preventOverflow.js
-function preventOverflow(_ref) {
-  var state = _ref.state, options = _ref.options, name = _ref.name;
-  var _options$mainAxis = options.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options.altAxis, checkAltAxis = _options$altAxis === void 0 ? false : _options$altAxis, boundary = options.boundary, rootBoundary = options.rootBoundary, altBoundary = options.altBoundary, padding = options.padding, _options$tether = options.tether, tether = _options$tether === void 0 ? true : _options$tether, _options$tetherOffset = options.tetherOffset, tetherOffset = _options$tetherOffset === void 0 ? 0 : _options$tetherOffset;
-  var overflow = detectOverflow(state, {
-    boundary,
-    rootBoundary,
-    padding,
-    altBoundary
-  });
-  var basePlacement = getBasePlacement(state.placement);
-  var variation = getVariation(state.placement);
-  var isBasePlacement = !variation;
-  var mainAxis = getMainAxisFromPlacement(basePlacement);
-  var altAxis = getAltAxis(mainAxis);
-  var popperOffsets2 = state.modifiersData.popperOffsets;
-  var referenceRect = state.rects.reference;
-  var popperRect = state.rects.popper;
-  var tetherOffsetValue = typeof tetherOffset === "function" ? tetherOffset(Object.assign({}, state.rects, {
-    placement: state.placement
-  })) : tetherOffset;
-  var normalizedTetherOffsetValue = typeof tetherOffsetValue === "number" ? {
-    mainAxis: tetherOffsetValue,
-    altAxis: tetherOffsetValue
-  } : Object.assign({
-    mainAxis: 0,
-    altAxis: 0
-  }, tetherOffsetValue);
-  var offsetModifierState = state.modifiersData.offset ? state.modifiersData.offset[state.placement] : null;
-  var data = {
-    x: 0,
-    y: 0
-  };
-  if (!popperOffsets2) {
-    return;
-  }
-  if (checkMainAxis) {
-    var _offsetModifierState$;
-    var mainSide = mainAxis === "y" ? top : left;
-    var altSide = mainAxis === "y" ? bottom : right;
-    var len = mainAxis === "y" ? "height" : "width";
-    var offset4 = popperOffsets2[mainAxis];
-    var min5 = offset4 + overflow[mainSide];
-    var max5 = offset4 - overflow[altSide];
-    var additive = tether ? -popperRect[len] / 2 : 0;
-    var minLen = variation === start ? referenceRect[len] : popperRect[len];
-    var maxLen = variation === start ? -popperRect[len] : -referenceRect[len];
-    var arrowElement = state.elements.arrow;
-    var arrowRect = tether && arrowElement ? getLayoutRect(arrowElement) : {
-      width: 0,
-      height: 0
-    };
-    var arrowPaddingObject = state.modifiersData["arrow#persistent"] ? state.modifiersData["arrow#persistent"].padding : getFreshSideObject();
-    var arrowPaddingMin = arrowPaddingObject[mainSide];
-    var arrowPaddingMax = arrowPaddingObject[altSide];
-    var arrowLen = within(0, referenceRect[len], arrowRect[len]);
-    var minOffset = isBasePlacement ? referenceRect[len] / 2 - additive - arrowLen - arrowPaddingMin - normalizedTetherOffsetValue.mainAxis : minLen - arrowLen - arrowPaddingMin - normalizedTetherOffsetValue.mainAxis;
-    var maxOffset = isBasePlacement ? -referenceRect[len] / 2 + additive + arrowLen + arrowPaddingMax + normalizedTetherOffsetValue.mainAxis : maxLen + arrowLen + arrowPaddingMax + normalizedTetherOffsetValue.mainAxis;
-    var arrowOffsetParent = state.elements.arrow && getOffsetParent(state.elements.arrow);
-    var clientOffset = arrowOffsetParent ? mainAxis === "y" ? arrowOffsetParent.clientTop || 0 : arrowOffsetParent.clientLeft || 0 : 0;
-    var offsetModifierValue = (_offsetModifierState$ = offsetModifierState == null ? void 0 : offsetModifierState[mainAxis]) != null ? _offsetModifierState$ : 0;
-    var tetherMin = offset4 + minOffset - offsetModifierValue - clientOffset;
-    var tetherMax = offset4 + maxOffset - offsetModifierValue;
-    var preventedOffset = within(tether ? min2(min5, tetherMin) : min5, offset4, tether ? max2(max5, tetherMax) : max5);
-    popperOffsets2[mainAxis] = preventedOffset;
-    data[mainAxis] = preventedOffset - offset4;
-  }
-  if (checkAltAxis) {
-    var _offsetModifierState$2;
-    var _mainSide = mainAxis === "x" ? top : left;
-    var _altSide = mainAxis === "x" ? bottom : right;
-    var _offset = popperOffsets2[altAxis];
-    var _len = altAxis === "y" ? "height" : "width";
-    var _min = _offset + overflow[_mainSide];
-    var _max = _offset - overflow[_altSide];
-    var isOriginSide = [top, left].indexOf(basePlacement) !== -1;
-    var _offsetModifierValue = (_offsetModifierState$2 = offsetModifierState == null ? void 0 : offsetModifierState[altAxis]) != null ? _offsetModifierState$2 : 0;
-    var _tetherMin = isOriginSide ? _min : _offset - referenceRect[_len] - popperRect[_len] - _offsetModifierValue + normalizedTetherOffsetValue.altAxis;
-    var _tetherMax = isOriginSide ? _offset + referenceRect[_len] + popperRect[_len] - _offsetModifierValue - normalizedTetherOffsetValue.altAxis : _max;
-    var _preventedOffset = tether && isOriginSide ? withinMaxClamp(_tetherMin, _offset, _tetherMax) : within(tether ? _tetherMin : _min, _offset, tether ? _tetherMax : _max);
-    popperOffsets2[altAxis] = _preventedOffset;
-    data[altAxis] = _preventedOffset - _offset;
-  }
-  state.modifiersData[name] = data;
-}
-var preventOverflow_default = {
-  name: "preventOverflow",
-  enabled: true,
-  phase: "main",
-  fn: preventOverflow,
-  requiresIfExists: ["offset"]
-};
-
-// node_modules/@popperjs/core/lib/dom-utils/getHTMLElementScroll.js
-function getHTMLElementScroll(element) {
-  return {
-    scrollLeft: element.scrollLeft,
-    scrollTop: element.scrollTop
-  };
-}
-
-// node_modules/@popperjs/core/lib/dom-utils/getNodeScroll.js
-function getNodeScroll(node) {
-  if (node === getWindow(node) || !isHTMLElement(node)) {
-    return getWindowScroll(node);
-  } else {
-    return getHTMLElementScroll(node);
-  }
-}
-
-// node_modules/@popperjs/core/lib/dom-utils/getCompositeRect.js
-function isElementScaled(element) {
-  var rect = element.getBoundingClientRect();
-  var scaleX = round2(rect.width) / element.offsetWidth || 1;
-  var scaleY = round2(rect.height) / element.offsetHeight || 1;
-  return scaleX !== 1 || scaleY !== 1;
-}
-function getCompositeRect(elementOrVirtualElement, offsetParent, isFixed) {
-  if (isFixed === void 0) {
-    isFixed = false;
-  }
-  var isOffsetParentAnElement = isHTMLElement(offsetParent);
-  var offsetParentIsScaled = isHTMLElement(offsetParent) && isElementScaled(offsetParent);
-  var documentElement = getDocumentElement(offsetParent);
-  var rect = getBoundingClientRect(elementOrVirtualElement, offsetParentIsScaled, isFixed);
-  var scroll = {
-    scrollLeft: 0,
-    scrollTop: 0
-  };
-  var offsets = {
-    x: 0,
-    y: 0
-  };
-  if (isOffsetParentAnElement || !isOffsetParentAnElement && !isFixed) {
-    if (getNodeName(offsetParent) !== "body" || // https://github.com/popperjs/popper-core/issues/1078
-    isScrollParent(documentElement)) {
-      scroll = getNodeScroll(offsetParent);
-    }
-    if (isHTMLElement(offsetParent)) {
-      offsets = getBoundingClientRect(offsetParent, true);
-      offsets.x += offsetParent.clientLeft;
-      offsets.y += offsetParent.clientTop;
-    } else if (documentElement) {
-      offsets.x = getWindowScrollBarX(documentElement);
-    }
-  }
-  return {
-    x: rect.left + scroll.scrollLeft - offsets.x,
-    y: rect.top + scroll.scrollTop - offsets.y,
-    width: rect.width,
-    height: rect.height
-  };
-}
-
-// node_modules/@popperjs/core/lib/utils/orderModifiers.js
-function order(modifiers) {
-  var map2 = /* @__PURE__ */ new Map();
-  var visited = /* @__PURE__ */ new Set();
-  var result2 = [];
-  modifiers.forEach(function(modifier) {
-    map2.set(modifier.name, modifier);
-  });
-  function sort(modifier) {
-    visited.add(modifier.name);
-    var requires = [].concat(modifier.requires || [], modifier.requiresIfExists || []);
-    requires.forEach(function(dep) {
-      if (!visited.has(dep)) {
-        var depModifier = map2.get(dep);
-        if (depModifier) {
-          sort(depModifier);
-        }
       }
-    });
-    result2.push(modifier);
-  }
-  modifiers.forEach(function(modifier) {
-    if (!visited.has(modifier.name)) {
-      sort(modifier);
+      O2.set(D2, _2);
     }
-  });
-  return result2;
+    if (j)
+      for (var ue = h3 ? 3 : 1, xe = function(z) {
+        var V = d2.find(function(de) {
+          var ae = O2.get(de);
+          if (ae)
+            return ae.slice(0, z).every(function(Y2) {
+              return Y2;
+            });
+        });
+        if (V)
+          return A2 = V, "break";
+      }, ie = ue; ie > 0; ie--) {
+        var le = xe(ie);
+        if (le === "break")
+          break;
+      }
+    e.placement !== A2 && (e.modifiersData[r]._skip = true, e.placement = A2, e.reset = true);
+  }
 }
-function orderModifiers(modifiers) {
-  var orderedModifiers = order(modifiers);
-  return modifierPhases.reduce(function(acc, phase) {
-    return acc.concat(orderedModifiers.filter(function(modifier) {
-      return modifier.phase === phase;
+var vt = { name: "flip", enabled: true, phase: "main", fn: Qt, requiresIfExists: ["offset"], data: { _skip: false } };
+function gt2(t, e, n) {
+  return n === void 0 && (n = { x: 0, y: 0 }), { top: t.top - e.height - n.y, right: t.right - e.width + n.x, bottom: t.bottom - e.height + n.y, left: t.left - e.width - n.x };
+}
+function yt(t) {
+  return [E, W, R, P].some(function(e) {
+    return t[e] >= 0;
+  });
+}
+function Zt(t) {
+  var e = t.state, n = t.name, r = e.rects.reference, o2 = e.rects.popper, i = e.modifiersData.preventOverflow, a2 = ne(e, { elementContext: "reference" }), s2 = ne(e, { altBoundary: true }), f2 = gt2(a2, r), c2 = gt2(s2, o2, i), u2 = yt(f2), m2 = yt(c2);
+  e.modifiersData[n] = { referenceClippingOffsets: f2, popperEscapeOffsets: c2, isReferenceHidden: u2, hasPopperEscaped: m2 }, e.attributes.popper = Object.assign({}, e.attributes.popper, { "data-popper-reference-hidden": u2, "data-popper-escaped": m2 });
+}
+var bt = { name: "hide", enabled: true, phase: "main", requiresIfExists: ["preventOverflow"], fn: Zt };
+function en(t, e, n) {
+  var r = q(t), o2 = [P, E].indexOf(r) >= 0 ? -1 : 1, i = typeof n == "function" ? n(Object.assign({}, e, { placement: t })) : n, a2 = i[0], s2 = i[1];
+  return a2 = a2 || 0, s2 = (s2 || 0) * o2, [P, W].indexOf(r) >= 0 ? { x: s2, y: a2 } : { x: a2, y: s2 };
+}
+function tn(t) {
+  var e = t.state, n = t.options, r = t.name, o2 = n.offset, i = o2 === void 0 ? [0, 0] : o2, a2 = Ee.reduce(function(u2, m2) {
+    return u2[m2] = en(m2, e.rects, i), u2;
+  }, {}), s2 = a2[e.placement], f2 = s2.x, c2 = s2.y;
+  e.modifiersData.popperOffsets != null && (e.modifiersData.popperOffsets.x += f2, e.modifiersData.popperOffsets.y += c2), e.modifiersData[r] = a2;
+}
+var wt = { name: "offset", enabled: true, phase: "main", requires: ["popperOffsets"], fn: tn };
+function nn(t) {
+  var e = t.state, n = t.name;
+  e.modifiersData[n] = mt({ reference: e.rects.reference, element: e.rects.popper, strategy: "absolute", placement: e.placement });
+}
+var He = { name: "popperOffsets", enabled: true, phase: "read", fn: nn, data: {} };
+function rn(t) {
+  return t === "x" ? "y" : "x";
+}
+function on(t) {
+  var e = t.state, n = t.options, r = t.name, o2 = n.mainAxis, i = o2 === void 0 ? true : o2, a2 = n.altAxis, s2 = a2 === void 0 ? false : a2, f2 = n.boundary, c2 = n.rootBoundary, u2 = n.altBoundary, m2 = n.padding, v2 = n.tether, l2 = v2 === void 0 ? true : v2, h3 = n.tetherOffset, p2 = h3 === void 0 ? 0 : h3, g = ne(e, { boundary: f2, rootBoundary: c2, padding: m2, altBoundary: u2 }), x2 = q(e.placement), y = te(e.placement), $ = !y, d2 = Le(x2), b2 = rn(d2), w2 = e.modifiersData.popperOffsets, O2 = e.rects.reference, j = e.rects.popper, A2 = typeof p2 == "function" ? p2(Object.assign({}, e.rects, { placement: e.placement })) : p2, k = typeof A2 == "number" ? { mainAxis: A2, altAxis: A2 } : Object.assign({ mainAxis: 0, altAxis: 0 }, A2), D2 = e.modifiersData.offset ? e.modifiersData.offset[e.placement] : null, S2 = { x: 0, y: 0 };
+  if (w2) {
+    if (i) {
+      var L, re = d2 === "y" ? E : P, oe = d2 === "y" ? R : W, M2 = d2 === "y" ? "height" : "width", T2 = w2[d2], pe = T2 + g[re], _2 = T2 - g[oe], ue = l2 ? -j[M2] / 2 : 0, xe = y === U ? O2[M2] : j[M2], ie = y === U ? -j[M2] : -O2[M2], le = e.elements.arrow, z = l2 && le ? ke(le) : { width: 0, height: 0 }, V = e.modifiersData["arrow#persistent"] ? e.modifiersData["arrow#persistent"].padding : st(), de = V[re], ae = V[oe], Y2 = fe(0, O2[M2], z[M2]), jt = $ ? O2[M2] / 2 - ue - Y2 - de - k.mainAxis : xe - Y2 - de - k.mainAxis, Dt = $ ? -O2[M2] / 2 + ue + Y2 + ae + k.mainAxis : ie + Y2 + ae + k.mainAxis, Oe = e.elements.arrow && se(e.elements.arrow), Et = Oe ? d2 === "y" ? Oe.clientTop || 0 : Oe.clientLeft || 0 : 0, Ce = (L = D2 == null ? void 0 : D2[d2]) != null ? L : 0, Pt = T2 + jt - Ce - Et, At = T2 + Dt - Ce, qe = fe(l2 ? ve(pe, Pt) : pe, T2, l2 ? X(_2, At) : _2);
+      w2[d2] = qe, S2[d2] = qe - T2;
+    }
+    if (s2) {
+      var Ve, kt = d2 === "x" ? E : P, Lt = d2 === "x" ? R : W, F2 = w2[b2], he = b2 === "y" ? "height" : "width", Ne = F2 + g[kt], Ie = F2 - g[Lt], $e = [E, P].indexOf(x2) !== -1, _e = (Ve = D2 == null ? void 0 : D2[b2]) != null ? Ve : 0, ze = $e ? Ne : F2 - O2[he] - j[he] - _e + k.altAxis, Fe = $e ? F2 + O2[he] + j[he] - _e - k.altAxis : Ie, Ue = l2 && $e ? St(ze, F2, Fe) : fe(l2 ? ze : Ne, F2, l2 ? Fe : Ie);
+      w2[b2] = Ue, S2[b2] = Ue - F2;
+    }
+    e.modifiersData[r] = S2;
+  }
+}
+var xt = { name: "preventOverflow", enabled: true, phase: "main", fn: on, requiresIfExists: ["offset"] };
+function an(t) {
+  return { scrollLeft: t.scrollLeft, scrollTop: t.scrollTop };
+}
+function sn(t) {
+  return t === H(t) || !B(t) ? We(t) : an(t);
+}
+function fn(t) {
+  var e = t.getBoundingClientRect(), n = Z(e.width) / t.offsetWidth || 1, r = Z(e.height) / t.offsetHeight || 1;
+  return n !== 1 || r !== 1;
+}
+function cn(t, e, n) {
+  n === void 0 && (n = false);
+  var r = B(e), o2 = B(e) && fn(e), i = I(e), a2 = ee(t, o2), s2 = { scrollLeft: 0, scrollTop: 0 }, f2 = { x: 0, y: 0 };
+  return (r || !r && !n) && ((C(e) !== "body" || Se(i)) && (s2 = sn(e)), B(e) ? (f2 = ee(e, true), f2.x += e.clientLeft, f2.y += e.clientTop) : i && (f2.x = Be(i))), { x: a2.left + s2.scrollLeft - f2.x, y: a2.top + s2.scrollTop - f2.y, width: a2.width, height: a2.height };
+}
+function pn(t) {
+  var e = /* @__PURE__ */ new Map(), n = /* @__PURE__ */ new Set(), r = [];
+  t.forEach(function(i) {
+    e.set(i.name, i);
+  });
+  function o2(i) {
+    n.add(i.name);
+    var a2 = [].concat(i.requires || [], i.requiresIfExists || []);
+    a2.forEach(function(s2) {
+      if (!n.has(s2)) {
+        var f2 = e.get(s2);
+        f2 && o2(f2);
+      }
+    }), r.push(i);
+  }
+  return t.forEach(function(i) {
+    n.has(i.name) || o2(i);
+  }), r;
+}
+function un(t) {
+  var e = pn(t);
+  return ot.reduce(function(n, r) {
+    return n.concat(e.filter(function(o2) {
+      return o2.phase === r;
     }));
   }, []);
 }
-
-// node_modules/@popperjs/core/lib/utils/debounce.js
-function debounce2(fn2) {
-  var pending;
+function ln(t) {
+  var e;
   return function() {
-    if (!pending) {
-      pending = new Promise(function(resolve) {
-        Promise.resolve().then(function() {
-          pending = void 0;
-          resolve(fn2());
-        });
+    return e || (e = new Promise(function(n) {
+      Promise.resolve().then(function() {
+        e = void 0, n(t());
       });
-    }
-    return pending;
+    })), e;
   };
 }
-
-// node_modules/@popperjs/core/lib/utils/mergeByName.js
-function mergeByName(modifiers) {
-  var merged = modifiers.reduce(function(merged2, current) {
-    var existing = merged2[current.name];
-    merged2[current.name] = existing ? Object.assign({}, existing, current, {
-      options: Object.assign({}, existing.options, current.options),
-      data: Object.assign({}, existing.data, current.data)
-    }) : current;
-    return merged2;
+function dn(t) {
+  var e = t.reduce(function(n, r) {
+    var o2 = n[r.name];
+    return n[r.name] = o2 ? Object.assign({}, o2, r, { options: Object.assign({}, o2.options, r.options), data: Object.assign({}, o2.data, r.data) }) : r, n;
   }, {});
-  return Object.keys(merged).map(function(key) {
-    return merged[key];
+  return Object.keys(e).map(function(n) {
+    return e[n];
   });
 }
-
-// node_modules/@popperjs/core/lib/createPopper.js
-var DEFAULT_OPTIONS = {
-  placement: "bottom",
-  modifiers: [],
-  strategy: "absolute"
-};
-function areValidElements() {
-  for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-    args[_key] = arguments[_key];
-  }
-  return !args.some(function(element) {
-    return !(element && typeof element.getBoundingClientRect === "function");
+var Ot = { placement: "bottom", modifiers: [], strategy: "absolute" };
+function $t() {
+  for (var t = arguments.length, e = new Array(t), n = 0; n < t; n++)
+    e[n] = arguments[n];
+  return !e.some(function(r) {
+    return !(r && typeof r.getBoundingClientRect == "function");
   });
 }
-function popperGenerator(generatorOptions) {
-  if (generatorOptions === void 0) {
-    generatorOptions = {};
-  }
-  var _generatorOptions = generatorOptions, _generatorOptions$def = _generatorOptions.defaultModifiers, defaultModifiers3 = _generatorOptions$def === void 0 ? [] : _generatorOptions$def, _generatorOptions$def2 = _generatorOptions.defaultOptions, defaultOptions = _generatorOptions$def2 === void 0 ? DEFAULT_OPTIONS : _generatorOptions$def2;
-  return function createPopper4(reference2, popper2, options) {
-    if (options === void 0) {
-      options = defaultOptions;
-    }
-    var state = {
-      placement: "bottom",
-      orderedModifiers: [],
-      options: Object.assign({}, DEFAULT_OPTIONS, defaultOptions),
-      modifiersData: {},
-      elements: {
-        reference: reference2,
-        popper: popper2
-      },
-      attributes: {},
-      styles: {}
-    };
-    var effectCleanupFns = [];
-    var isDestroyed = false;
-    var instance = {
-      state,
-      setOptions: function setOptions(setOptionsAction) {
-        var options2 = typeof setOptionsAction === "function" ? setOptionsAction(state.options) : setOptionsAction;
-        cleanupModifierEffects();
-        state.options = Object.assign({}, defaultOptions, state.options, options2);
-        state.scrollParents = {
-          reference: isElement3(reference2) ? listScrollParents(reference2) : reference2.contextElement ? listScrollParents(reference2.contextElement) : [],
-          popper: listScrollParents(popper2)
-        };
-        var orderedModifiers = orderModifiers(mergeByName([].concat(defaultModifiers3, state.options.modifiers)));
-        state.orderedModifiers = orderedModifiers.filter(function(m2) {
-          return m2.enabled;
-        });
-        runModifierEffects();
-        return instance.update();
-      },
-      // Sync update – it will always be executed, even if not necessary. This
-      // is useful for low frequency updates where sync behavior simplifies the
-      // logic.
-      // For high frequency updates (e.g. `resize` and `scroll` events), always
-      // prefer the async Popper#update method
-      forceUpdate: function forceUpdate() {
-        if (isDestroyed) {
-          return;
-        }
-        var _state$elements = state.elements, reference3 = _state$elements.reference, popper3 = _state$elements.popper;
-        if (!areValidElements(reference3, popper3)) {
-          return;
-        }
-        state.rects = {
-          reference: getCompositeRect(reference3, getOffsetParent(popper3), state.options.strategy === "fixed"),
-          popper: getLayoutRect(popper3)
-        };
-        state.reset = false;
-        state.placement = state.options.placement;
-        state.orderedModifiers.forEach(function(modifier) {
-          return state.modifiersData[modifier.name] = Object.assign({}, modifier.data);
-        });
-        for (var index = 0; index < state.orderedModifiers.length; index++) {
-          if (state.reset === true) {
-            state.reset = false;
-            index = -1;
-            continue;
-          }
-          var _state$orderedModifie = state.orderedModifiers[index], fn2 = _state$orderedModifie.fn, _state$orderedModifie2 = _state$orderedModifie.options, _options = _state$orderedModifie2 === void 0 ? {} : _state$orderedModifie2, name = _state$orderedModifie.name;
-          if (typeof fn2 === "function") {
-            state = fn2({
-              state,
-              options: _options,
-              name,
-              instance
-            }) || state;
-          }
-        }
-      },
-      // Async and optimistically optimized update – it will not be executed if
-      // not necessary (debounced to run at most once-per-tick)
-      update: debounce2(function() {
-        return new Promise(function(resolve) {
-          instance.forceUpdate();
-          resolve(state);
-        });
-      }),
-      destroy: function destroy() {
-        cleanupModifierEffects();
-        isDestroyed = true;
-      }
-    };
-    if (!areValidElements(reference2, popper2)) {
-      return instance;
-    }
-    instance.setOptions(options).then(function(state2) {
-      if (!isDestroyed && options.onFirstUpdate) {
-        options.onFirstUpdate(state2);
-      }
-    });
-    function runModifierEffects() {
-      state.orderedModifiers.forEach(function(_ref) {
-        var name = _ref.name, _ref$options = _ref.options, options2 = _ref$options === void 0 ? {} : _ref$options, effect4 = _ref.effect;
-        if (typeof effect4 === "function") {
-          var cleanupFn = effect4({
-            state,
-            name,
-            instance,
-            options: options2
+function we(t) {
+  t === void 0 && (t = {});
+  var e = t, n = e.defaultModifiers, r = n === void 0 ? [] : n, o2 = e.defaultOptions, i = o2 === void 0 ? Ot : o2;
+  return function(a2, s2, f2) {
+    f2 === void 0 && (f2 = i);
+    var c2 = { placement: "bottom", orderedModifiers: [], options: Object.assign({}, Ot, i), modifiersData: {}, elements: { reference: a2, popper: s2 }, attributes: {}, styles: {} }, u2 = [], m2 = false, v2 = { state: c2, setOptions: function(p2) {
+      var g = typeof p2 == "function" ? p2(c2.options) : p2;
+      h3(), c2.options = Object.assign({}, i, c2.options, g), c2.scrollParents = { reference: Q(a2) ? ce(a2) : a2.contextElement ? ce(a2.contextElement) : [], popper: ce(s2) };
+      var x2 = un(dn([].concat(r, c2.options.modifiers)));
+      return c2.orderedModifiers = x2.filter(function(y) {
+        return y.enabled;
+      }), l2(), v2.update();
+    }, forceUpdate: function() {
+      if (!m2) {
+        var p2 = c2.elements, g = p2.reference, x2 = p2.popper;
+        if ($t(g, x2)) {
+          c2.rects = { reference: cn(g, se(x2), c2.options.strategy === "fixed"), popper: ke(x2) }, c2.reset = false, c2.placement = c2.options.placement, c2.orderedModifiers.forEach(function(j) {
+            return c2.modifiersData[j.name] = Object.assign({}, j.data);
           });
-          var noopFn = function noopFn2() {
+          for (var y = 0; y < c2.orderedModifiers.length; y++) {
+            if (c2.reset === true) {
+              c2.reset = false, y = -1;
+              continue;
+            }
+            var $ = c2.orderedModifiers[y], d2 = $.fn, b2 = $.options, w2 = b2 === void 0 ? {} : b2, O2 = $.name;
+            typeof d2 == "function" && (c2 = d2({ state: c2, options: w2, name: O2, instance: v2 }) || c2);
+          }
+        }
+      }
+    }, update: ln(function() {
+      return new Promise(function(p2) {
+        v2.forceUpdate(), p2(c2);
+      });
+    }), destroy: function() {
+      h3(), m2 = true;
+    } };
+    if (!$t(a2, s2))
+      return v2;
+    v2.setOptions(f2).then(function(p2) {
+      !m2 && f2.onFirstUpdate && f2.onFirstUpdate(p2);
+    });
+    function l2() {
+      c2.orderedModifiers.forEach(function(p2) {
+        var g = p2.name, x2 = p2.options, y = x2 === void 0 ? {} : x2, $ = p2.effect;
+        if (typeof $ == "function") {
+          var d2 = $({ state: c2, name: g, instance: v2, options: y }), b2 = function() {
           };
-          effectCleanupFns.push(cleanupFn || noopFn);
+          u2.push(d2 || b2);
         }
       });
     }
-    function cleanupModifierEffects() {
-      effectCleanupFns.forEach(function(fn2) {
-        return fn2();
-      });
-      effectCleanupFns = [];
+    function h3() {
+      u2.forEach(function(p2) {
+        return p2();
+      }), u2 = [];
     }
-    return instance;
+    return v2;
   };
 }
-var createPopper = popperGenerator();
-
-// node_modules/@popperjs/core/lib/popper-lite.js
-var defaultModifiers = [eventListeners_default, popperOffsets_default, computeStyles_default, applyStyles_default];
-var createPopper2 = popperGenerator({
-  defaultModifiers
-});
-
-// node_modules/@popperjs/core/lib/popper.js
-var defaultModifiers2 = [eventListeners_default, popperOffsets_default, computeStyles_default, applyStyles_default, offset_default, flip_default2, preventOverflow_default, arrow_default, hide_default2];
-var createPopper3 = popperGenerator({
-  defaultModifiers: defaultModifiers2
-});
+var hn = we();
+var mn = [Re, He, Me, Ae];
+var vn = we({ defaultModifiers: mn });
+var gn = [Re, He, Me, Ae, wt, vt, xt, pt, bt];
+var yn = we({ defaultModifiers: gn });
 
 // node_modules/element-plus/es/hooks/use-popper/index.mjs
 var usePopper = (referenceElementRef, popperElementRef, opts = {}) => {
@@ -17211,7 +16187,7 @@ var usePopper = (referenceElementRef, popperElementRef, opts = {}) => {
     },
     requires: ["computeStyles"]
   };
-  const options = computed(() => {
+  const options = computed2(() => {
     const { onFirstUpdate, placement, strategy, modifiers } = unref(opts);
     return {
       onFirstUpdate,
@@ -17256,18 +16232,18 @@ var usePopper = (referenceElementRef, popperElementRef, opts = {}) => {
     destroy();
     if (!referenceElement || !popperElement)
       return;
-    instanceRef.value = createPopper3(referenceElement, popperElement, unref(options));
+    instanceRef.value = yn(referenceElement, popperElement, unref(options));
   });
   onBeforeUnmount(() => {
     destroy();
   });
   return {
-    state: computed(() => {
+    state: computed2(() => {
       var _a2;
       return { ...((_a2 = unref(instanceRef)) == null ? void 0 : _a2.state) || {} };
     }),
-    styles: computed(() => unref(states).styles),
-    attributes: computed(() => unref(states).attributes),
+    styles: computed2(() => unref(states).styles),
+    attributes: computed2(() => unref(states).attributes),
     update: () => {
       var _a2;
       return (_a2 = unref(instanceRef)) == null ? void 0 : _a2.update();
@@ -17276,7 +16252,7 @@ var usePopper = (referenceElementRef, popperElementRef, opts = {}) => {
       var _a2;
       return (_a2 = unref(instanceRef)) == null ? void 0 : _a2.forceUpdate();
     },
-    instanceRef: computed(() => unref(instanceRef))
+    instanceRef: computed2(() => unref(instanceRef))
   };
 };
 function deriveState(state) {
@@ -17468,7 +16444,7 @@ usage: app.provide(ID_INJECTION_KEY, {
 })`);
   }
   const namespace = useGetDerivedNamespace();
-  const idRef = computed(() => unref(deterministicId) || `${namespace.value}-id-${idInjection.prefix}-${idInjection.current++}`);
+  const idRef = computed2(() => unref(deterministicId) || `${namespace.value}-id-${idInjection.prefix}-${idInjection.current++}`);
   return idRef;
 };
 
@@ -17502,10 +16478,10 @@ var cachedContainer;
 var usePopperContainerId = () => {
   const namespace = useGetDerivedNamespace();
   const idInjection = useIdInjection();
-  const id = computed(() => {
+  const id = computed2(() => {
     return `${namespace.value}-popper-container-${idInjection.prefix}`;
   });
-  const selector = computed(() => `#${id.value}`);
+  const selector = computed2(() => `#${id.value}`);
   return {
     id,
     selector
@@ -17647,30 +16623,20 @@ var useForwardRefDirective = (setForwardRef) => {
 };
 
 // node_modules/element-plus/es/hooks/use-z-index/index.mjs
-var initial2 = {
-  current: 0
-};
 var zIndex = ref(0);
 var defaultInitialZIndex = 2e3;
-var ZINDEX_INJECTION_KEY = Symbol("elZIndexContextKey");
 var zIndexContextKey = Symbol("zIndexContextKey");
 var useZIndex = (zIndexOverrides) => {
-  const increasingInjection = getCurrentInstance() ? inject(ZINDEX_INJECTION_KEY, initial2) : initial2;
   const zIndexInjection = zIndexOverrides || (getCurrentInstance() ? inject(zIndexContextKey, void 0) : void 0);
-  const initialZIndex = computed(() => {
+  const initialZIndex = computed2(() => {
     const zIndexFromInjection = unref(zIndexInjection);
     return isNumber3(zIndexFromInjection) ? zIndexFromInjection : defaultInitialZIndex;
   });
-  const currentZIndex = computed(() => initialZIndex.value + zIndex.value);
+  const currentZIndex = computed2(() => initialZIndex.value + zIndex.value);
   const nextZIndex = () => {
-    increasingInjection.current++;
-    zIndex.value = increasingInjection.current;
+    zIndex.value++;
     return currentZIndex.value;
   };
-  if (!isClient && !inject(ZINDEX_INJECTION_KEY)) {
-    debugWarn("ZIndexInjection", `Looks like you are using server rendering, you must provide a z-index provider to ensure the hydration process to be succeed
-usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`);
-  }
   return {
     initialZIndex,
     currentZIndex,
@@ -17681,10 +16647,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`);
 // node_modules/@floating-ui/utils/dist/floating-ui.utils.mjs
 var sides = ["top", "right", "bottom", "left"];
 var alignments = ["start", "end"];
-var placements2 = sides.reduce((acc, side) => acc.concat(side, side + "-" + alignments[0], side + "-" + alignments[1]), []);
-var min3 = Math.min;
-var max3 = Math.max;
-var round3 = Math.round;
+var placements = sides.reduce((acc, side) => acc.concat(side, side + "-" + alignments[0], side + "-" + alignments[1]), []);
+var min2 = Math.min;
+var max2 = Math.max;
+var round2 = Math.round;
 var floor2 = Math.floor;
 var createCoords = (v2) => ({
   x: v2,
@@ -17700,8 +16666,8 @@ var oppositeAlignmentMap = {
   start: "end",
   end: "start"
 };
-function clamp3(start2, value, end3) {
-  return max3(start2, min3(value, end3));
+function clamp3(start, value, end2) {
+  return max2(start, min2(value, end2));
 }
 function evaluate(value, param) {
   return typeof value === "function" ? value(param) : value;
@@ -17733,12 +16699,12 @@ function getAlignmentSides(placement, rects, rtl) {
   const length = getAxisLength(alignmentAxis);
   let mainAlignmentSide = alignmentAxis === "x" ? alignment === (rtl ? "end" : "start") ? "right" : "left" : alignment === "start" ? "bottom" : "top";
   if (rects.reference[length] > rects.floating[length]) {
-    mainAlignmentSide = getOppositePlacement2(mainAlignmentSide);
+    mainAlignmentSide = getOppositePlacement(mainAlignmentSide);
   }
-  return [mainAlignmentSide, getOppositePlacement2(mainAlignmentSide)];
+  return [mainAlignmentSide, getOppositePlacement(mainAlignmentSide)];
 }
 function getExpandedPlacements(placement) {
-  const oppositePlacement = getOppositePlacement2(placement);
+  const oppositePlacement = getOppositePlacement(placement);
   return [getOppositeAlignmentPlacement(placement), oppositePlacement, getOppositeAlignmentPlacement(oppositePlacement)];
 }
 function getOppositeAlignmentPlacement(placement) {
@@ -17748,7 +16714,7 @@ function getSideList(side, isStart, rtl) {
   const lr = ["left", "right"];
   const rl = ["right", "left"];
   const tb = ["top", "bottom"];
-  const bt = ["bottom", "top"];
+  const bt2 = ["bottom", "top"];
   switch (side) {
     case "top":
     case "bottom":
@@ -17757,7 +16723,7 @@ function getSideList(side, isStart, rtl) {
       return isStart ? lr : rl;
     case "left":
     case "right":
-      return isStart ? tb : bt;
+      return isStart ? tb : bt2;
     default:
       return [];
   }
@@ -17773,7 +16739,7 @@ function getOppositeAxisPlacements(placement, flipAlignment, direction2, rtl) {
   }
   return list;
 }
-function getOppositePlacement2(placement) {
+function getOppositePlacement(placement) {
   return placement.replace(/left|right|bottom|top/g, (side) => oppositeSideMap[side]);
 }
 function expandPaddingObject(padding) {
@@ -17793,7 +16759,7 @@ function getPaddingObject(padding) {
     left: padding
   };
 }
-function rectToClientRect2(rect) {
+function rectToClientRect(rect) {
   const {
     x: x2,
     y,
@@ -17815,7 +16781,7 @@ function rectToClientRect2(rect) {
 // node_modules/@floating-ui/core/dist/floating-ui.core.mjs
 function computeCoordsFromPlacement(_ref, placement, rtl) {
   let {
-    reference: reference2,
+    reference,
     floating
   } = _ref;
   const sideAxis = getSideAxis(placement);
@@ -17823,39 +16789,39 @@ function computeCoordsFromPlacement(_ref, placement, rtl) {
   const alignLength = getAxisLength(alignmentAxis);
   const side = getSide(placement);
   const isVertical = sideAxis === "y";
-  const commonX = reference2.x + reference2.width / 2 - floating.width / 2;
-  const commonY = reference2.y + reference2.height / 2 - floating.height / 2;
-  const commonAlign = reference2[alignLength] / 2 - floating[alignLength] / 2;
+  const commonX = reference.x + reference.width / 2 - floating.width / 2;
+  const commonY = reference.y + reference.height / 2 - floating.height / 2;
+  const commonAlign = reference[alignLength] / 2 - floating[alignLength] / 2;
   let coords;
   switch (side) {
     case "top":
       coords = {
         x: commonX,
-        y: reference2.y - floating.height
+        y: reference.y - floating.height
       };
       break;
     case "bottom":
       coords = {
         x: commonX,
-        y: reference2.y + reference2.height
+        y: reference.y + reference.height
       };
       break;
     case "right":
       coords = {
-        x: reference2.x + reference2.width,
+        x: reference.x + reference.width,
         y: commonY
       };
       break;
     case "left":
       coords = {
-        x: reference2.x - floating.width,
+        x: reference.x - floating.width,
         y: commonY
       };
       break;
     default:
       coords = {
-        x: reference2.x,
-        y: reference2.y
+        x: reference.x,
+        y: reference.y
       };
   }
   switch (getAlignment(placement)) {
@@ -17868,7 +16834,7 @@ function computeCoordsFromPlacement(_ref, placement, rtl) {
   }
   return coords;
 }
-var computePosition = async (reference2, floating, config) => {
+var computePosition = async (reference, floating, config) => {
   const {
     placement = "bottom",
     strategy = "absolute",
@@ -17878,7 +16844,7 @@ var computePosition = async (reference2, floating, config) => {
   const validMiddleware = middleware.filter(Boolean);
   const rtl = await (platform2.isRTL == null ? void 0 : platform2.isRTL(floating));
   let rects = await platform2.getElementRects({
-    reference: reference2,
+    reference,
     floating,
     strategy
   });
@@ -17909,7 +16875,7 @@ var computePosition = async (reference2, floating, config) => {
       rects,
       platform: platform2,
       elements: {
-        reference: reference2,
+        reference,
         floating
       }
     });
@@ -17930,7 +16896,7 @@ var computePosition = async (reference2, floating, config) => {
         }
         if (reset.rects) {
           rects = reset.rects === true ? await platform2.getElementRects({
-            reference: reference2,
+            reference,
             floating,
             strategy
           }) : reset.rects;
@@ -17951,7 +16917,7 @@ var computePosition = async (reference2, floating, config) => {
     middlewareData
   };
 };
-async function detectOverflow2(state, options) {
+async function detectOverflow(state, options) {
   var _await$platform$isEle;
   if (options === void 0) {
     options = {};
@@ -17974,7 +16940,7 @@ async function detectOverflow2(state, options) {
   const paddingObject = getPaddingObject(padding);
   const altContext = elementContext === "floating" ? "reference" : "floating";
   const element = elements[altBoundary ? altContext : elementContext];
-  const clippingClientRect = rectToClientRect2(await platform2.getClippingRect({
+  const clippingClientRect = rectToClientRect(await platform2.getClippingRect({
     element: ((_await$platform$isEle = await (platform2.isElement == null ? void 0 : platform2.isElement(element))) != null ? _await$platform$isEle : true) ? element : element.contextElement || await (platform2.getDocumentElement == null ? void 0 : platform2.getDocumentElement(elements.floating)),
     boundary,
     rootBoundary,
@@ -17994,7 +16960,7 @@ async function detectOverflow2(state, options) {
     x: 1,
     y: 1
   };
-  const elementClientRect = rectToClientRect2(platform2.convertOffsetParentRelativeRectToViewportRelativeRect ? await platform2.convertOffsetParentRelativeRectToViewportRelativeRect({
+  const elementClientRect = rectToClientRect(platform2.convertOffsetParentRelativeRectToViewportRelativeRect ? await platform2.convertOffsetParentRelativeRectToViewportRelativeRect({
     elements,
     rect,
     offsetParent,
@@ -18007,7 +16973,7 @@ async function detectOverflow2(state, options) {
     right: (elementClientRect.right - clippingClientRect.right + paddingObject.right) / offsetScale.x
   };
 }
-var arrow2 = (options) => ({
+var arrow = (options) => ({
   name: "arrow",
   options,
   async fn(state) {
@@ -18048,19 +17014,19 @@ var arrow2 = (options) => ({
     }
     const centerToReference = endDiff / 2 - startDiff / 2;
     const largestPossiblePadding = clientSize / 2 - arrowDimensions[length] / 2 - 1;
-    const minPadding = min3(paddingObject[minProp], largestPossiblePadding);
-    const maxPadding = min3(paddingObject[maxProp], largestPossiblePadding);
+    const minPadding = min2(paddingObject[minProp], largestPossiblePadding);
+    const maxPadding = min2(paddingObject[maxProp], largestPossiblePadding);
     const min$1 = minPadding;
-    const max5 = clientSize - arrowDimensions[length] - maxPadding;
+    const max4 = clientSize - arrowDimensions[length] - maxPadding;
     const center = clientSize / 2 - arrowDimensions[length] / 2 + centerToReference;
-    const offset4 = clamp3(min$1, center, max5);
-    const shouldAddOffset = !middlewareData.arrow && getAlignment(placement) != null && center !== offset4 && rects.reference[length] / 2 - (center < min$1 ? minPadding : maxPadding) - arrowDimensions[length] / 2 < 0;
-    const alignmentOffset = shouldAddOffset ? center < min$1 ? center - min$1 : center - max5 : 0;
+    const offset3 = clamp3(min$1, center, max4);
+    const shouldAddOffset = !middlewareData.arrow && getAlignment(placement) != null && center !== offset3 && rects.reference[length] / 2 - (center < min$1 ? minPadding : maxPadding) - arrowDimensions[length] / 2 < 0;
+    const alignmentOffset = shouldAddOffset ? center < min$1 ? center - min$1 : center - max4 : 0;
     return {
       [axis]: coords[axis] + alignmentOffset,
       data: {
-        [axis]: offset4,
-        centerOffset: center - offset4 - alignmentOffset,
+        [axis]: offset3,
+        centerOffset: center - offset3 - alignmentOffset,
         ...shouldAddOffset && {
           alignmentOffset
         }
@@ -18069,7 +17035,7 @@ var arrow2 = (options) => ({
     };
   }
 });
-var flip3 = function(options) {
+var flip2 = function(options) {
   if (options === void 0) {
     options = {};
   }
@@ -18102,13 +17068,13 @@ var flip3 = function(options) {
       const initialSideAxis = getSideAxis(initialPlacement);
       const isBasePlacement = getSide(initialPlacement) === initialPlacement;
       const rtl = await (platform2.isRTL == null ? void 0 : platform2.isRTL(elements.floating));
-      const fallbackPlacements = specifiedFallbackPlacements || (isBasePlacement || !flipAlignment ? [getOppositePlacement2(initialPlacement)] : getExpandedPlacements(initialPlacement));
+      const fallbackPlacements = specifiedFallbackPlacements || (isBasePlacement || !flipAlignment ? [getOppositePlacement(initialPlacement)] : getExpandedPlacements(initialPlacement));
       const hasFallbackAxisSideDirection = fallbackAxisSideDirection !== "none";
       if (!specifiedFallbackPlacements && hasFallbackAxisSideDirection) {
         fallbackPlacements.push(...getOppositeAxisPlacements(initialPlacement, flipAlignment, fallbackAxisSideDirection, rtl));
       }
-      const placements3 = [initialPlacement, ...fallbackPlacements];
-      const overflow = await detectOverflow2(state, detectOverflowOptions);
+      const placements2 = [initialPlacement, ...fallbackPlacements];
+      const overflow = await detectOverflow(state, detectOverflowOptions);
       const overflows = [];
       let overflowsData = ((_middlewareData$flip = middlewareData.flip) == null ? void 0 : _middlewareData$flip.overflows) || [];
       if (checkMainAxis) {
@@ -18125,7 +17091,7 @@ var flip3 = function(options) {
       if (!overflows.every((side2) => side2 <= 0)) {
         var _middlewareData$flip2, _overflowsData$filter;
         const nextIndex = (((_middlewareData$flip2 = middlewareData.flip) == null ? void 0 : _middlewareData$flip2.index) || 0) + 1;
-        const nextPlacement = placements3[nextIndex];
+        const nextPlacement = placements2[nextIndex];
         if (nextPlacement) {
           return {
             data: {
@@ -18211,7 +17177,7 @@ async function convertValueToCoords(state, options) {
     y: crossAxis * crossAxisMulti
   };
 }
-var offset2 = function(options) {
+var offset = function(options) {
   if (options === void 0) {
     options = 0;
   }
@@ -18275,7 +17241,7 @@ var shift = function(options) {
         x: x2,
         y
       };
-      const overflow = await detectOverflow2(state, detectOverflowOptions);
+      const overflow = await detectOverflow(state, detectOverflowOptions);
       const crossAxis = getSideAxis(getSide(placement));
       const mainAxis = getOppositeAxis(crossAxis);
       let mainAxisCoord = coords[mainAxis];
@@ -18283,16 +17249,16 @@ var shift = function(options) {
       if (checkMainAxis) {
         const minSide = mainAxis === "y" ? "top" : "left";
         const maxSide = mainAxis === "y" ? "bottom" : "right";
-        const min5 = mainAxisCoord + overflow[minSide];
-        const max5 = mainAxisCoord - overflow[maxSide];
-        mainAxisCoord = clamp3(min5, mainAxisCoord, max5);
+        const min4 = mainAxisCoord + overflow[minSide];
+        const max4 = mainAxisCoord - overflow[maxSide];
+        mainAxisCoord = clamp3(min4, mainAxisCoord, max4);
       }
       if (checkCrossAxis) {
         const minSide = crossAxis === "y" ? "top" : "left";
         const maxSide = crossAxis === "y" ? "bottom" : "right";
-        const min5 = crossAxisCoord + overflow[minSide];
-        const max5 = crossAxisCoord - overflow[maxSide];
-        crossAxisCoord = clamp3(min5, crossAxisCoord, max5);
+        const min4 = crossAxisCoord + overflow[minSide];
+        const max4 = crossAxisCoord - overflow[maxSide];
+        crossAxisCoord = clamp3(min4, crossAxisCoord, max4);
       }
       const limitedCoords = limiter.fn({
         ...state,
@@ -18311,34 +17277,34 @@ var shift = function(options) {
 };
 
 // node_modules/@floating-ui/utils/dist/floating-ui.utils.dom.mjs
-function getNodeName2(node) {
+function getNodeName(node) {
   if (isNode(node)) {
     return (node.nodeName || "").toLowerCase();
   }
   return "#document";
 }
-function getWindow2(node) {
+function getWindow(node) {
   var _node$ownerDocument;
   return (node == null || (_node$ownerDocument = node.ownerDocument) == null ? void 0 : _node$ownerDocument.defaultView) || window;
 }
-function getDocumentElement2(node) {
+function getDocumentElement(node) {
   var _ref;
   return (_ref = (isNode(node) ? node.ownerDocument : node.document) || window.document) == null ? void 0 : _ref.documentElement;
 }
 function isNode(value) {
-  return value instanceof Node || value instanceof getWindow2(value).Node;
+  return value instanceof Node || value instanceof getWindow(value).Node;
 }
-function isElement4(value) {
-  return value instanceof Element || value instanceof getWindow2(value).Element;
+function isElement3(value) {
+  return value instanceof Element || value instanceof getWindow(value).Element;
 }
-function isHTMLElement2(value) {
-  return value instanceof HTMLElement || value instanceof getWindow2(value).HTMLElement;
+function isHTMLElement(value) {
+  return value instanceof HTMLElement || value instanceof getWindow(value).HTMLElement;
 }
-function isShadowRoot2(value) {
+function isShadowRoot(value) {
   if (typeof ShadowRoot === "undefined") {
     return false;
   }
-  return value instanceof ShadowRoot || value instanceof getWindow2(value).ShadowRoot;
+  return value instanceof ShadowRoot || value instanceof getWindow(value).ShadowRoot;
 }
 function isOverflowElement(element) {
   const {
@@ -18346,11 +17312,11 @@ function isOverflowElement(element) {
     overflowX,
     overflowY,
     display
-  } = getComputedStyle3(element);
+  } = getComputedStyle2(element);
   return /auto|scroll|overlay|hidden|clip/.test(overflow + overflowY + overflowX) && !["inline", "contents"].includes(display);
 }
-function isTableElement2(element) {
-  return ["table", "td", "th"].includes(getNodeName2(element));
+function isTableElement(element) {
+  return ["table", "td", "th"].includes(getNodeName(element));
 }
 function isTopLayer(element) {
   return [":popover-open", ":modal"].some((selector) => {
@@ -18363,19 +17329,19 @@ function isTopLayer(element) {
 }
 function isContainingBlock(element) {
   const webkit = isWebKit();
-  const css = getComputedStyle3(element);
+  const css = getComputedStyle2(element);
   return css.transform !== "none" || css.perspective !== "none" || (css.containerType ? css.containerType !== "normal" : false) || !webkit && (css.backdropFilter ? css.backdropFilter !== "none" : false) || !webkit && (css.filter ? css.filter !== "none" : false) || ["transform", "perspective", "filter"].some((value) => (css.willChange || "").includes(value)) || ["paint", "layout", "strict", "content"].some((value) => (css.contain || "").includes(value));
 }
-function getContainingBlock2(element) {
-  let currentNode = getParentNode2(element);
-  while (isHTMLElement2(currentNode) && !isLastTraversableNode(currentNode)) {
+function getContainingBlock(element) {
+  let currentNode = getParentNode(element);
+  while (isHTMLElement(currentNode) && !isLastTraversableNode(currentNode)) {
     if (isTopLayer(currentNode)) {
       return null;
     }
     if (isContainingBlock(currentNode)) {
       return currentNode;
     }
-    currentNode = getParentNode2(currentNode);
+    currentNode = getParentNode(currentNode);
   }
   return null;
 }
@@ -18385,13 +17351,13 @@ function isWebKit() {
   return CSS.supports("-webkit-backdrop-filter", "none");
 }
 function isLastTraversableNode(node) {
-  return ["html", "body", "#document"].includes(getNodeName2(node));
+  return ["html", "body", "#document"].includes(getNodeName(node));
 }
-function getComputedStyle3(element) {
-  return getWindow2(element).getComputedStyle(element);
+function getComputedStyle2(element) {
+  return getWindow(element).getComputedStyle(element);
 }
-function getNodeScroll2(element) {
-  if (isElement4(element)) {
+function getNodeScroll(element) {
+  if (isElement3(element)) {
     return {
       scrollLeft: element.scrollLeft,
       scrollTop: element.scrollTop
@@ -18402,25 +17368,25 @@ function getNodeScroll2(element) {
     scrollTop: element.pageYOffset
   };
 }
-function getParentNode2(node) {
-  if (getNodeName2(node) === "html") {
+function getParentNode(node) {
+  if (getNodeName(node) === "html") {
     return node;
   }
   const result2 = (
     // Step into the shadow DOM of the parent of a slotted node.
     node.assignedSlot || // DOM Element detected.
     node.parentNode || // ShadowRoot detected.
-    isShadowRoot2(node) && node.host || // Fallback.
-    getDocumentElement2(node)
+    isShadowRoot(node) && node.host || // Fallback.
+    getDocumentElement(node)
   );
-  return isShadowRoot2(result2) ? result2.host : result2;
+  return isShadowRoot(result2) ? result2.host : result2;
 }
 function getNearestOverflowAncestor(node) {
-  const parentNode = getParentNode2(node);
+  const parentNode = getParentNode(node);
   if (isLastTraversableNode(parentNode)) {
     return node.ownerDocument ? node.ownerDocument.body : node.body;
   }
-  if (isHTMLElement2(parentNode) && isOverflowElement(parentNode)) {
+  if (isHTMLElement(parentNode) && isOverflowElement(parentNode)) {
     return parentNode;
   }
   return getNearestOverflowAncestor(parentNode);
@@ -18435,7 +17401,7 @@ function getOverflowAncestors(node, list, traverseIframes) {
   }
   const scrollableAncestor = getNearestOverflowAncestor(node);
   const isBody = scrollableAncestor === ((_node$ownerDocument2 = node.ownerDocument) == null ? void 0 : _node$ownerDocument2.body);
-  const win = getWindow2(scrollableAncestor);
+  const win = getWindow(scrollableAncestor);
   if (isBody) {
     return list.concat(win, win.visualViewport || [], isOverflowElement(scrollableAncestor) ? scrollableAncestor : [], win.frameElement && traverseIframes ? getOverflowAncestors(win.frameElement) : []);
   }
@@ -18444,13 +17410,13 @@ function getOverflowAncestors(node, list, traverseIframes) {
 
 // node_modules/@floating-ui/dom/dist/floating-ui.dom.mjs
 function getCssDimensions(element) {
-  const css = getComputedStyle3(element);
+  const css = getComputedStyle2(element);
   let width = parseFloat(css.width) || 0;
   let height = parseFloat(css.height) || 0;
-  const hasOffset = isHTMLElement2(element);
+  const hasOffset = isHTMLElement(element);
   const offsetWidth = hasOffset ? element.offsetWidth : width;
   const offsetHeight = hasOffset ? element.offsetHeight : height;
-  const shouldFallback = round3(width) !== offsetWidth || round3(height) !== offsetHeight;
+  const shouldFallback = round2(width) !== offsetWidth || round2(height) !== offsetHeight;
   if (shouldFallback) {
     width = offsetWidth;
     height = offsetHeight;
@@ -18462,11 +17428,11 @@ function getCssDimensions(element) {
   };
 }
 function unwrapElement(element) {
-  return !isElement4(element) ? element.contextElement : element;
+  return !isElement3(element) ? element.contextElement : element;
 }
 function getScale(element) {
   const domElement = unwrapElement(element);
-  if (!isHTMLElement2(domElement)) {
+  if (!isHTMLElement(domElement)) {
     return createCoords(1);
   }
   const rect = domElement.getBoundingClientRect();
@@ -18475,8 +17441,8 @@ function getScale(element) {
     height,
     $
   } = getCssDimensions(domElement);
-  let x2 = ($ ? round3(rect.width) : rect.width) / width;
-  let y = ($ ? round3(rect.height) : rect.height) / height;
+  let x2 = ($ ? round2(rect.width) : rect.width) / width;
+  let y = ($ ? round2(rect.height) : rect.height) / height;
   if (!x2 || !Number.isFinite(x2)) {
     x2 = 1;
   }
@@ -18490,7 +17456,7 @@ function getScale(element) {
 }
 var noOffsets = createCoords(0);
 function getVisualOffsets(element) {
-  const win = getWindow2(element);
+  const win = getWindow(element);
   if (!isWebKit() || !win.visualViewport) {
     return noOffsets;
   }
@@ -18503,12 +17469,12 @@ function shouldAddVisualOffsets(element, isFixed, floatingOffsetParent) {
   if (isFixed === void 0) {
     isFixed = false;
   }
-  if (!floatingOffsetParent || isFixed && floatingOffsetParent !== getWindow2(element)) {
+  if (!floatingOffsetParent || isFixed && floatingOffsetParent !== getWindow(element)) {
     return false;
   }
   return isFixed;
 }
-function getBoundingClientRect2(element, includeScale, isFixedStrategy, offsetParent) {
+function getBoundingClientRect(element, includeScale, isFixedStrategy, offsetParent) {
   if (includeScale === void 0) {
     includeScale = false;
   }
@@ -18520,7 +17486,7 @@ function getBoundingClientRect2(element, includeScale, isFixedStrategy, offsetPa
   let scale = createCoords(1);
   if (includeScale) {
     if (offsetParent) {
-      if (isElement4(offsetParent)) {
+      if (isElement3(offsetParent)) {
         scale = getScale(offsetParent);
       }
     } else {
@@ -18533,27 +17499,27 @@ function getBoundingClientRect2(element, includeScale, isFixedStrategy, offsetPa
   let width = clientRect.width / scale.x;
   let height = clientRect.height / scale.y;
   if (domElement) {
-    const win = getWindow2(domElement);
-    const offsetWin = offsetParent && isElement4(offsetParent) ? getWindow2(offsetParent) : offsetParent;
+    const win = getWindow(domElement);
+    const offsetWin = offsetParent && isElement3(offsetParent) ? getWindow(offsetParent) : offsetParent;
     let currentWin = win;
     let currentIFrame = currentWin.frameElement;
     while (currentIFrame && offsetParent && offsetWin !== currentWin) {
       const iframeScale = getScale(currentIFrame);
       const iframeRect = currentIFrame.getBoundingClientRect();
-      const css = getComputedStyle3(currentIFrame);
-      const left3 = iframeRect.left + (currentIFrame.clientLeft + parseFloat(css.paddingLeft)) * iframeScale.x;
-      const top2 = iframeRect.top + (currentIFrame.clientTop + parseFloat(css.paddingTop)) * iframeScale.y;
+      const css = getComputedStyle2(currentIFrame);
+      const left2 = iframeRect.left + (currentIFrame.clientLeft + parseFloat(css.paddingLeft)) * iframeScale.x;
+      const top = iframeRect.top + (currentIFrame.clientTop + parseFloat(css.paddingTop)) * iframeScale.y;
       x2 *= iframeScale.x;
       y *= iframeScale.y;
       width *= iframeScale.x;
       height *= iframeScale.y;
-      x2 += left3;
-      y += top2;
-      currentWin = getWindow2(currentIFrame);
+      x2 += left2;
+      y += top;
+      currentWin = getWindow(currentIFrame);
       currentIFrame = currentWin.frameElement;
     }
   }
-  return rectToClientRect2({
+  return rectToClientRect({
     width,
     height,
     x: x2,
@@ -18568,7 +17534,7 @@ function convertOffsetParentRelativeRectToViewportRelativeRect(_ref) {
     strategy
   } = _ref;
   const isFixed = strategy === "fixed";
-  const documentElement = getDocumentElement2(offsetParent);
+  const documentElement = getDocumentElement(offsetParent);
   const topLayer = elements ? isTopLayer(elements.floating) : false;
   if (offsetParent === documentElement || topLayer && isFixed) {
     return rect;
@@ -18579,13 +17545,13 @@ function convertOffsetParentRelativeRectToViewportRelativeRect(_ref) {
   };
   let scale = createCoords(1);
   const offsets = createCoords(0);
-  const isOffsetParentAnElement = isHTMLElement2(offsetParent);
+  const isOffsetParentAnElement = isHTMLElement(offsetParent);
   if (isOffsetParentAnElement || !isOffsetParentAnElement && !isFixed) {
-    if (getNodeName2(offsetParent) !== "body" || isOverflowElement(documentElement)) {
-      scroll = getNodeScroll2(offsetParent);
+    if (getNodeName(offsetParent) !== "body" || isOverflowElement(documentElement)) {
+      scroll = getNodeScroll(offsetParent);
     }
-    if (isHTMLElement2(offsetParent)) {
-      const offsetRect = getBoundingClientRect2(offsetParent);
+    if (isHTMLElement(offsetParent)) {
+      const offsetRect = getBoundingClientRect(offsetParent);
       scale = getScale(offsetParent);
       offsets.x = offsetRect.x + offsetParent.clientLeft;
       offsets.y = offsetRect.y + offsetParent.clientTop;
@@ -18601,19 +17567,19 @@ function convertOffsetParentRelativeRectToViewportRelativeRect(_ref) {
 function getClientRects(element) {
   return Array.from(element.getClientRects());
 }
-function getWindowScrollBarX2(element) {
-  return getBoundingClientRect2(getDocumentElement2(element)).left + getNodeScroll2(element).scrollLeft;
+function getWindowScrollBarX(element) {
+  return getBoundingClientRect(getDocumentElement(element)).left + getNodeScroll(element).scrollLeft;
 }
-function getDocumentRect2(element) {
-  const html = getDocumentElement2(element);
-  const scroll = getNodeScroll2(element);
+function getDocumentRect(element) {
+  const html = getDocumentElement(element);
+  const scroll = getNodeScroll(element);
   const body = element.ownerDocument.body;
-  const width = max3(html.scrollWidth, html.clientWidth, body.scrollWidth, body.clientWidth);
-  const height = max3(html.scrollHeight, html.clientHeight, body.scrollHeight, body.clientHeight);
-  let x2 = -scroll.scrollLeft + getWindowScrollBarX2(element);
+  const width = max2(html.scrollWidth, html.clientWidth, body.scrollWidth, body.clientWidth);
+  const height = max2(html.scrollHeight, html.clientHeight, body.scrollHeight, body.clientHeight);
+  let x2 = -scroll.scrollLeft + getWindowScrollBarX(element);
   const y = -scroll.scrollTop;
-  if (getComputedStyle3(body).direction === "rtl") {
-    x2 += max3(html.clientWidth, body.clientWidth) - width;
+  if (getComputedStyle2(body).direction === "rtl") {
+    x2 += max2(html.clientWidth, body.clientWidth) - width;
   }
   return {
     width,
@@ -18622,9 +17588,9 @@ function getDocumentRect2(element) {
     y
   };
 }
-function getViewportRect2(element, strategy) {
-  const win = getWindow2(element);
-  const html = getDocumentElement2(element);
+function getViewportRect(element, strategy) {
+  const win = getWindow(element);
+  const html = getDocumentElement(element);
   const visualViewport = win.visualViewport;
   let width = html.clientWidth;
   let height = html.clientHeight;
@@ -18646,15 +17612,15 @@ function getViewportRect2(element, strategy) {
     y
   };
 }
-function getInnerBoundingClientRect2(element, strategy) {
-  const clientRect = getBoundingClientRect2(element, true, strategy === "fixed");
-  const top2 = clientRect.top + element.clientTop;
-  const left3 = clientRect.left + element.clientLeft;
-  const scale = isHTMLElement2(element) ? getScale(element) : createCoords(1);
+function getInnerBoundingClientRect(element, strategy) {
+  const clientRect = getBoundingClientRect(element, true, strategy === "fixed");
+  const top = clientRect.top + element.clientTop;
+  const left2 = clientRect.left + element.clientLeft;
+  const scale = isHTMLElement(element) ? getScale(element) : createCoords(1);
   const width = element.clientWidth * scale.x;
   const height = element.clientHeight * scale.y;
-  const x2 = left3 * scale.x;
-  const y = top2 * scale.y;
+  const x2 = left2 * scale.x;
+  const y = top * scale.y;
   return {
     width,
     height,
@@ -18665,11 +17631,11 @@ function getInnerBoundingClientRect2(element, strategy) {
 function getClientRectFromClippingAncestor(element, clippingAncestor, strategy) {
   let rect;
   if (clippingAncestor === "viewport") {
-    rect = getViewportRect2(element, strategy);
+    rect = getViewportRect(element, strategy);
   } else if (clippingAncestor === "document") {
-    rect = getDocumentRect2(getDocumentElement2(element));
-  } else if (isElement4(clippingAncestor)) {
-    rect = getInnerBoundingClientRect2(clippingAncestor, strategy);
+    rect = getDocumentRect(getDocumentElement(element));
+  } else if (isElement3(clippingAncestor)) {
+    rect = getInnerBoundingClientRect(clippingAncestor, strategy);
   } else {
     const visualOffsets = getVisualOffsets(element);
     rect = {
@@ -18678,26 +17644,26 @@ function getClientRectFromClippingAncestor(element, clippingAncestor, strategy) 
       y: clippingAncestor.y - visualOffsets.y
     };
   }
-  return rectToClientRect2(rect);
+  return rectToClientRect(rect);
 }
 function hasFixedPositionAncestor(element, stopNode) {
-  const parentNode = getParentNode2(element);
-  if (parentNode === stopNode || !isElement4(parentNode) || isLastTraversableNode(parentNode)) {
+  const parentNode = getParentNode(element);
+  if (parentNode === stopNode || !isElement3(parentNode) || isLastTraversableNode(parentNode)) {
     return false;
   }
-  return getComputedStyle3(parentNode).position === "fixed" || hasFixedPositionAncestor(parentNode, stopNode);
+  return getComputedStyle2(parentNode).position === "fixed" || hasFixedPositionAncestor(parentNode, stopNode);
 }
 function getClippingElementAncestors(element, cache2) {
   const cachedResult = cache2.get(element);
   if (cachedResult) {
     return cachedResult;
   }
-  let result2 = getOverflowAncestors(element, [], false).filter((el) => isElement4(el) && getNodeName2(el) !== "body");
+  let result2 = getOverflowAncestors(element, [], false).filter((el) => isElement3(el) && getNodeName(el) !== "body");
   let currentContainingBlockComputedStyle = null;
-  const elementIsFixed = getComputedStyle3(element).position === "fixed";
-  let currentNode = elementIsFixed ? getParentNode2(element) : element;
-  while (isElement4(currentNode) && !isLastTraversableNode(currentNode)) {
-    const computedStyle = getComputedStyle3(currentNode);
+  const elementIsFixed = getComputedStyle2(element).position === "fixed";
+  let currentNode = elementIsFixed ? getParentNode(element) : element;
+  while (isElement3(currentNode) && !isLastTraversableNode(currentNode)) {
+    const computedStyle = getComputedStyle2(currentNode);
     const currentNodeIsContaining = isContainingBlock(currentNode);
     if (!currentNodeIsContaining && computedStyle.position === "fixed") {
       currentContainingBlockComputedStyle = null;
@@ -18708,12 +17674,12 @@ function getClippingElementAncestors(element, cache2) {
     } else {
       currentContainingBlockComputedStyle = computedStyle;
     }
-    currentNode = getParentNode2(currentNode);
+    currentNode = getParentNode(currentNode);
   }
   cache2.set(element, result2);
   return result2;
 }
-function getClippingRect2(_ref) {
+function getClippingRect(_ref) {
   let {
     element,
     boundary,
@@ -18725,10 +17691,10 @@ function getClippingRect2(_ref) {
   const firstClippingAncestor = clippingAncestors[0];
   const clippingRect = clippingAncestors.reduce((accRect, clippingAncestor) => {
     const rect = getClientRectFromClippingAncestor(element, clippingAncestor, strategy);
-    accRect.top = max3(rect.top, accRect.top);
-    accRect.right = min3(rect.right, accRect.right);
-    accRect.bottom = min3(rect.bottom, accRect.bottom);
-    accRect.left = max3(rect.left, accRect.left);
+    accRect.top = max2(rect.top, accRect.top);
+    accRect.right = min2(rect.right, accRect.right);
+    accRect.bottom = min2(rect.bottom, accRect.bottom);
+    accRect.left = max2(rect.left, accRect.left);
     return accRect;
   }, getClientRectFromClippingAncestor(element, firstClippingAncestor, strategy));
   return {
@@ -18749,25 +17715,25 @@ function getDimensions(element) {
   };
 }
 function getRectRelativeToOffsetParent(element, offsetParent, strategy) {
-  const isOffsetParentAnElement = isHTMLElement2(offsetParent);
-  const documentElement = getDocumentElement2(offsetParent);
+  const isOffsetParentAnElement = isHTMLElement(offsetParent);
+  const documentElement = getDocumentElement(offsetParent);
   const isFixed = strategy === "fixed";
-  const rect = getBoundingClientRect2(element, true, isFixed, offsetParent);
+  const rect = getBoundingClientRect(element, true, isFixed, offsetParent);
   let scroll = {
     scrollLeft: 0,
     scrollTop: 0
   };
   const offsets = createCoords(0);
   if (isOffsetParentAnElement || !isOffsetParentAnElement && !isFixed) {
-    if (getNodeName2(offsetParent) !== "body" || isOverflowElement(documentElement)) {
-      scroll = getNodeScroll2(offsetParent);
+    if (getNodeName(offsetParent) !== "body" || isOverflowElement(documentElement)) {
+      scroll = getNodeScroll(offsetParent);
     }
     if (isOffsetParentAnElement) {
-      const offsetRect = getBoundingClientRect2(offsetParent, true, isFixed, offsetParent);
+      const offsetRect = getBoundingClientRect(offsetParent, true, isFixed, offsetParent);
       offsets.x = offsetRect.x + offsetParent.clientLeft;
       offsets.y = offsetRect.y + offsetParent.clientTop;
     } else if (documentElement) {
-      offsets.x = getWindowScrollBarX2(documentElement);
+      offsets.x = getWindowScrollBarX(documentElement);
     }
   }
   const x2 = rect.left + scroll.scrollLeft - offsets.x;
@@ -18780,10 +17746,10 @@ function getRectRelativeToOffsetParent(element, offsetParent, strategy) {
   };
 }
 function isStaticPositioned(element) {
-  return getComputedStyle3(element).position === "static";
+  return getComputedStyle2(element).position === "static";
 }
-function getTrueOffsetParent2(element, polyfill) {
-  if (!isHTMLElement2(element) || getComputedStyle3(element).position === "fixed") {
+function getTrueOffsetParent(element, polyfill) {
+  if (!isHTMLElement(element) || getComputedStyle2(element).position === "fixed") {
     return null;
   }
   if (polyfill) {
@@ -18791,32 +17757,32 @@ function getTrueOffsetParent2(element, polyfill) {
   }
   return element.offsetParent;
 }
-function getOffsetParent2(element, polyfill) {
-  const win = getWindow2(element);
+function getOffsetParent(element, polyfill) {
+  const win = getWindow(element);
   if (isTopLayer(element)) {
     return win;
   }
-  if (!isHTMLElement2(element)) {
-    let svgOffsetParent = getParentNode2(element);
+  if (!isHTMLElement(element)) {
+    let svgOffsetParent = getParentNode(element);
     while (svgOffsetParent && !isLastTraversableNode(svgOffsetParent)) {
-      if (isElement4(svgOffsetParent) && !isStaticPositioned(svgOffsetParent)) {
+      if (isElement3(svgOffsetParent) && !isStaticPositioned(svgOffsetParent)) {
         return svgOffsetParent;
       }
-      svgOffsetParent = getParentNode2(svgOffsetParent);
+      svgOffsetParent = getParentNode(svgOffsetParent);
     }
     return win;
   }
-  let offsetParent = getTrueOffsetParent2(element, polyfill);
-  while (offsetParent && isTableElement2(offsetParent) && isStaticPositioned(offsetParent)) {
-    offsetParent = getTrueOffsetParent2(offsetParent, polyfill);
+  let offsetParent = getTrueOffsetParent(element, polyfill);
+  while (offsetParent && isTableElement(offsetParent) && isStaticPositioned(offsetParent)) {
+    offsetParent = getTrueOffsetParent(offsetParent, polyfill);
   }
   if (offsetParent && isLastTraversableNode(offsetParent) && isStaticPositioned(offsetParent) && !isContainingBlock(offsetParent)) {
     return win;
   }
-  return offsetParent || getContainingBlock2(element) || win;
+  return offsetParent || getContainingBlock(element) || win;
 }
 var getElementRects = async function(data) {
-  const getOffsetParentFn = this.getOffsetParent || getOffsetParent2;
+  const getOffsetParentFn = this.getOffsetParent || getOffsetParent;
   const getDimensionsFn = this.getDimensions;
   const floatingDimensions = await getDimensionsFn(data.floating);
   return {
@@ -18830,24 +17796,24 @@ var getElementRects = async function(data) {
   };
 };
 function isRTL(element) {
-  return getComputedStyle3(element).direction === "rtl";
+  return getComputedStyle2(element).direction === "rtl";
 }
 var platform = {
   convertOffsetParentRelativeRectToViewportRelativeRect,
-  getDocumentElement: getDocumentElement2,
-  getClippingRect: getClippingRect2,
-  getOffsetParent: getOffsetParent2,
+  getDocumentElement,
+  getClippingRect,
+  getOffsetParent,
   getElementRects,
   getClientRects,
   getDimensions,
   getScale,
-  isElement: isElement4,
+  isElement: isElement3,
   isRTL
 };
 function observeMove(element, onMove) {
   let io = null;
   let timeoutId;
-  const root2 = getDocumentElement2(element);
+  const root2 = getDocumentElement(element);
   function cleanup() {
     var _io;
     clearTimeout(timeoutId);
@@ -18863,8 +17829,8 @@ function observeMove(element, onMove) {
     }
     cleanup();
     const {
-      left: left3,
-      top: top2,
+      left: left2,
+      top,
       width,
       height
     } = element.getBoundingClientRect();
@@ -18874,14 +17840,14 @@ function observeMove(element, onMove) {
     if (!width || !height) {
       return;
     }
-    const insetTop = floor2(top2);
-    const insetRight = floor2(root2.clientWidth - (left3 + width));
-    const insetBottom = floor2(root2.clientHeight - (top2 + height));
-    const insetLeft = floor2(left3);
+    const insetTop = floor2(top);
+    const insetRight = floor2(root2.clientWidth - (left2 + width));
+    const insetBottom = floor2(root2.clientHeight - (top + height));
+    const insetLeft = floor2(left2);
     const rootMargin = -insetTop + "px " + -insetRight + "px " + -insetBottom + "px " + -insetLeft + "px";
     const options = {
       rootMargin,
-      threshold: max3(0, min3(1, threshold)) || 1
+      threshold: max2(0, min2(1, threshold)) || 1
     };
     let isFirstUpdate = true;
     function handleObserve(entries) {
@@ -18914,7 +17880,7 @@ function observeMove(element, onMove) {
   refresh(true);
   return cleanup;
 }
-function autoUpdate(reference2, floating, update2, options) {
+function autoUpdate(reference, floating, update2, options) {
   if (options === void 0) {
     options = {};
   }
@@ -18925,7 +17891,7 @@ function autoUpdate(reference2, floating, update2, options) {
     layoutShift = typeof IntersectionObserver === "function",
     animationFrame = false
   } = options;
-  const referenceEl = unwrapElement(reference2);
+  const referenceEl = unwrapElement(reference);
   const ancestors = ancestorScroll || ancestorResize ? [...referenceEl ? getOverflowAncestors(referenceEl) : [], ...getOverflowAncestors(floating)] : [];
   ancestors.forEach((ancestor) => {
     ancestorScroll && ancestor.addEventListener("scroll", update2, {
@@ -18955,12 +17921,12 @@ function autoUpdate(reference2, floating, update2, options) {
     resizeObserver.observe(floating);
   }
   let frameId;
-  let prevRefRect = animationFrame ? getBoundingClientRect2(reference2) : null;
+  let prevRefRect = animationFrame ? getBoundingClientRect(reference) : null;
   if (animationFrame) {
     frameLoop();
   }
   function frameLoop() {
-    const nextRefRect = getBoundingClientRect2(reference2);
+    const nextRefRect = getBoundingClientRect(reference);
     if (prevRefRect && (nextRefRect.x !== prevRefRect.x || nextRefRect.y !== prevRefRect.y || nextRefRect.width !== prevRefRect.width || nextRefRect.height !== prevRefRect.height)) {
       update2();
     }
@@ -18982,12 +17948,12 @@ function autoUpdate(reference2, floating, update2, options) {
     }
   };
 }
-var detectOverflow3 = detectOverflow2;
-var offset3 = offset2;
+var detectOverflow2 = detectOverflow;
+var offset2 = offset;
 var shift2 = shift;
-var flip4 = flip3;
-var arrow3 = arrow2;
-var computePosition2 = (reference2, floating, options) => {
+var flip3 = flip2;
+var arrow2 = arrow;
+var computePosition2 = (reference, floating, options) => {
   const cache2 = /* @__PURE__ */ new Map();
   const mergedOptions = {
     platform,
@@ -18997,7 +17963,7 @@ var computePosition2 = (reference2, floating, options) => {
     ...mergedOptions.platform,
     _c: cache2
   };
-  return computePosition(reference2, floating, {
+  return computePosition(reference, floating, {
     ...mergedOptions,
     platform: platformWithCache
   });
@@ -19078,7 +18044,7 @@ var arrowMiddleware = ({
       const arrowEl = unref(arrowRef);
       if (!arrowEl)
         return {};
-      return arrow3({
+      return arrow2({
         element: arrowEl,
         padding
       }).fn(args);
@@ -19168,7 +18134,7 @@ var useSizeProps = {
 var SIZE_INJECTION_KEY = Symbol("size");
 var useGlobalSize = () => {
   const injectedSize = inject(SIZE_INJECTION_KEY, {});
-  return computed(() => {
+  return computed2(() => {
     return unref(injectedSize.size) || "";
   });
 };
@@ -19213,62 +18179,6 @@ function useFocusController(target2, { afterFocus, beforeBlur, afterBlur } = {})
   };
 }
 
-// node_modules/element-plus/es/hooks/use-empty-values/index.mjs
-var SCOPE3 = "use-empty-values";
-var DEFAULT_EMPTY_VALUES = ["", void 0, null];
-var DEFAULT_VALUE_ON_CLEAR = void 0;
-var useEmptyValuesProps = buildProps({
-  emptyValues: Array,
-  valueOnClear: {
-    type: [String, Number, Boolean, Function],
-    default: void 0,
-    validator: (val) => isFunction(val) ? !val() : !val
-  }
-});
-var useEmptyValues = (props, defaultValue) => {
-  let config = useGlobalConfig();
-  if (!config.value) {
-    config = ref({});
-  }
-  const emptyValues = computed(() => props.emptyValues || config.value.emptyValues || DEFAULT_EMPTY_VALUES);
-  const valueOnClear = computed(() => {
-    if (isFunction(props.valueOnClear)) {
-      return props.valueOnClear();
-    } else if (props.valueOnClear !== void 0) {
-      return props.valueOnClear;
-    } else if (isFunction(config.value.valueOnClear)) {
-      return config.value.valueOnClear();
-    } else if (config.value.valueOnClear !== void 0) {
-      return config.value.valueOnClear;
-    }
-    return defaultValue !== void 0 ? defaultValue : DEFAULT_VALUE_ON_CLEAR;
-  });
-  const isEmptyValue2 = (value) => {
-    return emptyValues.value.includes(value);
-  };
-  if (!emptyValues.value.includes(valueOnClear.value)) {
-    debugWarn(SCOPE3, "value-on-clear should be a value of empty-values");
-  }
-  return {
-    emptyValues,
-    valueOnClear,
-    isEmptyValue: isEmptyValue2
-  };
-};
-
-// node_modules/element-plus/es/hooks/use-aria/index.mjs
-var ariaProps = buildProps({
-  ariaLabel: String,
-  ariaOrientation: {
-    type: String,
-    values: ["horizontal", "vertical", "undefined"]
-  },
-  ariaControls: String
-});
-var useAriaProps = (arias) => {
-  return pick_default(ariaProps, arias);
-};
-
 // node_modules/element-plus/es/components/config-provider/src/constants.mjs
 var configProviderContextKey = Symbol();
 
@@ -19277,7 +18187,7 @@ var globalConfig = ref();
 function useGlobalConfig(key, defaultValue = void 0) {
   const config = getCurrentInstance() ? inject(configProviderContextKey, globalConfig) : globalConfig;
   if (key) {
-    return computed(() => {
+    return computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = config.value) == null ? void 0 : _a2[key]) != null ? _b : defaultValue;
     });
@@ -19287,23 +18197,23 @@ function useGlobalConfig(key, defaultValue = void 0) {
 }
 function useGlobalComponentSettings(block, sizeFallback) {
   const config = useGlobalConfig();
-  const ns = useNamespace(block, computed(() => {
+  const ns = useNamespace(block, computed2(() => {
     var _a2;
     return ((_a2 = config.value) == null ? void 0 : _a2.namespace) || defaultNamespace;
   }));
-  const locale = useLocale(computed(() => {
+  const locale = useLocale(computed2(() => {
     var _a2;
     return (_a2 = config.value) == null ? void 0 : _a2.locale;
   }));
-  const zIndex2 = useZIndex(computed(() => {
+  const zIndex2 = useZIndex(computed2(() => {
     var _a2;
     return ((_a2 = config.value) == null ? void 0 : _a2.zIndex) || defaultInitialZIndex;
   }));
-  const size3 = computed(() => {
+  const size3 = computed2(() => {
     var _a2;
     return unref(sizeFallback) || ((_a2 = config.value) == null ? void 0 : _a2.size) || "";
   });
-  provideGlobalConfig(computed(() => unref(config) || {}));
+  provideGlobalConfig(computed2(() => unref(config) || {}));
   return {
     ns,
     locale,
@@ -19320,18 +18230,18 @@ var provideGlobalConfig = (config, app, global2 = false) => {
     debugWarn("provideGlobalConfig", "provideGlobalConfig() can only be used inside setup().");
     return;
   }
-  const context = computed(() => {
+  const context = computed2(() => {
     const cfg = unref(config);
     if (!(oldConfig == null ? void 0 : oldConfig.value))
       return cfg;
     return mergeConfig(oldConfig.value, cfg);
   });
   provideFn(configProviderContextKey, context);
-  provideFn(localeContextKey, computed(() => context.value.locale));
-  provideFn(namespaceContextKey, computed(() => context.value.namespace));
-  provideFn(zIndexContextKey, computed(() => context.value.zIndex));
+  provideFn(localeContextKey, computed2(() => context.value.locale));
+  provideFn(namespaceContextKey, computed2(() => context.value.namespace));
+  provideFn(zIndexContextKey, computed2(() => context.value.zIndex));
   provideFn(SIZE_INJECTION_KEY, {
-    size: computed(() => context.value.size || "")
+    size: computed2(() => context.value.size || "")
   });
   if (global2 || !globalConfig.value) {
     globalConfig.value = context.value;
@@ -19339,10 +18249,11 @@ var provideGlobalConfig = (config, app, global2 = false) => {
   return context;
 };
 var mergeConfig = (a2, b2) => {
+  var _a2;
   const keys3 = [.../* @__PURE__ */ new Set([...keysOf(a2), ...keysOf(b2)])];
   const obj = {};
   for (const key of keys3) {
-    obj[key] = b2[key] !== void 0 ? b2[key] : a2[key];
+    obj[key] = (_a2 = b2[key]) != null ? _a2 : a2[key];
   }
   return obj;
 };
@@ -19374,8 +18285,7 @@ var configProviderProps = buildProps({
   namespace: {
     type: String,
     default: "el"
-  },
-  ...useEmptyValuesProps
+  }
 });
 
 // node_modules/element-plus/es/components/config-provider/src/config-provider.mjs
@@ -19396,7 +18306,7 @@ var ConfigProvider = defineComponent({
 var ElConfigProvider = withInstall(ConfigProvider);
 
 // node_modules/element-plus/es/version.mjs
-var version2 = "2.7.6";
+var version2 = "2.5.5";
 
 // node_modules/element-plus/es/make-installer.mjs
 var makeInstaller = (components = []) => {
@@ -19414,7 +18324,7 @@ var makeInstaller = (components = []) => {
   };
 };
 
-// node_modules/element-plus/es/components/affix/src/affix.mjs
+// node_modules/element-plus/es/components/affix/src/affix2.mjs
 var affixProps = buildProps({
   zIndex: {
     type: definePropType([Number, String]),
@@ -19448,7 +18358,7 @@ var _export_sfc = (sfc, props) => {
   return target2;
 };
 
-// node_modules/element-plus/es/components/affix/src/affix2.mjs
+// node_modules/element-plus/es/components/affix/src/affix.mjs
 var COMPONENT_NAME = "ElAffix";
 var __default__ = defineComponent({
   name: COMPONENT_NAME
@@ -19475,21 +18385,21 @@ var _sfc_main = defineComponent({
     const fixed = ref(false);
     const scrollTop = ref(0);
     const transform2 = ref(0);
-    const rootStyle = computed(() => {
+    const rootStyle = computed2(() => {
       return {
         height: fixed.value ? `${rootHeight.value}px` : "",
         width: fixed.value ? `${rootWidth.value}px` : ""
       };
     });
-    const affixStyle = computed(() => {
+    const affixStyle = computed2(() => {
       if (!fixed.value)
         return {};
-      const offset4 = props.offset ? addUnit(props.offset) : 0;
+      const offset3 = props.offset ? addUnit(props.offset) : 0;
       return {
         height: `${rootHeight.value}px`,
         width: `${rootWidth.value}px`,
-        top: props.position === "top" ? offset4 : "",
-        bottom: props.position === "bottom" ? offset4 : "",
+        top: props.position === "top" ? offset3 : "",
+        bottom: props.position === "bottom" ? offset3 : "",
         transform: transform2.value ? `translateY(${transform2.value}px)` : "",
         zIndex: props.zIndex
       };
@@ -19527,7 +18437,7 @@ var _sfc_main = defineComponent({
       if (props.target) {
         target2.value = (_a2 = document.querySelector(props.target)) != null ? _a2 : void 0;
         if (!target2.value)
-          throwError(COMPONENT_NAME, `Target does not exist: ${props.target}`);
+          throwError(COMPONENT_NAME, `Target is not existed: ${props.target}`);
       } else {
         target2.value = document.documentElement;
       }
@@ -19583,7 +18493,7 @@ var _sfc_main2 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("icon");
-    const style = computed(() => {
+    const style = computed2(() => {
       const { size: size3, color } = props;
       if (!size3 && !color)
         return {};
@@ -19657,13 +18567,13 @@ var _sfc_main3 = defineComponent({
     const slots = useSlots();
     const ns = useNamespace("alert");
     const visible = ref(true);
-    const iconComponent = computed(() => TypeComponentsMap[props.type]);
-    const iconClass = computed(() => [
+    const iconComponent = computed2(() => TypeComponentsMap[props.type]);
+    const iconClass = computed2(() => [
       ns.e("icon"),
       { [ns.is("big")]: !!props.description || !!slots.default }
     ]);
-    const withDescription = computed(() => {
-      return { "with-description": props.description || slots.default };
+    const isBoldTitle = computed2(() => {
+      return { [ns.is("bold")]: props.description || slots.default };
     });
     const close2 = (evt) => {
       visible.value = false;
@@ -19693,7 +18603,7 @@ var _sfc_main3 = defineComponent({
             }, [
               _ctx.title || _ctx.$slots.title ? (openBlock(), createElementBlock("span", {
                 key: 0,
-                class: normalizeClass([unref(ns).e("title"), unref(withDescription)])
+                class: normalizeClass([unref(ns).e("title"), unref(isBoldTitle)])
               }, [
                 renderSlot(_ctx.$slots, "title", {}, () => [
                   createTextVNode(toDisplayString(_ctx.title), 1)
@@ -19749,12 +18659,12 @@ var useFormSize = (fallback, ignore = {}) => {
   const globalConfig2 = ignore.global ? emptyRef : useGlobalSize();
   const form = ignore.form ? { size: void 0 } : inject(formContextKey, void 0);
   const formItem = ignore.formItem ? { size: void 0 } : inject(formItemContextKey, void 0);
-  return computed(() => size3.value || unref(fallback) || (formItem == null ? void 0 : formItem.size) || (form == null ? void 0 : form.size) || globalConfig2.value || "");
+  return computed2(() => size3.value || unref(fallback) || (formItem == null ? void 0 : formItem.size) || (form == null ? void 0 : form.size) || globalConfig2.value || "");
 };
 var useFormDisabled = (fallback) => {
   const disabled = useProp("disabled");
   const form = inject(formContextKey, void 0);
-  return computed(() => disabled.value || unref(fallback) || (form == null ? void 0 : form.disabled) || false);
+  return computed2(() => disabled.value || unref(fallback) || (form == null ? void 0 : form.disabled) || false);
 };
 var useSize = useFormSize;
 var useDisabled = useFormDisabled;
@@ -19781,9 +18691,9 @@ var useFormItemInputId = (props, {
   }
   const inputId = ref();
   let idUnwatch = void 0;
-  const isLabeledByFormItem = computed(() => {
+  const isLabeledByFormItem = computed2(() => {
     var _a2;
-    return !!(!(props.label || props.ariaLabel) && formItemContext && formItemContext.inputIds && ((_a2 = formItemContext.inputIds) == null ? void 0 : _a2.length) <= 1);
+    return !!(!props.label && formItemContext && formItemContext.inputIds && ((_a2 = formItemContext.inputIds) == null ? void 0 : _a2.length) <= 1);
   });
   onMounted(() => {
     idUnwatch = watch([toRef(props, "id"), disableIdGeneration], ([id, disableIdGeneration2]) => {
@@ -19865,19 +18775,19 @@ var formEmits = {
 };
 
 // node_modules/element-plus/es/components/form/src/utils.mjs
-var SCOPE4 = "ElForm";
+var SCOPE3 = "ElForm";
 function useFormLabelWidth() {
   const potentialLabelWidthArr = ref([]);
-  const autoLabelWidth = computed(() => {
+  const autoLabelWidth = computed2(() => {
     if (!potentialLabelWidthArr.value.length)
       return "0";
-    const max5 = Math.max(...potentialLabelWidthArr.value);
-    return max5 ? `${max5}px` : "";
+    const max4 = Math.max(...potentialLabelWidthArr.value);
+    return max4 ? `${max4}px` : "";
   });
   function getLabelWidthIndex(width) {
     const index = potentialLabelWidthArr.value.indexOf(width);
     if (index === -1 && autoLabelWidth.value === "0") {
-      debugWarn(SCOPE4, `unexpected width ${width}`);
+      debugWarn(SCOPE3, `unexpected width ${width}`);
     }
     return index;
   }
@@ -19920,7 +18830,7 @@ var _sfc_main4 = defineComponent({
     const fields = [];
     const formSize = useFormSize();
     const ns = useNamespace("form");
-    const formClasses = computed(() => {
+    const formClasses = computed2(() => {
       const { labelPosition, inline: inline2 } = props;
       return [
         ns.b(),
@@ -19952,7 +18862,7 @@ var _sfc_main4 = defineComponent({
     const clearValidate = (props2 = []) => {
       filterFields(fields, props2).forEach((field) => field.clearValidate());
     };
-    const isValidatable = computed(() => {
+    const isValidatable = computed2(() => {
       const hasModel = !!props.model;
       if (!hasModel) {
         debugWarn(COMPONENT_NAME2, "model is required for validate to work.");
@@ -19996,7 +18906,7 @@ var _sfc_main4 = defineComponent({
       try {
         const result2 = await doValidateField(modelProps);
         if (result2 === true) {
-          await (callback == null ? void 0 : callback(result2));
+          callback == null ? void 0 : callback(result2);
         }
         return result2;
       } catch (e) {
@@ -20006,7 +18916,7 @@ var _sfc_main4 = defineComponent({
         if (props.scrollToError) {
           scrollToField(Object.keys(invalidFields)[0]);
         }
-        await (callback == null ? void 0 : callback(false, invalidFields));
+        callback == null ? void 0 : callback(false, invalidFields);
         return shouldThrow && Promise.reject(invalidFields);
       }
     };
@@ -20038,8 +18948,7 @@ var _sfc_main4 = defineComponent({
       validateField,
       resetFields,
       clearValidate,
-      scrollToField,
-      fields
+      scrollToField
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("form", {
@@ -20488,8 +19397,8 @@ var type$1 = function type(rule, value, source, errors, options) {
 };
 var range2 = function range3(rule, value, source, errors, options) {
   var len = typeof rule.len === "number";
-  var min5 = typeof rule.min === "number";
-  var max5 = typeof rule.max === "number";
+  var min4 = typeof rule.min === "number";
+  var max4 = typeof rule.max === "number";
   var spRegexp = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
   var val = value;
   var key = null;
@@ -20516,11 +19425,11 @@ var range2 = function range3(rule, value, source, errors, options) {
     if (val !== rule.len) {
       errors.push(format(options.messages[key].len, rule.fullField, rule.len));
     }
-  } else if (min5 && !max5 && val < rule.min) {
+  } else if (min4 && !max4 && val < rule.min) {
     errors.push(format(options.messages[key].min, rule.fullField, rule.min));
-  } else if (max5 && !min5 && val > rule.max) {
+  } else if (max4 && !min4 && val > rule.max) {
     errors.push(format(options.messages[key].max, rule.fullField, rule.max));
-  } else if (min5 && max5 && (val < rule.min || val > rule.max)) {
+  } else if (min4 && max4 && (val < rule.min || val > rule.max)) {
     errors.push(format(options.messages[key].range, rule.fullField, rule.min, rule.max));
   }
 };
@@ -21201,7 +20110,7 @@ var FormLabelWrap = defineComponent({
         formContext == null ? void 0 : formContext.registerLabelWidth(val, oldVal);
       }
     });
-    useResizeObserver(computed(() => {
+    useResizeObserver(computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = el.value) == null ? void 0 : _a2.firstElementChild) != null ? _b : null;
     }), updateLabelWidthFn);
@@ -21260,7 +20169,7 @@ var _sfc_main5 = defineComponent({
     const formItemRef = ref();
     let initialValue = void 0;
     let isResettingField = false;
-    const labelStyle = computed(() => {
+    const labelStyle = computed2(() => {
       if ((formContext == null ? void 0 : formContext.labelPosition) === "top") {
         return {};
       }
@@ -21269,7 +20178,7 @@ var _sfc_main5 = defineComponent({
         return { width: labelWidth };
       return {};
     });
-    const contentStyle = computed(() => {
+    const contentStyle = computed2(() => {
       if ((formContext == null ? void 0 : formContext.labelPosition) === "top" || (formContext == null ? void 0 : formContext.inline)) {
         return {};
       }
@@ -21282,7 +20191,7 @@ var _sfc_main5 = defineComponent({
       }
       return {};
     });
-    const formItemClasses = computed(() => [
+    const formItemClasses = computed2(() => [
       ns.b(),
       ns.m(_size.value),
       ns.is("error", validateState.value === "error"),
@@ -21293,34 +20202,34 @@ var _sfc_main5 = defineComponent({
       (formContext == null ? void 0 : formContext.requireAsteriskPosition) === "right" ? "asterisk-right" : "asterisk-left",
       { [ns.m("feedback")]: formContext == null ? void 0 : formContext.statusIcon }
     ]);
-    const _inlineMessage = computed(() => isBoolean2(props.inlineMessage) ? props.inlineMessage : (formContext == null ? void 0 : formContext.inlineMessage) || false);
-    const validateClasses = computed(() => [
+    const _inlineMessage = computed2(() => isBoolean2(props.inlineMessage) ? props.inlineMessage : (formContext == null ? void 0 : formContext.inlineMessage) || false);
+    const validateClasses = computed2(() => [
       ns.e("error"),
       { [ns.em("error", "inline")]: _inlineMessage.value }
     ]);
-    const propString = computed(() => {
+    const propString = computed2(() => {
       if (!props.prop)
         return "";
       return isString(props.prop) ? props.prop : props.prop.join(".");
     });
-    const hasLabel = computed(() => {
+    const hasLabel = computed2(() => {
       return !!(props.label || slots.label);
     });
-    const labelFor = computed(() => {
+    const labelFor = computed2(() => {
       return props.for || (inputIds.value.length === 1 ? inputIds.value[0] : void 0);
     });
-    const isGroup = computed(() => {
+    const isGroup = computed2(() => {
       return !labelFor.value && hasLabel.value;
     });
     const isNested = !!parentFormItemContext;
-    const fieldValue = computed(() => {
+    const fieldValue = computed2(() => {
       const model = formContext == null ? void 0 : formContext.model;
       if (!model || !props.prop) {
         return;
       }
       return getProp(model, props.prop).value;
     });
-    const normalizedRules = computed(() => {
+    const normalizedRules = computed2(() => {
       const { required: required4 } = props;
       const rules2 = [];
       if (props.rules) {
@@ -21347,7 +20256,7 @@ var _sfc_main5 = defineComponent({
       }
       return rules2;
     });
-    const validateEnabled = computed(() => normalizedRules.value.length > 0);
+    const validateEnabled = computed2(() => normalizedRules.value.length > 0);
     const getFilteredRule = (trigger) => {
       const rules2 = normalizedRules.value;
       return rules2.filter((rule) => {
@@ -21360,12 +20269,12 @@ var _sfc_main5 = defineComponent({
         }
       }).map(({ trigger: trigger2, ...rule }) => rule);
     };
-    const isRequired = computed(() => normalizedRules.value.some((rule) => rule.required));
-    const shouldShowError = computed(() => {
+    const isRequired = computed2(() => normalizedRules.value.some((rule) => rule.required));
+    const shouldShowError = computed2(() => {
       var _a2;
       return validateStateDebounced.value === "error" && props.showMessage && ((_a2 = formContext == null ? void 0 : formContext.showMessage) != null ? _a2 : true);
     });
-    const currentLabel = computed(() => `${props.label || ""}${(formContext == null ? void 0 : formContext.labelSuffix) || ""}`);
+    const currentLabel = computed2(() => `${props.label || ""}${(formContext == null ? void 0 : formContext.labelSuffix) || ""}`);
     const setValidationState = (state) => {
       validateState.value = state;
     };
@@ -21717,8 +20626,7 @@ var inputProps = buildProps({
   autofocus: {
     type: Boolean,
     default: false
-  },
-  ...useAriaProps(["ariaLabel"])
+  }
 });
 var inputEmits = {
   [UPDATE_MODEL_EVENT]: (value) => isString(value),
@@ -21751,7 +20659,7 @@ var _sfc_main6 = defineComponent({
     const props = __props;
     const rawAttrs = useAttrs();
     const slots = useSlots();
-    const containerAttrs = computed(() => {
+    const containerAttrs = computed2(() => {
       const comboBoxAttrs = {};
       if (props.containerRole === "combobox") {
         comboBoxAttrs["aria-haspopup"] = rawAttrs["aria-haspopup"];
@@ -21760,26 +20668,27 @@ var _sfc_main6 = defineComponent({
       }
       return comboBoxAttrs;
     });
-    const containerKls = computed(() => [
+    const containerKls = computed2(() => [
       props.type === "textarea" ? nsTextarea.b() : nsInput.b(),
       nsInput.m(inputSize.value),
       nsInput.is("disabled", inputDisabled.value),
       nsInput.is("exceed", inputExceed.value),
       {
         [nsInput.b("group")]: slots.prepend || slots.append,
+        [nsInput.bm("group", "append")]: slots.append,
+        [nsInput.bm("group", "prepend")]: slots.prepend,
         [nsInput.m("prefix")]: slots.prefix || props.prefixIcon,
         [nsInput.m("suffix")]: slots.suffix || props.suffixIcon || props.clearable || props.showPassword,
-        [nsInput.bm("suffix", "password-clear")]: showClear.value && showPwdVisible.value,
-        [nsInput.b("hidden")]: props.type === "hidden"
+        [nsInput.bm("suffix", "password-clear")]: showClear.value && showPwdVisible.value
       },
       rawAttrs.class
     ]);
-    const wrapperKls = computed(() => [
+    const wrapperKls = computed2(() => [
       nsInput.e("wrapper"),
       nsInput.is("focus", isFocused.value)
     ]);
     const attrs = useAttrs2({
-      excludeKeys: computed(() => {
+      excludeKeys: computed2(() => {
         return Object.keys(containerAttrs.value);
       })
     });
@@ -21798,7 +20707,7 @@ var _sfc_main6 = defineComponent({
     const passwordVisible = ref(false);
     const countStyle = ref();
     const textareaCalcStyle = shallowRef(props.inputStyle);
-    const _ref = computed(() => input.value || textarea.value);
+    const _ref = computed2(() => input.value || textarea.value);
     const { wrapperRef, isFocused, handleFocus, handleBlur } = useFocusController(_ref, {
       afterBlur() {
         var _a2;
@@ -21807,28 +20716,28 @@ var _sfc_main6 = defineComponent({
         }
       }
     });
-    const needStatusIcon = computed(() => {
+    const needStatusIcon = computed2(() => {
       var _a2;
       return (_a2 = elForm == null ? void 0 : elForm.statusIcon) != null ? _a2 : false;
     });
-    const validateState = computed(() => (elFormItem == null ? void 0 : elFormItem.validateState) || "");
-    const validateIcon = computed(() => validateState.value && ValidateComponentsMap[validateState.value]);
-    const passwordIcon = computed(() => passwordVisible.value ? view_default : hide_default);
-    const containerStyle = computed(() => [
+    const validateState = computed2(() => (elFormItem == null ? void 0 : elFormItem.validateState) || "");
+    const validateIcon = computed2(() => validateState.value && ValidateComponentsMap[validateState.value]);
+    const passwordIcon = computed2(() => passwordVisible.value ? view_default : hide_default);
+    const containerStyle = computed2(() => [
       rawAttrs.style
     ]);
-    const textareaStyle = computed(() => [
+    const textareaStyle = computed2(() => [
       props.inputStyle,
       textareaCalcStyle.value,
       { resize: props.resize }
     ]);
-    const nativeInputValue = computed(() => isNil_default(props.modelValue) ? "" : String(props.modelValue));
-    const showClear = computed(() => props.clearable && !inputDisabled.value && !props.readonly && !!nativeInputValue.value && (isFocused.value || hovering.value));
-    const showPwdVisible = computed(() => props.showPassword && !inputDisabled.value && !props.readonly && !!nativeInputValue.value && (!!nativeInputValue.value || isFocused.value));
-    const isWordLimitVisible = computed(() => props.showWordLimit && !!props.maxlength && (props.type === "text" || props.type === "textarea") && !inputDisabled.value && !props.readonly && !props.showPassword);
-    const textLength = computed(() => nativeInputValue.value.length);
-    const inputExceed = computed(() => !!isWordLimitVisible.value && textLength.value > Number(props.maxlength));
-    const suffixVisible = computed(() => !!slots.suffix || !!props.suffixIcon || showClear.value || props.showPassword || isWordLimitVisible.value || !!validateState.value && needStatusIcon.value);
+    const nativeInputValue = computed2(() => isNil_default(props.modelValue) ? "" : String(props.modelValue));
+    const showClear = computed2(() => props.clearable && !inputDisabled.value && !props.readonly && !!nativeInputValue.value && (isFocused.value || hovering.value));
+    const showPwdVisible = computed2(() => props.showPassword && !inputDisabled.value && !props.readonly && !!nativeInputValue.value && (!!nativeInputValue.value || isFocused.value));
+    const isWordLimitVisible = computed2(() => props.showWordLimit && !!props.maxlength && (props.type === "text" || props.type === "textarea") && !inputDisabled.value && !props.readonly && !props.showPassword);
+    const textLength = computed2(() => nativeInputValue.value.length);
+    const inputExceed = computed2(() => !!isWordLimitVisible.value && textLength.value > Number(props.maxlength));
+    const suffixVisible = computed2(() => !!slots.suffix || !!props.suffixIcon || showClear.value || props.showPassword || isWordLimitVisible.value || !!validateState.value && needStatusIcon.value);
     const [recordCursor, setCursor] = useCursor(input);
     useResizeObserver(textarea, (entries) => {
       onceInitSizeTextarea();
@@ -21976,13 +20885,6 @@ var _sfc_main6 = defineComponent({
       setNativeInputValue();
       nextTick(resizeTextarea);
     });
-    useDeprecated({
-      from: "label",
-      replacement: "aria-label",
-      version: "2.8.0",
-      scope: "el-input",
-      ref: "https://element-plus.org/en-US/component/input.html"
-    }, computed(() => !!props.label));
     expose({
       input,
       textarea,
@@ -21996,14 +20898,8 @@ var _sfc_main6 = defineComponent({
       resizeTextarea
     });
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", mergeProps(unref(containerAttrs), {
-        class: [
-          unref(containerKls),
-          {
-            [unref(nsInput).bm("group", "append")]: _ctx.$slots.append,
-            [unref(nsInput).bm("group", "prepend")]: _ctx.$slots.prepend
-          }
-        ],
+      return withDirectives((openBlock(), createElementBlock("div", mergeProps(unref(containerAttrs), {
+        class: unref(containerKls),
         style: unref(containerStyle),
         role: _ctx.containerRole,
         onMouseenter: handleMouseEnter,
@@ -22056,7 +20952,7 @@ var _sfc_main6 = defineComponent({
               readonly: _ctx.readonly,
               autocomplete: _ctx.autocomplete,
               tabindex: _ctx.tabindex,
-              "aria-label": _ctx.label || _ctx.ariaLabel,
+              "aria-label": _ctx.label,
               placeholder: _ctx.placeholder,
               style: _ctx.inputStyle,
               form: _ctx.form,
@@ -22148,7 +21044,7 @@ var _sfc_main6 = defineComponent({
             id: unref(inputId),
             ref_key: "textarea",
             ref: textarea,
-            class: [unref(nsTextarea).e("inner"), unref(nsInput).is("focus", unref(isFocused))]
+            class: unref(nsTextarea).e("inner")
           }, unref(attrs), {
             minlength: _ctx.minlength,
             maxlength: _ctx.maxlength,
@@ -22157,7 +21053,7 @@ var _sfc_main6 = defineComponent({
             readonly: _ctx.readonly,
             autocomplete: _ctx.autocomplete,
             style: unref(textareaStyle),
-            "aria-label": _ctx.label || _ctx.ariaLabel,
+            "aria-label": _ctx.label,
             placeholder: _ctx.placeholder,
             form: _ctx.form,
             autofocus: _ctx.autofocus,
@@ -22176,7 +21072,9 @@ var _sfc_main6 = defineComponent({
             class: normalizeClass(unref(nsInput).e("count"))
           }, toDisplayString(unref(textLength)) + " / " + toDisplayString(_ctx.maxlength), 7)) : createCommentVNode("v-if", true)
         ], 64))
-      ], 16, _hoisted_12);
+      ], 16, _hoisted_12)), [
+        [vShow, _ctx.type !== "hidden"]
+      ]);
     };
   }
 });
@@ -22251,13 +21149,13 @@ var _sfc_main7 = defineComponent({
     let cursorDown = false;
     let cursorLeave = false;
     let originalOnSelectStart = isClient ? document.onselectstart : null;
-    const bar = computed(() => BAR_MAP[props.vertical ? "vertical" : "horizontal"]);
-    const thumbStyle = computed(() => renderThumbStyle({
+    const bar = computed2(() => BAR_MAP[props.vertical ? "vertical" : "horizontal"]);
+    const thumbStyle = computed2(() => renderThumbStyle({
       size: props.size,
       move: props.move,
       bar: bar.value
     }));
-    const offsetRatio = computed(() => instance.value[bar.value.offset] ** 2 / scrollbar.wrapElement[bar.value.scrollSize] / props.ratio / thumb.value[bar.value.offset]);
+    const offsetRatio = computed2(() => instance.value[bar.value.offset] ** 2 / scrollbar.wrapElement[bar.value.scrollSize] / props.ratio / thumb.value[bar.value.offset]);
     const clickThumbHandler = (e) => {
       var _a2;
       e.stopPropagation();
@@ -22273,9 +21171,9 @@ var _sfc_main7 = defineComponent({
     const clickTrackHandler = (e) => {
       if (!thumb.value || !instance.value || !scrollbar.wrapElement)
         return;
-      const offset4 = Math.abs(e.target.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]);
+      const offset3 = Math.abs(e.target.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]);
       const thumbHalf = thumb.value[bar.value.offset] / 2;
-      const thumbPositionPercentage = (offset4 - thumbHalf) * 100 * offsetRatio.value / instance.value[bar.value.offset];
+      const thumbPositionPercentage = (offset3 - thumbHalf) * 100 * offsetRatio.value / instance.value[bar.value.offset];
       scrollbar.wrapElement[bar.value.scroll] = thumbPositionPercentage * scrollbar.wrapElement[bar.value.scrollSize] / 100;
     };
     const startDrag = (e) => {
@@ -22294,9 +21192,9 @@ var _sfc_main7 = defineComponent({
       const prevPage = thumbState.value[bar.value.axis];
       if (!prevPage)
         return;
-      const offset4 = (instance.value.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]) * -1;
+      const offset3 = (instance.value.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]) * -1;
       const thumbClickPosition = thumb.value[bar.value.offset] - prevPage;
-      const thumbPositionPercentage = (offset4 - thumbClickPosition) * 100 * offsetRatio.value / instance.value[bar.value.offset];
+      const thumbPositionPercentage = (offset3 - thumbClickPosition) * 100 * offsetRatio.value / instance.value[bar.value.offset];
       scrollbar.wrapElement[bar.value.scroll] = thumbPositionPercentage * scrollbar.wrapElement[bar.value.scrollSize] / 100;
     };
     const mouseUpDocumentHandler = () => {
@@ -22362,9 +21260,15 @@ var barProps = buildProps({
     type: Boolean,
     default: true
   },
-  minSize: {
+  width: String,
+  height: String,
+  ratioX: {
     type: Number,
-    required: true
+    default: 1
+  },
+  ratioY: {
+    type: Number,
+    default: 1
   }
 });
 
@@ -22374,52 +21278,31 @@ var _sfc_main8 = defineComponent({
   props: barProps,
   setup(__props, { expose }) {
     const props = __props;
-    const scrollbar = inject(scrollbarContextKey);
     const moveX = ref(0);
     const moveY = ref(0);
-    const sizeWidth = ref("");
-    const sizeHeight = ref("");
-    const ratioY = ref(1);
-    const ratioX = ref(1);
     const handleScroll2 = (wrap2) => {
       if (wrap2) {
         const offsetHeight = wrap2.offsetHeight - GAP;
         const offsetWidth = wrap2.offsetWidth - GAP;
-        moveY.value = wrap2.scrollTop * 100 / offsetHeight * ratioY.value;
-        moveX.value = wrap2.scrollLeft * 100 / offsetWidth * ratioX.value;
+        moveY.value = wrap2.scrollTop * 100 / offsetHeight * props.ratioY;
+        moveX.value = wrap2.scrollLeft * 100 / offsetWidth * props.ratioX;
       }
     };
-    const update2 = () => {
-      const wrap2 = scrollbar == null ? void 0 : scrollbar.wrapElement;
-      if (!wrap2)
-        return;
-      const offsetHeight = wrap2.offsetHeight - GAP;
-      const offsetWidth = wrap2.offsetWidth - GAP;
-      const originalHeight = offsetHeight ** 2 / wrap2.scrollHeight;
-      const originalWidth = offsetWidth ** 2 / wrap2.scrollWidth;
-      const height = Math.max(originalHeight, props.minSize);
-      const width = Math.max(originalWidth, props.minSize);
-      ratioY.value = originalHeight / (offsetHeight - originalHeight) / (height / (offsetHeight - height));
-      ratioX.value = originalWidth / (offsetWidth - originalWidth) / (width / (offsetWidth - width));
-      sizeHeight.value = height + GAP < offsetHeight ? `${height}px` : "";
-      sizeWidth.value = width + GAP < offsetWidth ? `${width}px` : "";
-    };
     expose({
-      handleScroll: handleScroll2,
-      update: update2
+      handleScroll: handleScroll2
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock(Fragment, null, [
         createVNode(Thumb, {
           move: moveX.value,
-          ratio: ratioX.value,
-          size: sizeWidth.value,
+          ratio: _ctx.ratioX,
+          size: _ctx.width,
           always: _ctx.always
         }, null, 8, ["move", "ratio", "size", "always"]),
         createVNode(Thumb, {
           move: moveY.value,
-          ratio: ratioY.value,
-          size: sizeHeight.value,
+          ratio: _ctx.ratioY,
+          size: _ctx.height,
           vertical: "",
           always: _ctx.always
         }, null, 8, ["move", "ratio", "size", "always"])
@@ -22471,7 +21354,11 @@ var scrollbarProps = buildProps({
   },
   id: String,
   role: String,
-  ...useAriaProps(["ariaLabel", "ariaOrientation"])
+  ariaLabel: String,
+  ariaOrientation: {
+    type: String,
+    values: ["horizontal", "vertical"]
+  }
 });
 var scrollbarEmits = {
   scroll: ({
@@ -22497,8 +21384,12 @@ var _sfc_main9 = defineComponent({
     const scrollbarRef = ref();
     const wrapRef = ref();
     const resizeRef = ref();
+    const sizeWidth = ref("0");
+    const sizeHeight = ref("0");
     const barRef = ref();
-    const wrapStyle = computed(() => {
+    const ratioY = ref(1);
+    const ratioX = ref(1);
+    const wrapStyle = computed2(() => {
       const style = {};
       if (props.height)
         style.height = addUnit(props.height);
@@ -22506,14 +21397,14 @@ var _sfc_main9 = defineComponent({
         style.maxHeight = addUnit(props.maxHeight);
       return [props.wrapStyle, style];
     });
-    const wrapKls = computed(() => {
+    const wrapKls = computed2(() => {
       return [
         props.wrapClass,
         ns.e("wrap"),
         { [ns.em("wrap", "hidden-default")]: !props.native }
       ];
     });
-    const resizeKls = computed(() => {
+    const resizeKls = computed2(() => {
       return [ns.e("view"), props.viewClass];
     });
     const handleScroll2 = () => {
@@ -22548,8 +21439,18 @@ var _sfc_main9 = defineComponent({
       wrapRef.value.scrollLeft = value;
     };
     const update2 = () => {
-      var _a2;
-      (_a2 = barRef.value) == null ? void 0 : _a2.update();
+      if (!wrapRef.value)
+        return;
+      const offsetHeight = wrapRef.value.offsetHeight - GAP;
+      const offsetWidth = wrapRef.value.offsetWidth - GAP;
+      const originalHeight = offsetHeight ** 2 / wrapRef.value.scrollHeight;
+      const originalWidth = offsetWidth ** 2 / wrapRef.value.scrollWidth;
+      const height = Math.max(originalHeight, props.minSize);
+      const width = Math.max(originalWidth, props.minSize);
+      ratioY.value = originalHeight / (offsetHeight - originalHeight) / (height / (offsetHeight - height));
+      ratioX.value = originalWidth / (offsetWidth - originalWidth) / (width / (offsetWidth - width));
+      sizeHeight.value = height + GAP < offsetHeight ? `${height}px` : "";
+      sizeWidth.value = width + GAP < offsetWidth ? `${width}px` : "";
     };
     watch(() => props.noresize, (noresize) => {
       if (noresize) {
@@ -22623,9 +21524,12 @@ var _sfc_main9 = defineComponent({
           key: 0,
           ref_key: "barRef",
           ref: barRef,
+          height: sizeHeight.value,
+          width: sizeWidth.value,
           always: _ctx.always,
-          "min-size": _ctx.minSize
-        }, null, 8, ["always", "min-size"])) : createCommentVNode("v-if", true)
+          "ratio-x": ratioX.value,
+          "ratio-y": ratioY.value
+        }, null, 8, ["height", "width", "always", "ratio-x", "ratio-y"])) : createCommentVNode("v-if", true)
       ], 2);
     };
   }
@@ -22677,7 +21581,7 @@ var _sfc_main10 = defineComponent({
     const popperInstanceRef = ref();
     const contentRef = ref();
     const referenceRef = ref();
-    const role = computed(() => props.role);
+    const role = computed2(() => props.role);
     const popperProvides = {
       triggerRef,
       popperInstanceRef,
@@ -22839,22 +21743,22 @@ var _sfc_main12 = defineComponent({
     const props = __props;
     const { role, triggerRef } = inject(POPPER_INJECTION_KEY, void 0);
     useForwardRef(triggerRef);
-    const ariaControls = computed(() => {
+    const ariaControls = computed2(() => {
       return ariaHaspopup.value ? props.id : void 0;
     });
-    const ariaDescribedby = computed(() => {
+    const ariaDescribedby = computed2(() => {
       if (role && role.value === "tooltip") {
         return props.open && props.id ? props.id : void 0;
       }
       return void 0;
     });
-    const ariaHaspopup = computed(() => {
+    const ariaHaspopup = computed2(() => {
       if (role && role.value !== "tooltip") {
         return role.value;
       }
       return void 0;
     });
-    const ariaExpanded = computed(() => {
+    const ariaExpanded = computed2(() => {
       return ariaHaspopup.value ? `${props.open}` : void 0;
     });
     let virtualTriggerAriaStopWatch = void 0;
@@ -23352,7 +22256,7 @@ var popperCoreConfigProps = buildProps({
   },
   placement: {
     type: String,
-    values: placements,
+    values: Ee,
     default: "bottom"
   },
   popperOptions: {
@@ -23408,9 +22312,12 @@ var popperContentProps = buildProps({
     type: Boolean,
     default: true
   },
+  ariaLabel: {
+    type: String,
+    default: void 0
+  },
   virtualTriggering: Boolean,
-  zIndex: Number,
-  ...useAriaProps(["ariaLabel"])
+  zIndex: Number
 });
 var popperContentEmits = {
   mouseenter: (evt) => evt instanceof MouseEvent,
@@ -23441,12 +22348,12 @@ var unwrapMeasurableEl = ($el) => {
   return unrefElement($el);
 };
 function genModifiers(options) {
-  const { offset: offset4, gpuAcceleration, fallbackPlacements } = options;
+  const { offset: offset3, gpuAcceleration, fallbackPlacements } = options;
   return [
     {
       name: "offset",
       options: {
-        offset: [0, offset4 != null ? offset4 : 12]
+        offset: [0, offset3 != null ? offset3 : 12]
       }
     },
     {
@@ -23487,26 +22394,26 @@ var usePopperContent = (props) => {
   const { popperInstanceRef, contentRef, triggerRef, role } = inject(POPPER_INJECTION_KEY, void 0);
   const arrowRef = ref();
   const arrowOffset = ref();
-  const eventListenerModifier = computed(() => {
+  const eventListenerModifier = computed2(() => {
     return {
       name: "eventListeners",
       enabled: !!props.visible
     };
   });
-  const arrowModifier = computed(() => {
+  const arrowModifier = computed2(() => {
     var _a2;
     const arrowEl = unref(arrowRef);
-    const offset4 = (_a2 = unref(arrowOffset)) != null ? _a2 : DEFAULT_ARROW_OFFSET;
+    const offset3 = (_a2 = unref(arrowOffset)) != null ? _a2 : DEFAULT_ARROW_OFFSET;
     return {
       name: "arrow",
       enabled: !isUndefined_default(arrowEl),
       options: {
         element: arrowEl,
-        padding: offset4
+        padding: offset3
       }
     };
   });
-  const options = computed(() => {
+  const options = computed2(() => {
     return {
       onFirstUpdate: () => {
         update2();
@@ -23517,7 +22424,7 @@ var usePopperContent = (props) => {
       ])
     };
   });
-  const computedReference = computed(() => unwrapMeasurableEl(props.referenceEl) || unref(triggerRef));
+  const computedReference = computed2(() => unwrapMeasurableEl(props.referenceEl) || unref(triggerRef));
   const { attributes: attributes2, state, styles, update: update2, forceUpdate, instanceRef } = usePopper(computedReference, contentRef, options);
   watch(instanceRef, (instance) => popperInstanceRef.value = instance);
   onMounted(() => {
@@ -23549,23 +22456,23 @@ var usePopperContentDOM = (props, {
 }) => {
   const { nextZIndex } = useZIndex();
   const ns = useNamespace("popper");
-  const contentAttrs = computed(() => unref(attributes2).popper);
+  const contentAttrs = computed2(() => unref(attributes2).popper);
   const contentZIndex = ref(isNumber3(props.zIndex) ? props.zIndex : nextZIndex());
-  const contentClass = computed(() => [
+  const contentClass = computed2(() => [
     ns.b(),
     ns.is("pure", props.pure),
     ns.is(props.effect),
     props.popperClass
   ]);
-  const contentStyle = computed(() => {
+  const contentStyle = computed2(() => {
     return [
       { zIndex: unref(contentZIndex) },
       unref(styles).popper,
       props.popperStyle || {}
     ];
   });
-  const ariaModal = computed(() => role.value === "dialog" ? "false" : void 0);
-  const arrowStyle = computed(() => unref(styles).arrow || {});
+  const ariaModal = computed2(() => role.value === "dialog" ? "false" : void 0);
+  const arrowStyle = computed2(() => unref(styles).arrow || {});
   const updateZIndex = () => {
     contentZIndex.value = isNumber3(props.zIndex) ? props.zIndex : nextZIndex();
   };
@@ -23664,7 +22571,7 @@ var _sfc_main14 = defineComponent({
       arrowRef,
       arrowOffset
     });
-    if (formItemContext) {
+    if (formItemContext && (formItemContext.addInputId || formItemContext.removeInputId)) {
       provide(formItemContextKey, {
         ...formItemContext,
         addInputId: NOOP,
@@ -23772,6 +22679,7 @@ var useTooltipContentProps = buildProps({
     default: false
   },
   persistent: Boolean,
+  ariaLabel: String,
   visible: {
     type: definePropType(Boolean),
     default: null
@@ -23781,8 +22689,7 @@ var useTooltipContentProps = buildProps({
     type: Boolean,
     default: true
   },
-  disabled: Boolean,
-  ...useAriaProps(["ariaLabel"])
+  disabled: Boolean
 });
 
 // node_modules/element-plus/es/components/tooltip/src/trigger.mjs
@@ -23931,10 +22838,10 @@ var _sfc_main16 = defineComponent({
       onBeforeShow,
       onBeforeHide
     } = inject(TOOLTIP_INJECTION_KEY, void 0);
-    const transitionClass = computed(() => {
+    const transitionClass = computed2(() => {
       return props.transition || `${ns.namespace.value}-fade-in-linear`;
     });
-    const persistentRef = computed(() => {
+    const persistentRef = computed2(() => {
       if (false) {
         return true;
       }
@@ -23943,20 +22850,20 @@ var _sfc_main16 = defineComponent({
     onBeforeUnmount(() => {
       destroyed.value = true;
     });
-    const shouldRender = computed(() => {
+    const shouldRender = computed2(() => {
       return unref(persistentRef) ? true : unref(open);
     });
-    const shouldShow = computed(() => {
+    const shouldShow = computed2(() => {
       return props.disabled ? false : unref(open);
     });
-    const appendTo = computed(() => {
+    const appendTo = computed2(() => {
       return props.appendTo || selector.value;
     });
-    const contentStyle = computed(() => {
+    const contentStyle = computed2(() => {
       var _a2;
       return (_a2 = props.style) != null ? _a2 : {};
     });
-    const ariaHidden = computed(() => !unref(open));
+    const ariaHidden = computed2(() => !unref(open));
     const onTransitionLeave = () => {
       onHide();
     };
@@ -23984,7 +22891,7 @@ var _sfc_main16 = defineComponent({
     };
     const onAfterShow = () => {
       onShow();
-      stopHandle = onClickOutside(computed(() => {
+      stopHandle = onClickOutside(computed2(() => {
         var _a2;
         return (_a2 = contentRef.value) == null ? void 0 : _a2.popperContentRef;
       }), () => {
@@ -24099,7 +23006,7 @@ var _sfc_main17 = defineComponent({
     };
     const open = ref(false);
     const toggleReason = ref();
-    const { show, hide: hide3, hasUpdateHandler } = useTooltipModelToggle({
+    const { show, hide: hide2, hasUpdateHandler } = useTooltipModelToggle({
       indicator: open,
       toggleReason
     });
@@ -24108,9 +23015,9 @@ var _sfc_main17 = defineComponent({
       hideAfter: toRef(props, "hideAfter"),
       autoClose: toRef(props, "autoClose"),
       open: show,
-      close: hide3
+      close: hide2
     });
-    const controlled = computed(() => isBoolean2(props.visible) && !hasUpdateHandler.value);
+    const controlled = computed2(() => isBoolean2(props.visible) && !hasUpdateHandler.value);
     provide(TOOLTIP_INJECTION_KEY, {
       controlled,
       id,
@@ -24154,7 +23061,7 @@ var _sfc_main17 = defineComponent({
       const activeElement = (event == null ? void 0 : event.relatedTarget) || document.activeElement;
       return popperContent && popperContent.contains(activeElement);
     };
-    onDeactivated(() => open.value && hide3());
+    onDeactivated(() => open.value && hide2());
     expose({
       popperRef,
       contentRef,
@@ -24162,7 +23069,7 @@ var _sfc_main17 = defineComponent({
       updatePopper,
       onOpen,
       onClose,
-      hide: hide3
+      hide: hide2
     });
     return (_ctx, _cache) => {
       return openBlock(), createBlock(unref(ElPopper), {
@@ -24284,6 +23191,9 @@ var autocompleteProps = buildProps({
     type: Boolean,
     default: false
   },
+  label: {
+    type: String
+  },
   teleported: useTooltipContentProps.teleported,
   highlightFirstItem: {
     type: Boolean,
@@ -24301,8 +23211,7 @@ var autocompleteProps = buildProps({
     type: Boolean,
     default: false
   },
-  name: String,
-  ...useAriaProps(["ariaLabel"])
+  name: String
 });
 var autocompleteEmits = {
   [UPDATE_MODEL_EVENT]: (value) => isString(value),
@@ -24346,13 +23255,13 @@ var _sfc_main18 = defineComponent({
     const suggestionDisabled = ref(false);
     const loading = ref(false);
     const listboxId = useId();
-    const styles = computed(() => rawAttrs.style);
-    const suggestionVisible = computed(() => {
+    const styles = computed2(() => rawAttrs.style);
+    const suggestionVisible = computed2(() => {
       const isValidData = suggestions.value.length > 0;
       return (isValidData || loading.value) && activated.value;
     });
-    const suggestionLoading = computed(() => !props.hideLoading && loading.value);
-    const refInput = computed(() => {
+    const suggestionLoading = computed2(() => !props.hideLoading && loading.value);
+    const refInput = computed2(() => {
       if (inputRef.value) {
         return Array.from(inputRef.value.$el.querySelectorAll("input"));
       }
@@ -24612,7 +23521,6 @@ var _sfc_main18 = defineComponent({
               disabled: unref(disabled),
               name: _ctx.name,
               "model-value": _ctx.modelValue,
-              "aria-label": _ctx.ariaLabel,
               onInput: handleInput,
               onChange: handleChange,
               onFocus: handleFocus,
@@ -24651,7 +23559,7 @@ var _sfc_main18 = defineComponent({
                   renderSlot(_ctx.$slots, "suffix")
                 ])
               } : void 0
-            ]), 1040, ["clearable", "disabled", "name", "model-value", "aria-label", "onKeydown"])
+            ]), 1040, ["clearable", "disabled", "name", "model-value", "onKeydown"])
           ], 14, _hoisted_14)
         ]),
         _: 3
@@ -24664,7 +23572,7 @@ var Autocomplete = _export_sfc(_sfc_main18, [["__file", "autocomplete.vue"]]);
 // node_modules/element-plus/es/components/autocomplete/index.mjs
 var ElAutocomplete = withInstall(Autocomplete);
 
-// node_modules/element-plus/es/components/avatar/src/avatar2.mjs
+// node_modules/element-plus/es/components/avatar/src/avatar.mjs
 var avatarProps = buildProps({
   size: {
     type: [Number, String],
@@ -24695,7 +23603,7 @@ var avatarEmits = {
   error: (evt) => evt instanceof Event
 };
 
-// node_modules/element-plus/es/components/avatar/src/avatar.mjs
+// node_modules/element-plus/es/components/avatar/src/avatar2.mjs
 var _hoisted_15 = ["src", "alt", "srcset"];
 var __default__16 = defineComponent({
   name: "ElAvatar"
@@ -24708,7 +23616,7 @@ var _sfc_main19 = defineComponent({
     const props = __props;
     const ns = useNamespace("avatar");
     const hasLoadError = ref(false);
-    const avatarClass = computed(() => {
+    const avatarClass = computed2(() => {
       const { size: size3, icon, shape } = props;
       const classList = [ns.b()];
       if (isString(size3))
@@ -24719,13 +23627,13 @@ var _sfc_main19 = defineComponent({
         classList.push(ns.m(shape));
       return classList;
     });
-    const sizeStyle = computed(() => {
+    const sizeStyle = computed2(() => {
       const { size: size3 } = props;
       return isNumber3(size3) ? ns.cssVarBlock({
         size: addUnit(size3) || ""
       }) : void 0;
     });
-    const fitStyle = computed(() => ({
+    const fitStyle = computed2(() => ({
       objectFit: props.fit
     }));
     watch(() => props.src, () => hasLoadError.value = false);
@@ -24831,7 +23739,7 @@ var _sfc_main20 = defineComponent({
     const props = __props;
     const ns = useNamespace("backtop");
     const { handleClick, visible } = useBackTop(props, emit, COMPONENT_NAME7);
-    const backTopStyle = computed(() => ({
+    const backTopStyle = computed2(() => ({
       right: `${props.right}px`,
       bottom: `${props.bottom}px`
     }));
@@ -24884,27 +23792,6 @@ var badgeProps = buildProps({
     type: String,
     values: ["primary", "success", "warning", "info", "danger"],
     default: "danger"
-  },
-  showZero: {
-    type: Boolean,
-    default: true
-  },
-  color: String,
-  dotStyle: {
-    type: definePropType([String, Object, Array])
-  },
-  badgeStyle: {
-    type: definePropType([String, Object, Array])
-  },
-  offset: {
-    type: definePropType(Array),
-    default: [0, 0]
-  },
-  dotClass: {
-    type: String
-  },
-  badgeClass: {
-    type: String
   }
 });
 
@@ -24919,43 +23806,14 @@ var _sfc_main21 = defineComponent({
   setup(__props, { expose }) {
     const props = __props;
     const ns = useNamespace("badge");
-    const content = computed(() => {
+    const content = computed2(() => {
       if (props.isDot)
         return "";
       if (isNumber3(props.value) && isNumber3(props.max)) {
-        if (props.max < props.value) {
-          return `${props.max}+`;
-        }
-        return props.value === 0 && !props.showZero ? "" : `${props.value}`;
+        return props.max < props.value ? `${props.max}+` : `${props.value}`;
       }
       return `${props.value}`;
     });
-    const style = computed(() => {
-      var _a2, _b, _c, _d, _e, _f;
-      return [
-        {
-          backgroundColor: props.color,
-          marginRight: addUnit(-((_b = (_a2 = props.offset) == null ? void 0 : _a2[0]) != null ? _b : 0)),
-          marginTop: addUnit((_d = (_c = props.offset) == null ? void 0 : _c[1]) != null ? _d : 0)
-        },
-        (_e = props.dotStyle) != null ? _e : {},
-        (_f = props.badgeStyle) != null ? _f : {}
-      ];
-    });
-    useDeprecated({
-      from: "dot-style",
-      replacement: "badge-style",
-      version: "2.8.0",
-      scope: "el-badge",
-      ref: "https://element-plus.org/en-US/component/badge.html"
-    }, computed(() => !!props.dotStyle));
-    useDeprecated({
-      from: "dot-class",
-      replacement: "badge-class",
-      version: "2.8.0",
-      scope: "el-badge",
-      ref: "https://element-plus.org/en-US/component/badge.html"
-    }, computed(() => !!props.dotClass));
     expose({
       content
     });
@@ -24974,13 +23832,10 @@ var _sfc_main21 = defineComponent({
                 unref(ns).e("content"),
                 unref(ns).em("content", _ctx.type),
                 unref(ns).is("fixed", !!_ctx.$slots.default),
-                unref(ns).is("dot", _ctx.isDot),
-                _ctx.dotClass,
-                _ctx.badgeClass
+                unref(ns).is("dot", _ctx.isDot)
               ]),
-              style: normalizeStyle(unref(style)),
               textContent: toDisplayString(unref(content))
-            }, null, 14, _hoisted_16), [
+            }, null, 10, _hoisted_16), [
               [vShow, !_ctx.hidden && (unref(content) || _ctx.isDot)]
             ])
           ]),
@@ -25010,7 +23865,6 @@ var breadcrumbProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/breadcrumb/src/breadcrumb2.mjs
-var _hoisted_17 = ["aria-label"];
 var __default__19 = defineComponent({
   name: "ElBreadcrumb"
 });
@@ -25019,7 +23873,6 @@ var _sfc_main22 = defineComponent({
   props: breadcrumbProps,
   setup(__props) {
     const props = __props;
-    const { t } = useLocale();
     const ns = useNamespace("breadcrumb");
     const breadcrumb = ref();
     provide(breadcrumbKey, props);
@@ -25034,11 +23887,11 @@ var _sfc_main22 = defineComponent({
         ref_key: "breadcrumb",
         ref: breadcrumb,
         class: normalizeClass(unref(ns).b()),
-        "aria-label": unref(t)("el.breadcrumb.label"),
+        "aria-label": "Breadcrumb",
         role: "navigation"
       }, [
         renderSlot(_ctx.$slots, "default")
-      ], 10, _hoisted_17);
+      ], 2);
     };
   }
 });
@@ -25125,20 +23978,20 @@ var useButton = (props, emit) => {
     version: "3.0.0",
     scope: "props",
     ref: "https://element-plus.org/en-US/component/button.html#button-attributes"
-  }, computed(() => props.type === "text"));
+  }, computed2(() => props.type === "text"));
   const buttonGroupContext = inject(buttonGroupContextKey, void 0);
   const globalConfig2 = useGlobalConfig("button");
   const { form } = useFormItem();
-  const _size = useFormSize(computed(() => buttonGroupContext == null ? void 0 : buttonGroupContext.size));
+  const _size = useFormSize(computed2(() => buttonGroupContext == null ? void 0 : buttonGroupContext.size));
   const _disabled = useFormDisabled();
   const _ref = ref();
   const slots = useSlots();
-  const _type = computed(() => props.type || (buttonGroupContext == null ? void 0 : buttonGroupContext.type) || "");
-  const autoInsertSpace = computed(() => {
+  const _type = computed2(() => props.type || (buttonGroupContext == null ? void 0 : buttonGroupContext.type) || "");
+  const autoInsertSpace = computed2(() => {
     var _a2, _b, _c;
     return (_c = (_b = props.autoInsertSpace) != null ? _b : (_a2 = globalConfig2.value) == null ? void 0 : _a2.autoInsertSpace) != null ? _c : false;
   });
-  const _props = computed(() => {
+  const _props = computed2(() => {
     if (props.tag === "button") {
       return {
         ariaDisabled: _disabled.value || props.loading,
@@ -25149,7 +24002,7 @@ var useButton = (props, emit) => {
     }
     return {};
   });
-  const shouldAddSpace = computed(() => {
+  const shouldAddSpace = computed2(() => {
     var _a2;
     const defaultSlot = (_a2 = slots.default) == null ? void 0 : _a2.call(slots);
     if (autoInsertSpace.value && (defaultSlot == null ? void 0 : defaultSlot.length) === 1) {
@@ -25234,22 +24087,22 @@ var buttonEmits = {
 };
 
 // node_modules/@ctrl/tinycolor/dist/module/util.js
-function bound01(n, max5) {
+function bound01(n, max4) {
   if (isOnePointZero(n)) {
     n = "100%";
   }
   var isPercent = isPercentage(n);
-  n = max5 === 360 ? n : Math.min(max5, Math.max(0, parseFloat(n)));
+  n = max4 === 360 ? n : Math.min(max4, Math.max(0, parseFloat(n)));
   if (isPercent) {
-    n = parseInt(String(n * max5), 10) / 100;
+    n = parseInt(String(n * max4), 10) / 100;
   }
-  if (Math.abs(n - max5) < 1e-6) {
+  if (Math.abs(n - max4) < 1e-6) {
     return 1;
   }
-  if (max5 === 360) {
-    n = (n < 0 ? n % max5 + max5 : n % max5) / parseFloat(String(max5));
+  if (max4 === 360) {
+    n = (n < 0 ? n % max4 + max4 : n % max4) / parseFloat(String(max4));
   } else {
-    n = n % max5 / parseFloat(String(max5));
+    n = n % max4 / parseFloat(String(max4));
   }
   return n;
 }
@@ -25291,18 +24144,18 @@ function rgbToHsl(r, g, b2) {
   r = bound01(r, 255);
   g = bound01(g, 255);
   b2 = bound01(b2, 255);
-  var max5 = Math.max(r, g, b2);
-  var min5 = Math.min(r, g, b2);
+  var max4 = Math.max(r, g, b2);
+  var min4 = Math.min(r, g, b2);
   var h3 = 0;
   var s2 = 0;
-  var l2 = (max5 + min5) / 2;
-  if (max5 === min5) {
+  var l2 = (max4 + min4) / 2;
+  if (max4 === min4) {
     s2 = 0;
     h3 = 0;
   } else {
-    var d2 = max5 - min5;
-    s2 = l2 > 0.5 ? d2 / (2 - max5 - min5) : d2 / (max5 + min5);
-    switch (max5) {
+    var d2 = max4 - min4;
+    s2 = l2 > 0.5 ? d2 / (2 - max4 - min4) : d2 / (max4 + min4);
+    switch (max4) {
       case r:
         h3 = (g - b2) / d2 + (g < b2 ? 6 : 0);
         break;
@@ -25319,7 +24172,7 @@ function rgbToHsl(r, g, b2) {
   }
   return { h: h3, s: s2, l: l2 };
 }
-function hue2rgb(p2, q, t) {
+function hue2rgb(p2, q2, t) {
   if (t < 0) {
     t += 1;
   }
@@ -25327,13 +24180,13 @@ function hue2rgb(p2, q, t) {
     t -= 1;
   }
   if (t < 1 / 6) {
-    return p2 + (q - p2) * (6 * t);
+    return p2 + (q2 - p2) * (6 * t);
   }
   if (t < 1 / 2) {
-    return q;
+    return q2;
   }
   if (t < 2 / 3) {
-    return p2 + (q - p2) * (2 / 3 - t) * 6;
+    return p2 + (q2 - p2) * (2 / 3 - t) * 6;
   }
   return p2;
 }
@@ -25349,11 +24202,11 @@ function hslToRgb(h3, s2, l2) {
     b2 = l2;
     r = l2;
   } else {
-    var q = l2 < 0.5 ? l2 * (1 + s2) : l2 + s2 - l2 * s2;
-    var p2 = 2 * l2 - q;
-    r = hue2rgb(p2, q, h3 + 1 / 3);
-    g = hue2rgb(p2, q, h3);
-    b2 = hue2rgb(p2, q, h3 - 1 / 3);
+    var q2 = l2 < 0.5 ? l2 * (1 + s2) : l2 + s2 - l2 * s2;
+    var p2 = 2 * l2 - q2;
+    r = hue2rgb(p2, q2, h3 + 1 / 3);
+    g = hue2rgb(p2, q2, h3);
+    b2 = hue2rgb(p2, q2, h3 - 1 / 3);
   }
   return { r: r * 255, g: g * 255, b: b2 * 255 };
 }
@@ -25361,16 +24214,16 @@ function rgbToHsv(r, g, b2) {
   r = bound01(r, 255);
   g = bound01(g, 255);
   b2 = bound01(b2, 255);
-  var max5 = Math.max(r, g, b2);
-  var min5 = Math.min(r, g, b2);
+  var max4 = Math.max(r, g, b2);
+  var min4 = Math.min(r, g, b2);
   var h3 = 0;
-  var v2 = max5;
-  var d2 = max5 - min5;
-  var s2 = max5 === 0 ? 0 : d2 / max5;
-  if (max5 === min5) {
+  var v2 = max4;
+  var d2 = max4 - min4;
+  var s2 = max4 === 0 ? 0 : d2 / max4;
+  if (max4 === min4) {
     h3 = 0;
   } else {
-    switch (max5) {
+    switch (max4) {
       case r:
         h3 = (g - b2) / d2 + (g < b2 ? 6 : 0);
         break;
@@ -25394,12 +24247,12 @@ function hsvToRgb(h3, s2, v2) {
   var i = Math.floor(h3);
   var f2 = h3 - i;
   var p2 = v2 * (1 - s2);
-  var q = v2 * (1 - f2 * s2);
+  var q2 = v2 * (1 - f2 * s2);
   var t = v2 * (1 - (1 - f2) * s2);
   var mod = i % 6;
-  var r = [v2, q, p2, p2, t, v2][mod];
-  var g = [t, v2, v2, q, p2, p2][mod];
-  var b2 = [p2, p2, t, v2, v2, q][mod];
+  var r = [v2, q2, p2, p2, t, v2][mod];
+  var g = [t, v2, v2, q2, p2, p2][mod];
+  var b2 = [p2, p2, t, v2, v2, q2][mod];
   return { r: r * 255, g: g * 255, b: b2 * 255 };
 }
 function rgbToHex(r, g, b2, allow3Char) {
@@ -25787,28 +24640,28 @@ var TinyColor = (
     };
     TinyColor2.prototype.getLuminance = function() {
       var rgb = this.toRgb();
-      var R;
-      var G;
-      var B;
+      var R2;
+      var G2;
+      var B2;
       var RsRGB = rgb.r / 255;
       var GsRGB = rgb.g / 255;
       var BsRGB = rgb.b / 255;
       if (RsRGB <= 0.03928) {
-        R = RsRGB / 12.92;
+        R2 = RsRGB / 12.92;
       } else {
-        R = Math.pow((RsRGB + 0.055) / 1.055, 2.4);
+        R2 = Math.pow((RsRGB + 0.055) / 1.055, 2.4);
       }
       if (GsRGB <= 0.03928) {
-        G = GsRGB / 12.92;
+        G2 = GsRGB / 12.92;
       } else {
-        G = Math.pow((GsRGB + 0.055) / 1.055, 2.4);
+        G2 = Math.pow((GsRGB + 0.055) / 1.055, 2.4);
       }
       if (BsRGB <= 0.03928) {
-        B = BsRGB / 12.92;
+        B2 = BsRGB / 12.92;
       } else {
-        B = Math.pow((BsRGB + 0.055) / 1.055, 2.4);
+        B2 = Math.pow((BsRGB + 0.055) / 1.055, 2.4);
       }
-      return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+      return 0.2126 * R2 + 0.7152 * G2 + 0.0722 * B2;
     };
     TinyColor2.prototype.getAlpha = function() {
       return this.a;
@@ -26137,7 +24990,7 @@ function darken(color, amount = 20) {
 function useButtonCustomStyle(props) {
   const _disabled = useFormDisabled();
   const ns = useNamespace("button");
-  return computed(() => {
+  return computed2(() => {
     let styles = {};
     const buttonColor = props.color;
     if (buttonColor) {
@@ -26198,19 +25051,6 @@ var _sfc_main24 = defineComponent({
     const buttonStyle = useButtonCustomStyle(props);
     const ns = useNamespace("button");
     const { _ref, _size, _type, _disabled, _props, shouldAddSpace, handleClick } = useButton(props, emit);
-    const buttonKls = computed(() => [
-      ns.b(),
-      ns.m(_type.value),
-      ns.m(_size.value),
-      ns.is("disabled", _disabled.value),
-      ns.is("loading", props.loading),
-      ns.is("plain", props.plain),
-      ns.is("round", props.round),
-      ns.is("circle", props.circle),
-      ns.is("text", props.text),
-      ns.is("link", props.link),
-      ns.is("has-bg", props.bg)
-    ]);
     expose({
       ref: _ref,
       size: _size,
@@ -26223,7 +25063,19 @@ var _sfc_main24 = defineComponent({
         ref_key: "_ref",
         ref: _ref
       }, unref(_props), {
-        class: unref(buttonKls),
+        class: [
+          unref(ns).b(),
+          unref(ns).m(unref(_type)),
+          unref(ns).m(unref(_size)),
+          unref(ns).is("disabled", unref(_disabled)),
+          unref(ns).is("loading", _ctx.loading),
+          unref(ns).is("plain", _ctx.plain),
+          unref(ns).is("round", _ctx.round),
+          unref(ns).is("circle", _ctx.circle),
+          unref(ns).is("text", _ctx.text),
+          unref(ns).is("link", _ctx.link),
+          unref(ns).is("has-bg", _ctx.bg)
+        ],
         style: unref(buttonStyle),
         onClick: unref(handleClick)
       }), {
@@ -26308,7 +25160,6 @@ var DEFAULT_FORMATS_DATEPICKER = {
   dates: DEFAULT_FORMATS_DATE,
   week: "gggg[w]ww",
   year: "YYYY",
-  years: "YYYY",
   month: "YYYY-MM",
   datetime: `${DEFAULT_FORMATS_DATE} ${DEFAULT_FORMATS_TIME}`,
   monthrange: "YYYY-MM",
@@ -26491,13 +25342,11 @@ var timePickerDefaultProps = buildProps({
     type: Boolean,
     default: true
   },
-  unlinkPanels: Boolean,
-  ...useEmptyValuesProps,
-  ...useAriaProps(["ariaLabel"])
+  unlinkPanels: Boolean
 });
 
 // node_modules/element-plus/es/components/time-picker/src/common/picker.mjs
-var _hoisted_18 = ["id", "name", "placeholder", "value", "disabled", "readonly"];
+var _hoisted_17 = ["id", "name", "placeholder", "value", "disabled", "readonly"];
 var _hoisted_24 = ["id", "name", "placeholder", "value", "disabled", "readonly"];
 var __default__23 = defineComponent({
   name: "Picker"
@@ -26524,7 +25373,6 @@ var _sfc_main26 = defineComponent({
     const nsRange = useNamespace("range");
     const { form, formItem } = useFormItem();
     const elPopperOptions = inject("ElPopperOptions", {});
-    const { valueOnClear } = useEmptyValues(props, null);
     const refPopper = ref();
     const inputRef = ref();
     const pickerVisible = ref(false);
@@ -26532,7 +25380,7 @@ var _sfc_main26 = defineComponent({
     const valueOnOpen = ref(null);
     let hasJustTabExitedInput = false;
     let ignoreFocusEvent = false;
-    const rangeInputKls = computed(() => [
+    const rangeInputKls = computed2(() => [
       nsDate.b("editor"),
       nsDate.bm("editor", props.type),
       nsInput.e("wrapper"),
@@ -26542,7 +25390,7 @@ var _sfc_main26 = defineComponent({
       pickerSize ? nsRange.bm("editor", pickerSize.value) : "",
       attrs.class
     ]);
-    const clearIconKls = computed(() => [
+    const clearIconKls = computed2(() => [
       nsInput.e("icon"),
       nsRange.e("close-icon"),
       !showClose.value ? nsRange.e("close-icon--hidden") : ""
@@ -26581,22 +25429,22 @@ var _sfc_main26 = defineComponent({
     const emitKeydown = (e) => {
       emit("keydown", e);
     };
-    const refInput = computed(() => {
+    const refInput = computed2(() => {
       if (inputRef.value) {
         const _r = isRangeInput.value ? inputRef.value : inputRef.value.$el;
         return Array.from(_r.querySelectorAll("input"));
       }
       return [];
     });
-    const setSelectionRange = (start2, end3, pos) => {
+    const setSelectionRange = (start, end2, pos) => {
       const _inputs = refInput.value;
       if (!_inputs.length)
         return;
       if (!pos || pos === "min") {
-        _inputs[0].setSelectionRange(start2, end3);
+        _inputs[0].setSelectionRange(start, end2);
         _inputs[0].focus();
       } else if (pos === "max") {
-        _inputs[1].setSelectionRange(start2, end3);
+        _inputs[1].setSelectionRange(start, end2);
         _inputs[1].focus();
       }
     };
@@ -26682,10 +25530,10 @@ var _sfc_main26 = defineComponent({
       currentHandleBlurDeferCallback = handleBlurDefer;
       handleBlurDefer();
     };
-    const pickerDisabled = computed(() => {
+    const pickerDisabled = computed2(() => {
       return props.disabled || (form == null ? void 0 : form.disabled);
     });
-    const parsedValue2 = computed(() => {
+    const parsedValue2 = computed2(() => {
       let dayOrDays;
       if (valueIsEmpty.value) {
         if (pickerOptions.value.getDefaultValue) {
@@ -26710,7 +25558,7 @@ var _sfc_main26 = defineComponent({
       }
       return dayOrDays;
     });
-    const displayValue = computed(() => {
+    const displayValue = computed2(() => {
       if (!pickerOptions.value.panelReady)
         return "";
       const formattedValue = formatDayjsToString(parsedValue2.value);
@@ -26727,15 +25575,14 @@ var _sfc_main26 = defineComponent({
       if (!pickerVisible.value && valueIsEmpty.value)
         return "";
       if (formattedValue) {
-        return isDatesPicker.value || isYearsPicker.value ? formattedValue.join(", ") : formattedValue;
+        return isDatesPicker.value ? formattedValue.join(", ") : formattedValue;
       }
       return "";
     });
-    const isTimeLikePicker = computed(() => props.type.includes("time"));
-    const isTimePicker = computed(() => props.type.startsWith("time"));
-    const isDatesPicker = computed(() => props.type === "dates");
-    const isYearsPicker = computed(() => props.type === "years");
-    const triggerIcon = computed(() => props.prefixIcon || (isTimeLikePicker.value ? clock_default : calendar_default));
+    const isTimeLikePicker = computed2(() => props.type.includes("time"));
+    const isTimePicker = computed2(() => props.type.startsWith("time"));
+    const isDatesPicker = computed2(() => props.type === "dates");
+    const triggerIcon = computed2(() => props.prefixIcon || (isTimeLikePicker.value ? clock_default : calendar_default));
     const showClose = ref(false);
     const onClearIconClick = (event) => {
       if (props.readonly || pickerDisabled.value)
@@ -26743,14 +25590,14 @@ var _sfc_main26 = defineComponent({
       if (showClose.value) {
         event.stopPropagation();
         focusOnInputBox();
-        emitInput(valueOnClear.value);
-        emitChange(valueOnClear.value, true);
+        emitInput(null);
+        emitChange(null, true);
         showClose.value = false;
         pickerVisible.value = false;
         pickerOptions.value.handleClear && pickerOptions.value.handleClear();
       }
     };
-    const valueIsEmpty = computed(() => {
+    const valueIsEmpty = computed2(() => {
       const { modelValue } = props;
       return !modelValue || isArray(modelValue) && !modelValue.filter(Boolean).length;
     });
@@ -26780,15 +25627,15 @@ var _sfc_main26 = defineComponent({
         pickerVisible.value = true;
       }
     };
-    const isRangeInput = computed(() => {
+    const isRangeInput = computed2(() => {
       return props.type.includes("range");
     });
     const pickerSize = useFormSize();
-    const popperEl = computed(() => {
+    const popperEl = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = unref(refPopper)) == null ? void 0 : _a2.popperRef) == null ? void 0 : _b.contentRef;
     });
-    const actualInputRef = computed(() => {
+    const actualInputRef = computed2(() => {
       var _a2;
       if (unref(isRangeInput)) {
         return unref(inputRef);
@@ -26814,8 +25661,8 @@ var _sfc_main26 = defineComponent({
         }
       }
       if (userInput.value === "") {
-        emitInput(valueOnClear.value);
-        emitChange(valueOnClear.value);
+        emitInput(null);
+        emitChange(null);
         userInput.value = null;
       }
     };
@@ -26949,13 +25796,6 @@ var _sfc_main26 = defineComponent({
     provide("EP_PICKER_BASE", {
       props
     });
-    useDeprecated({
-      from: "label",
-      replacement: "aria-label",
-      version: "2.8.0",
-      scope: "el-time-picker",
-      ref: "https://element-plus.org/en-US/component/time-picker.html"
-    }, computed(() => !!props.label));
     expose({
       focus,
       handleFocusInput,
@@ -27001,8 +25841,8 @@ var _sfc_main26 = defineComponent({
             placeholder: _ctx.placeholder,
             class: normalizeClass([unref(nsDate).b("editor"), unref(nsDate).bm("editor", _ctx.type), _ctx.$attrs.class]),
             style: normalizeStyle(_ctx.$attrs.style),
-            readonly: !_ctx.editable || _ctx.readonly || unref(isDatesPicker) || unref(isYearsPicker) || _ctx.type === "week",
-            "aria-label": _ctx.label || _ctx.ariaLabel,
+            readonly: !_ctx.editable || _ctx.readonly || unref(isDatesPicker) || _ctx.type === "week",
+            label: _ctx.label,
             tabindex: _ctx.tabindex,
             "validate-event": false,
             onInput: onUserInput,
@@ -27013,7 +25853,7 @@ var _sfc_main26 = defineComponent({
             onMousedown: onMouseDownInput,
             onMouseenter: onMouseEnter,
             onMouseleave: onMouseLeave,
-            onTouchstartPassive: onTouchStartInput,
+            onTouchstart: onTouchStartInput,
             onClick: _cache[0] || (_cache[0] = withModifiers(() => {
             }, ["stop"]))
           }, {
@@ -27022,7 +25862,7 @@ var _sfc_main26 = defineComponent({
                 key: 0,
                 class: normalizeClass(unref(nsInput).e("icon")),
                 onMousedown: withModifiers(onMouseDownInput, ["prevent"]),
-                onTouchstartPassive: onTouchStartInput
+                onTouchstart: onTouchStartInput
               }, {
                 default: withCtx(() => [
                   (openBlock(), createBlock(resolveDynamicComponent(unref(triggerIcon))))
@@ -27043,7 +25883,7 @@ var _sfc_main26 = defineComponent({
               }, 8, ["class", "onClick"])) : createCommentVNode("v-if", true)
             ]),
             _: 1
-          }, 8, ["id", "model-value", "name", "size", "disabled", "placeholder", "class", "style", "readonly", "aria-label", "tabindex", "onKeydown"])) : (openBlock(), createElementBlock("div", {
+          }, 8, ["id", "model-value", "name", "size", "disabled", "placeholder", "class", "style", "readonly", "label", "tabindex", "onKeydown"])) : (openBlock(), createElementBlock("div", {
             key: 1,
             ref_key: "inputRef",
             ref: inputRef,
@@ -27052,14 +25892,14 @@ var _sfc_main26 = defineComponent({
             onClick: handleFocusInput,
             onMouseenter: onMouseEnter,
             onMouseleave: onMouseLeave,
-            onTouchstartPassive: onTouchStartInput,
+            onTouchstart: onTouchStartInput,
             onKeydown: handleKeydownInput
           }, [
             unref(triggerIcon) ? (openBlock(), createBlock(unref(ElIcon), {
               key: 0,
               class: normalizeClass([unref(nsInput).e("icon"), unref(nsRange).e("icon")]),
               onMousedown: withModifiers(onMouseDownInput, ["prevent"]),
-              onTouchstartPassive: onTouchStartInput
+              onTouchstart: onTouchStartInput
             }, {
               default: withCtx(() => [
                 (openBlock(), createBlock(resolveDynamicComponent(unref(triggerIcon))))
@@ -27080,7 +25920,7 @@ var _sfc_main26 = defineComponent({
               onChange: handleStartChange,
               onFocus: handleFocusInput,
               onBlur: handleBlurInput
-            }, null, 42, _hoisted_18),
+            }, null, 42, _hoisted_17),
             renderSlot(_ctx.$slots, "range-separator", {}, () => [
               createBaseVNode("span", {
                 class: normalizeClass(unref(nsRange).b("separator"))
@@ -27419,24 +26259,24 @@ var f;
 var s;
 var u;
 var d;
-var N;
+var N2;
 var l;
 var p;
 var m;
 var w;
 var D;
 var x;
-var E;
+var E2;
 var M;
 var F;
 function a() {
   if (!v) {
     v = true;
     var e = navigator.userAgent, n = /(?:MSIE.(\d+\.\d+))|(?:(?:Firefox|GranParadiso|Iceweasel).(\d+\.\d+))|(?:Opera(?:.+Version.|.)(\d+\.\d+))|(?:AppleWebKit.(\d+(?:\.\d+)?))|(?:Trident\/\d+\.\d+.*rv:(\d+\.\d+))/.exec(e), i = /(Mac OS X)|(Windows)|(Linux)/.exec(e);
-    if (x = /\b(iPhone|iP[ao]d)/.exec(e), E = /\b(iP[ao]d)/.exec(e), w = /Android/i.exec(e), M = /FBAN\/\w+;/i.exec(e), F = /Mobile/i.exec(e), D = !!/Win64/.exec(e), n) {
+    if (x = /\b(iPhone|iP[ao]d)/.exec(e), E2 = /\b(iP[ao]d)/.exec(e), w = /Android/i.exec(e), M = /FBAN\/\w+;/i.exec(e), F = /Mobile/i.exec(e), D = !!/Win64/.exec(e), n) {
       o = n[1] ? parseFloat(n[1]) : n[5] ? parseFloat(n[5]) : NaN, o && document && document.documentMode && (o = document.documentMode);
       var r = /(?:Trident\/(\d+.\d+))/.exec(e);
-      N = r ? parseFloat(r[1]) + 4 : o, f = n[2] ? parseFloat(n[2]) : NaN, s = n[3] ? parseFloat(n[3]) : NaN, u = n[4] ? parseFloat(n[4]) : NaN, u ? (n = /(?:Chrome\/(\d+\.\d+))/.exec(e), d = n && n[1] ? parseFloat(n[1]) : NaN) : d = NaN;
+      N2 = r ? parseFloat(r[1]) + 4 : o, f = n[2] ? parseFloat(n[2]) : NaN, s = n[3] ? parseFloat(n[3]) : NaN, u = n[4] ? parseFloat(n[4]) : NaN, u ? (n = /(?:Chrome\/(\d+\.\d+))/.exec(e), d = n && n[1] ? parseFloat(n[1]) : NaN) : d = NaN;
     } else
       o = f = s = d = u = NaN;
     if (i) {
@@ -27453,7 +26293,7 @@ function a() {
 var _ = { ie: function() {
   return a() || o;
 }, ieCompatibilityMode: function() {
-  return a() || N > o;
+  return a() || N2 > o;
 }, ie64: function() {
   return _.ie() && D;
 }, firefox: function() {
@@ -27475,20 +26315,20 @@ var _ = { ie: function() {
 }, iphone: function() {
   return a() || x;
 }, mobile: function() {
-  return a() || x || E || w || F;
+  return a() || x || E2 || w || F;
 }, nativeApp: function() {
   return a() || M;
 }, android: function() {
   return a() || w;
 }, ipad: function() {
-  return a() || E;
+  return a() || E2;
 } };
 var A = _;
 var c = !!(typeof window < "u" && window.document && window.document.createElement);
-var U = { canUseDOM: c, canUseWorkers: typeof Worker < "u", canUseEventListeners: c && !!(window.addEventListener || window.attachEvent), canUseViewport: c && !!window.screen, isInWorker: !c };
-var h2 = U;
-var X;
-h2.canUseDOM && (X = document.implementation && document.implementation.hasFeature && document.implementation.hasFeature("", "") !== true);
+var U2 = { canUseDOM: c, canUseWorkers: typeof Worker < "u", canUseEventListeners: c && !!(window.addEventListener || window.attachEvent), canUseViewport: c && !!window.screen, isInWorker: !c };
+var h2 = U2;
+var X2;
+h2.canUseDOM && (X2 = document.implementation && document.implementation.hasFeature && document.implementation.hasFeature("", "") !== true);
 function S(e, n) {
   if (!h2.canUseDOM || n && !("addEventListener" in document))
     return false;
@@ -27497,15 +26337,15 @@ function S(e, n) {
     var t = document.createElement("div");
     t.setAttribute(i, "return;"), r = typeof t[i] == "function";
   }
-  return !r && X && e === "wheel" && (r = document.implementation.hasFeature("Events.wheel", "3.0")), r;
+  return !r && X2 && e === "wheel" && (r = document.implementation.hasFeature("Events.wheel", "3.0")), r;
 }
 var b = S;
 var O = 10;
-var I = 40;
-var P = 800;
+var I2 = 40;
+var P2 = 800;
 function T(e) {
   var n = 0, i = 0, r = 0, t = 0;
-  return "detail" in e && (i = e.detail), "wheelDelta" in e && (i = -e.wheelDelta / 120), "wheelDeltaY" in e && (i = -e.wheelDeltaY / 120), "wheelDeltaX" in e && (n = -e.wheelDeltaX / 120), "axis" in e && e.axis === e.HORIZONTAL_AXIS && (n = i, i = 0), r = n * O, t = i * O, "deltaY" in e && (t = e.deltaY), "deltaX" in e && (r = e.deltaX), (r || t) && e.deltaMode && (e.deltaMode == 1 ? (r *= I, t *= I) : (r *= P, t *= P)), r && !n && (n = r < 1 ? -1 : 1), t && !i && (i = t < 1 ? -1 : 1), { spinX: n, spinY: i, pixelX: r, pixelY: t };
+  return "detail" in e && (i = e.detail), "wheelDelta" in e && (i = -e.wheelDelta / 120), "wheelDeltaY" in e && (i = -e.wheelDeltaY / 120), "wheelDeltaX" in e && (n = -e.wheelDeltaX / 120), "axis" in e && e.axis === e.HORIZONTAL_AXIS && (n = i, i = 0), r = n * O, t = i * O, "deltaY" in e && (t = e.deltaY), "deltaX" in e && (r = e.deltaX), (r || t) && e.deltaMode && (e.deltaMode == 1 ? (r *= I2, t *= I2) : (r *= P2, t *= P2)), r && !n && (n = r < 1 ? -1 : 1), t && !i && (i = t < 1 ? -1 : 1), { spinX: n, spinY: i, pixelX: r, pixelY: t };
 }
 T.getEventType = function() {
   return A.firefox() ? "DOMMouseScroll" : b("wheel") ? "wheel" : "mousewheel";
@@ -27551,7 +26391,7 @@ var basicTimeSpinnerProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/time-picker/src/time-picker-com/basic-time-spinner.mjs
-var _hoisted_19 = ["onClick"];
+var _hoisted_18 = ["onClick"];
 var _hoisted_25 = ["onMouseenter"];
 var _sfc_main27 = defineComponent({
   __name: "basic-time-spinner",
@@ -27571,17 +26411,17 @@ var _sfc_main27 = defineComponent({
       minutes: listMinutesRef,
       seconds: listSecondsRef
     };
-    const spinnerItems = computed(() => {
+    const spinnerItems = computed2(() => {
       return props.showSeconds ? timeUnits : timeUnits.slice(0, 2);
     });
-    const timePartials = computed(() => {
+    const timePartials = computed2(() => {
       const { spinnerDate } = props;
       const hours = spinnerDate.hour();
       const minutes = spinnerDate.minute();
       const seconds = spinnerDate.second();
       return { hours, minutes, seconds };
     });
-    const timeList = computed(() => {
+    const timeList = computed2(() => {
       const { hours, minutes } = unref(timePartials);
       return {
         hours: getHoursList(props.role),
@@ -27589,7 +26429,7 @@ var _sfc_main27 = defineComponent({
         seconds: getSecondsList(hours, minutes, props.role)
       };
     });
-    const arrowControlTimeList = computed(() => {
+    const arrowControlTimeList = computed2(() => {
       const { hours, minutes, seconds } = unref(timePartials);
       return {
         hours: buildTimeList(hours, 23),
@@ -27624,8 +26464,8 @@ var _sfc_main27 = defineComponent({
           range4 = [6, 8];
           break;
       }
-      const [left3, right3] = range4;
-      emit("select-range", left3, right3);
+      const [left2, right2] = range4;
+      emit("select-range", left2, right2);
       currentScrollbar.value = type4;
     };
     const adjustCurrentSpinner = (type4) => {
@@ -27779,7 +26619,7 @@ var _sfc_main27 = defineComponent({
                   ], 64)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
                     createTextVNode(toDisplayString(("0" + key).slice(-2)), 1)
                   ], 64))
-                ], 10, _hoisted_19);
+                ], 10, _hoisted_18);
               }), 128))
             ]),
             _: 2
@@ -27861,13 +26701,13 @@ var _sfc_main28 = defineComponent({
     const { t, lang } = useLocale();
     const selectionRange = ref([0, 2]);
     const oldValue = useOldValue(props);
-    const transitionName = computed(() => {
+    const transitionName = computed2(() => {
       return isUndefined2(props.actualVisible) ? `${ns.namespace.value}-zoom-in-top` : "";
     });
-    const showSeconds = computed(() => {
+    const showSeconds = computed2(() => {
       return props.format.includes("ss");
     });
-    const amPmMode = computed(() => {
+    const amPmMode = computed2(() => {
       if (props.format.includes("A"))
         return "A";
       if (props.format.includes("a"))
@@ -27894,9 +26734,9 @@ var _sfc_main28 = defineComponent({
       const result2 = getRangeAvailableTime(_date).millisecond(0);
       emit("pick", result2, true);
     };
-    const setSelectionRange = (start2, end3) => {
-      emit("select-range", start2, end3);
-      selectionRange.value = [start2, end3];
+    const setSelectionRange = (start, end2) => {
+      emit("select-range", start, end2);
+      selectionRange.value = [start, end2];
     };
     const changeSelectionRange = (step) => {
       const list = [0, 3].concat(showSeconds.value ? [6] : []);
@@ -27907,9 +26747,9 @@ var _sfc_main28 = defineComponent({
     };
     const handleKeydown = (event) => {
       const code = event.code;
-      const { left: left3, right: right3, up: up2, down: down2 } = EVENT_CODE;
-      if ([left3, right3].includes(code)) {
-        const step = code === left3 ? -1 : 1;
+      const { left: left2, right: right2, up: up2, down: down2 } = EVENT_CODE;
+      if ([left2, right2].includes(code)) {
+        const step = code === left2 ? -1 : 1;
         changeSelectionRange(step);
         event.preventDefault();
         return;
@@ -28008,16 +26848,16 @@ var panelTimeRangeProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/time-picker/src/time-picker-com/panel-time-range.mjs
-var _hoisted_110 = ["disabled"];
+var _hoisted_19 = ["disabled"];
 var _sfc_main29 = defineComponent({
   __name: "panel-time-range",
   props: panelTimeRangeProps,
   emits: ["pick", "select-range", "set-picker-option"],
   setup(__props, { emit }) {
     const props = __props;
-    const makeSelectRange = (start2, end3) => {
+    const makeSelectRange = (start, end2) => {
       const result2 = [];
-      for (let i = start2; i <= end3; i++) {
+      for (let i = start; i <= end2; i++) {
         result2.push(i);
       }
       return result2;
@@ -28033,28 +26873,28 @@ var _sfc_main29 = defineComponent({
       disabledSeconds,
       defaultValue
     } = pickerBase.props;
-    const startContainerKls = computed(() => [
+    const startContainerKls = computed2(() => [
       nsTime.be("range-picker", "body"),
       nsTime.be("panel", "content"),
       nsTime.is("arrow", arrowControl),
       showSeconds.value ? "has-seconds" : ""
     ]);
-    const endContainerKls = computed(() => [
+    const endContainerKls = computed2(() => [
       nsTime.be("range-picker", "body"),
       nsTime.be("panel", "content"),
       nsTime.is("arrow", arrowControl),
       showSeconds.value ? "has-seconds" : ""
     ]);
-    const startTime = computed(() => props.parsedValue[0]);
-    const endTime = computed(() => props.parsedValue[1]);
+    const startTime = computed2(() => props.parsedValue[0]);
+    const endTime = computed2(() => props.parsedValue[1]);
     const oldValue = useOldValue(props);
     const handleCancel = () => {
       emit("pick", oldValue.value, false);
     };
-    const showSeconds = computed(() => {
+    const showSeconds = computed2(() => {
       return props.format.includes("ss");
     });
-    const amPmMode = computed(() => {
+    const amPmMode = computed2(() => {
       if (props.format.includes("A"))
         return "A";
       if (props.format.includes("a"))
@@ -28075,22 +26915,22 @@ var _sfc_main29 = defineComponent({
       const result2 = getRangeAvailableTime(parsedDate);
       return parsedDate[0].isSame(result2[0]) && parsedDate[1].isSame(result2[1]);
     };
-    const handleChange = (start2, end3) => {
-      emit("pick", [start2, end3], true);
+    const handleChange = (start, end2) => {
+      emit("pick", [start, end2], true);
     };
-    const btnConfirmDisabled = computed(() => {
+    const btnConfirmDisabled = computed2(() => {
       return startTime.value > endTime.value;
     });
     const selectionRange = ref([0, 2]);
-    const setMinSelectionRange = (start2, end3) => {
-      emit("select-range", start2, end3, "min");
-      selectionRange.value = [start2, end3];
+    const setMinSelectionRange = (start, end2) => {
+      emit("select-range", start, end2, "min");
+      selectionRange.value = [start, end2];
     };
-    const offset4 = computed(() => showSeconds.value ? 11 : 8);
-    const setMaxSelectionRange = (start2, end3) => {
-      emit("select-range", start2, end3, "max");
-      const _offset = unref(offset4);
-      selectionRange.value = [start2 + _offset, end3 + _offset];
+    const offset3 = computed2(() => showSeconds.value ? 11 : 8);
+    const setMaxSelectionRange = (start, end2) => {
+      emit("select-range", start, end2, "max");
+      const _offset = unref(offset3);
+      selectionRange.value = [start + _offset, end2 + _offset];
     };
     const changeSelectionRange = (step) => {
       const list = showSeconds.value ? [0, 3, 6, 11, 14, 17] : [0, 3, 8, 11];
@@ -28106,16 +26946,16 @@ var _sfc_main29 = defineComponent({
     };
     const handleKeydown = (event) => {
       const code = event.code;
-      const { left: left3, right: right3, up: up2, down: down2 } = EVENT_CODE;
-      if ([left3, right3].includes(code)) {
-        const step = code === left3 ? -1 : 1;
+      const { left: left2, right: right2, up: up2, down: down2 } = EVENT_CODE;
+      if ([left2, right2].includes(code)) {
+        const step = code === left2 ? -1 : 1;
         changeSelectionRange(step);
         event.preventDefault();
         return;
       }
       if ([up2, down2].includes(code)) {
         const step = code === up2 ? -1 : 1;
-        const role = selectionRange.value[0] < offset4.value ? "start" : "end";
+        const role = selectionRange.value[0] < offset3.value ? "start" : "end";
         timePickerOptions[`${role}_scrollDown`](step);
         event.preventDefault();
         return;
@@ -28154,10 +26994,10 @@ var _sfc_main29 = defineComponent({
       const nextDisable = isStart ? makeSelectRange(compareSecond + 1, 59) : makeSelectRange(0, compareSecond - 1);
       return union_default(defaultDisable, nextDisable);
     };
-    const getRangeAvailableTime = ([start2, end3]) => {
+    const getRangeAvailableTime = ([start, end2]) => {
       return [
-        getAvailableTime(start2, "start", true, end3),
-        getAvailableTime(end3, "end", false, start2)
+        getAvailableTime(start, "start", true, end2),
+        getAvailableTime(end2, "end", false, start)
       ];
     };
     const { getAvailableHours, getAvailableMinutes, getAvailableSeconds } = buildAvailableTimeSlotGetter(disabledHours_, disabledMinutes_, disabledSeconds_);
@@ -28271,7 +27111,7 @@ var _sfc_main29 = defineComponent({
             class: normalizeClass([unref(nsTime).be("panel", "btn"), "confirm"]),
             disabled: unref(btnConfirmDisabled),
             onClick: _cache[1] || (_cache[1] = ($event) => handleConfirm())
-          }, toDisplayString(unref(t)("el.datepicker.confirm")), 11, _hoisted_110)
+          }, toDisplayString(unref(t)("el.datepicker.confirm")), 11, _hoisted_19)
         ], 2)
       ], 2)) : createCommentVNode("v-if", true);
     };
@@ -28347,8 +27187,8 @@ var getMonthDays = (date5) => {
   return rangeArr(days).map((_2, index) => index + 1);
 };
 var toNestedArr = (days) => rangeArr(days.length / 7).map((index) => {
-  const start2 = index * 7;
-  return days.slice(start2, start2 + 7);
+  const start = index * 7;
+  return days.slice(start, start + 7);
 });
 var dateTableProps = buildProps({
   selectedDay: {
@@ -28377,13 +27217,13 @@ var useDateTable = (props, emit) => {
   const firstDayOfWeek = import_dayjs5.default.localeData().firstDayOfWeek();
   const { t, lang } = useLocale();
   const now2 = (0, import_dayjs5.default)().locale(lang.value);
-  const isInRange = computed(() => !!props.range && !!props.range.length);
-  const rows = computed(() => {
+  const isInRange = computed2(() => !!props.range && !!props.range.length);
+  const rows = computed2(() => {
     let days = [];
     if (isInRange.value) {
-      const [start2, end3] = props.range;
-      const currentMonthRange = rangeArr(end3.date() - start2.date() + 1).map((index) => ({
-        text: start2.date() + index,
+      const [start, end2] = props.range;
+      const currentMonthRange = rangeArr(end2.date() - start.date() + 1).map((index) => ({
+        text: start.date() + index,
         type: "current"
       }));
       let remaining = currentMonthRange.length % 7;
@@ -28413,12 +27253,12 @@ var useDateTable = (props, emit) => {
     }
     return toNestedArr(days);
   });
-  const weekDays = computed(() => {
-    const start2 = firstDayOfWeek;
-    if (start2 === 0) {
+  const weekDays = computed2(() => {
+    const start = firstDayOfWeek;
+    if (start === 0) {
       return WEEK_DAYS.map((_2) => t(`el.datepicker.weeks.${_2}`));
     } else {
-      return WEEK_DAYS.slice(start2).concat(WEEK_DAYS.slice(0, start2)).map((_2) => t(`el.datepicker.weeks.${_2}`));
+      return WEEK_DAYS.slice(start).concat(WEEK_DAYS.slice(0, start)).map((_2) => t(`el.datepicker.weeks.${_2}`));
     }
   });
   const getFormattedDate = (day, type4) => {
@@ -28456,7 +27296,7 @@ var useDateTable = (props, emit) => {
 };
 
 // node_modules/element-plus/es/components/calendar/src/date-table2.mjs
-var _hoisted_111 = { key: 0 };
+var _hoisted_110 = { key: 0 };
 var _hoisted_26 = ["onClick"];
 var __default__24 = defineComponent({
   name: "DateTable"
@@ -28500,7 +27340,7 @@ var _sfc_main30 = defineComponent({
         cellspacing: "0",
         cellpadding: "0"
       }, [
-        !_ctx.hideHeader ? (openBlock(), createElementBlock("thead", _hoisted_111, [
+        !_ctx.hideHeader ? (openBlock(), createElementBlock("thead", _hoisted_110, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(unref(weekDays), (day) => {
             return openBlock(), createElementBlock("th", { key: day }, toDisplayString(day), 1);
           }), 128))
@@ -28542,34 +27382,35 @@ var DateTable = _export_sfc(_sfc_main30, [["__file", "date-table.vue"]]);
 
 // node_modules/element-plus/es/components/calendar/src/use-calendar.mjs
 var import_dayjs6 = __toESM(require_dayjs_min(), 1);
-var adjacentMonth = (start2, end3) => {
-  const firstMonthLastDay = start2.endOf("month");
-  const lastMonthFirstDay = end3.startOf("month");
+var adjacentMonth = (start, end2) => {
+  const firstMonthLastDay = start.endOf("month");
+  const lastMonthFirstDay = end2.startOf("month");
   const isSameWeek = firstMonthLastDay.isSame(lastMonthFirstDay, "week");
   const lastMonthStartDay = isSameWeek ? lastMonthFirstDay.add(1, "week") : lastMonthFirstDay;
   return [
-    [start2, firstMonthLastDay],
-    [lastMonthStartDay.startOf("week"), end3]
+    [start, firstMonthLastDay],
+    [lastMonthStartDay.startOf("week"), end2]
   ];
 };
-var threeConsecutiveMonth = (start2, end3) => {
-  const firstMonthLastDay = start2.endOf("month");
-  const secondMonthFirstDay = start2.add(1, "month").startOf("month");
+var threeConsecutiveMonth = (start, end2) => {
+  const firstMonthLastDay = start.endOf("month");
+  const secondMonthFirstDay = start.add(1, "month").startOf("month");
   const secondMonthStartDay = firstMonthLastDay.isSame(secondMonthFirstDay, "week") ? secondMonthFirstDay.add(1, "week") : secondMonthFirstDay;
   const secondMonthLastDay = secondMonthStartDay.endOf("month");
-  const lastMonthFirstDay = end3.startOf("month");
+  const lastMonthFirstDay = end2.startOf("month");
   const lastMonthStartDay = secondMonthLastDay.isSame(lastMonthFirstDay, "week") ? lastMonthFirstDay.add(1, "week") : lastMonthFirstDay;
   return [
-    [start2, firstMonthLastDay],
+    [start, firstMonthLastDay],
     [secondMonthStartDay.startOf("week"), secondMonthLastDay],
-    [lastMonthStartDay.startOf("week"), end3]
+    [lastMonthStartDay.startOf("week"), end2]
   ];
 };
 var useCalendar = (props, emit, componentName2) => {
+  const slots = useSlots();
   const { lang } = useLocale();
   const selectedDay = ref();
   const now2 = (0, import_dayjs6.default)().locale(lang.value);
-  const realSelectedDay = computed({
+  const realSelectedDay = computed2({
     get() {
       if (!props.modelValue)
         return selectedDay.value;
@@ -28584,7 +27425,7 @@ var useCalendar = (props, emit, componentName2) => {
       emit(UPDATE_MODEL_EVENT, result2);
     }
   });
-  const validatedRange = computed(() => {
+  const validatedRange = computed2(() => {
     if (!props.range)
       return [];
     const rangeArrDayjs = props.range.map((_2) => (0, import_dayjs6.default)(_2).locale(lang.value));
@@ -28603,17 +27444,17 @@ var useCalendar = (props, emit, componentName2) => {
       return calculateValidatedDateRange(startDayjs, endDayjs);
     }
   });
-  const date5 = computed(() => {
+  const date5 = computed2(() => {
     if (!props.modelValue) {
       return realSelectedDay.value || (validatedRange.value.length ? validatedRange.value[0][0] : now2);
     } else {
       return (0, import_dayjs6.default)(props.modelValue).locale(lang.value);
     }
   });
-  const prevMonthDayjs = computed(() => date5.value.subtract(1, "month").date(1));
-  const nextMonthDayjs = computed(() => date5.value.add(1, "month").date(1));
-  const prevYearDayjs = computed(() => date5.value.subtract(1, "year").date(1));
-  const nextYearDayjs = computed(() => date5.value.add(1, "year").date(1));
+  const prevMonthDayjs = computed2(() => date5.value.subtract(1, "month").date(1));
+  const nextMonthDayjs = computed2(() => date5.value.add(1, "month").date(1));
+  const prevYearDayjs = computed2(() => date5.value.subtract(1, "year").date(1));
+  const nextYearDayjs = computed2(() => date5.value.add(1, "year").date(1));
   const calculateValidatedDateRange = (startDayjs, endDayjs) => {
     const firstDay = startDayjs.startOf("week");
     const lastDay = endDayjs.endOf("week");
@@ -28646,6 +27487,14 @@ var useCalendar = (props, emit, componentName2) => {
       pickDay(day);
     }
   };
+  useDeprecated({
+    from: '"dateCell"',
+    replacement: '"date-cell"',
+    scope: "ElCalendar",
+    version: "2.3.0",
+    ref: "https://element-plus.org/en-US/component/calendar.html#slots",
+    type: "Slot"
+  }, computed2(() => !!slots.dateCell));
   return {
     calculateValidatedDateRange,
     date: date5,
@@ -28693,7 +27542,7 @@ var _sfc_main31 = defineComponent({
       validatedRange
     } = useCalendar(props, emit, COMPONENT_NAME8);
     const { t } = useLocale();
-    const i18nDate = computed(() => {
+    const i18nDate = computed2(() => {
       const pickedMonth = `el.datepicker.month${date5.value.format("M")}`;
       return `${date5.value.year()} ${t("el.datepicker.year")} ${t(pickedMonth)}`;
     });
@@ -28762,10 +27611,10 @@ var _sfc_main31 = defineComponent({
             "selected-day": unref(realSelectedDay),
             onPick: unref(pickDay)
           }, createSlots({ _: 2 }, [
-            _ctx.$slots["date-cell"] ? {
+            _ctx.$slots["date-cell"] || _ctx.$slots.dateCell ? {
               name: "date-cell",
               fn: withCtx((data) => [
-                renderSlot(_ctx.$slots, "date-cell", normalizeProps(guardReactiveProps(data)))
+                _ctx.$slots["date-cell"] ? renderSlot(_ctx.$slots, "date-cell", normalizeProps(mergeProps({ key: 0 }, data))) : renderSlot(_ctx.$slots, "dateCell", normalizeProps(mergeProps({ key: 1 }, data)))
               ])
             } : void 0
           ]), 1032, ["date", "selected-day", "onPick"])
@@ -28782,10 +27631,10 @@ var _sfc_main31 = defineComponent({
               "hide-header": index !== 0,
               onPick: unref(pickDay)
             }, createSlots({ _: 2 }, [
-              _ctx.$slots["date-cell"] ? {
+              _ctx.$slots["date-cell"] || _ctx.$slots.dateCell ? {
                 name: "date-cell",
                 fn: withCtx((data) => [
-                  renderSlot(_ctx.$slots, "date-cell", normalizeProps(guardReactiveProps(data)))
+                  _ctx.$slots["date-cell"] ? renderSlot(_ctx.$slots, "date-cell", normalizeProps(mergeProps({ key: 0 }, data))) : renderSlot(_ctx.$slots, "dateCell", normalizeProps(mergeProps({ key: 1 }, data)))
                 ])
               } : void 0
             ]), 1032, ["date", "selected-day", "range", "hide-header", "onPick"]);
@@ -28916,10 +27765,6 @@ var carouselProps = buildProps({
   pauseOnHover: {
     type: Boolean,
     default: true
-  },
-  motionBlur: {
-    type: Boolean,
-    default: false
   }
 });
 var carouselEmits = {
@@ -28944,15 +27789,13 @@ var useCarousel = (props, emit, componentName2) => {
   const root2 = ref();
   const containerHeight = ref(0);
   const isItemsTwoLength = ref(true);
-  const isFirstCall = ref(true);
-  const isTransitioning = ref(false);
-  const arrowDisplay = computed(() => props.arrow !== "never" && !unref(isVertical));
-  const hasLabel = computed(() => {
+  const arrowDisplay = computed2(() => props.arrow !== "never" && !unref(isVertical));
+  const hasLabel = computed2(() => {
     return items.value.some((item) => item.props.label.toString().length > 0);
   });
-  const isCardType = computed(() => props.type === "card");
-  const isVertical = computed(() => props.direction === "vertical");
-  const containerStyle = computed(() => {
+  const isCardType = computed2(() => props.type === "card");
+  const isVertical = computed2(() => props.direction === "vertical");
+  const containerStyle = computed2(() => {
     if (props.height !== "auto") {
       return {
         height: props.height
@@ -28986,10 +27829,6 @@ var useCarousel = (props, emit, componentName2) => {
     timer.value = setInterval(() => playSlides(), props.interval);
   }
   const playSlides = () => {
-    if (!isFirstCall.value) {
-      isTransitioning.value = true;
-    }
-    isFirstCall.value = false;
     if (activeIndex.value < items.value.length - 1) {
       activeIndex.value = activeIndex.value + 1;
     } else if (props.loop) {
@@ -28997,10 +27836,6 @@ var useCarousel = (props, emit, componentName2) => {
     }
   };
   function setActiveItem(index) {
-    if (!isFirstCall.value) {
-      isTransitioning.value = true;
-    }
-    isFirstCall.value = false;
     if (isString(index)) {
       const filteredItems = items.value.filter((item) => item.props.name === index);
       if (filteredItems.length > 0) {
@@ -29061,14 +27896,11 @@ var useCarousel = (props, emit, componentName2) => {
     hover.value = false;
     startTimer();
   }
-  function handleTransitionEnd() {
-    isTransitioning.value = false;
-  }
-  function handleButtonEnter(arrow4) {
+  function handleButtonEnter(arrow3) {
     if (unref(isVertical))
       return;
     items.value.forEach((item, index) => {
-      if (arrow4 === itemInStage(item, index)) {
+      if (arrow3 === itemInStage(item, index)) {
         item.states.hover = true;
       }
     });
@@ -29081,19 +27913,11 @@ var useCarousel = (props, emit, componentName2) => {
     });
   }
   function handleIndicatorClick(index) {
-    if (index !== activeIndex.value) {
-      if (!isFirstCall.value) {
-        isTransitioning.value = true;
-      }
-    }
     activeIndex.value = index;
   }
   function handleIndicatorHover(index) {
     if (props.trigger === "hover" && index !== activeIndex.value) {
       activeIndex.value = index;
-      if (!isFirstCall.value) {
-        isTransitioning.value = true;
-      }
     }
   }
   function prev() {
@@ -29184,13 +28008,11 @@ var useCarousel = (props, emit, componentName2) => {
     hasLabel,
     hover,
     isCardType,
-    isTransitioning,
     items,
     isVertical,
     containerStyle,
     isItemsTwoLength,
     handleButtonEnter,
-    handleTransitionEnd,
     handleButtonLeave,
     handleIndicatorClick,
     handleMouseEnter,
@@ -29206,34 +28028,8 @@ var useCarousel = (props, emit, componentName2) => {
 };
 
 // node_modules/element-plus/es/components/carousel/src/carousel2.mjs
-var _hoisted_112 = ["aria-label"];
-var _hoisted_27 = ["aria-label"];
-var _hoisted_33 = ["onMouseenter", "onClick"];
-var _hoisted_4 = ["aria-label"];
-var _hoisted_5 = { key: 0 };
-var _hoisted_6 = {
-  key: 3,
-  xmlns: "http://www.w3.org/2000/svg",
-  version: "1.1",
-  style: { "display": "none" }
-};
-var _hoisted_7 = createBaseVNode("defs", null, [
-  createBaseVNode("filter", { id: "elCarouselHorizontal" }, [
-    createBaseVNode("feGaussianBlur", {
-      in: "SourceGraphic",
-      stdDeviation: "12,0"
-    })
-  ]),
-  createBaseVNode("filter", { id: "elCarouselVertical" }, [
-    createBaseVNode("feGaussianBlur", {
-      in: "SourceGraphic",
-      stdDeviation: "0,10"
-    })
-  ])
-], -1);
-var _hoisted_8 = [
-  _hoisted_7
-];
+var _hoisted_111 = ["onMouseenter", "onClick"];
+var _hoisted_27 = { key: 0 };
 var COMPONENT_NAME9 = "ElCarousel";
 var __default__27 = defineComponent({
   name: COMPONENT_NAME9
@@ -29256,11 +28052,9 @@ var _sfc_main33 = defineComponent({
       containerStyle,
       handleButtonEnter,
       handleButtonLeave,
-      isTransitioning,
       handleIndicatorClick,
       handleMouseEnter,
       handleMouseLeave,
-      handleTransitionEnd,
       setActiveItem,
       prev,
       next,
@@ -29270,22 +28064,14 @@ var _sfc_main33 = defineComponent({
       throttledIndicatorHover
     } = useCarousel(props, emit, COMPONENT_NAME9);
     const ns = useNamespace("carousel");
-    const { t } = useLocale();
-    const carouselClasses = computed(() => {
+    const carouselClasses = computed2(() => {
       const classes = [ns.b(), ns.m(props.direction)];
       if (unref(isCardType)) {
         classes.push(ns.m("card"));
       }
       return classes;
     });
-    const carouselContainer = computed(() => {
-      const classes = [ns.e("container")];
-      if (props.motionBlur && unref(isTransitioning)) {
-        classes.push(unref(isVertical) ? `${ns.namespace.value}-transitioning-vertical` : `${ns.namespace.value}-transitioning`);
-      }
-      return classes;
-    });
-    const indicatorsClasses = computed(() => {
+    const indicatorsClasses = computed2(() => {
       const classes = [ns.e("indicators"), ns.em("indicators", props.direction)];
       if (unref(hasLabel)) {
         classes.push(ns.em("indicators", "labels"));
@@ -29308,77 +28094,74 @@ var _sfc_main33 = defineComponent({
         ref_key: "root",
         ref: root2,
         class: normalizeClass(unref(carouselClasses)),
-        onMouseenter: _cache[7] || (_cache[7] = withModifiers((...args) => unref(handleMouseEnter) && unref(handleMouseEnter)(...args), ["stop"])),
-        onMouseleave: _cache[8] || (_cache[8] = withModifiers((...args) => unref(handleMouseLeave) && unref(handleMouseLeave)(...args), ["stop"]))
+        onMouseenter: _cache[6] || (_cache[6] = withModifiers((...args) => unref(handleMouseEnter) && unref(handleMouseEnter)(...args), ["stop"])),
+        onMouseleave: _cache[7] || (_cache[7] = withModifiers((...args) => unref(handleMouseLeave) && unref(handleMouseLeave)(...args), ["stop"]))
       }, [
-        unref(arrowDisplay) ? (openBlock(), createBlock(Transition, {
-          key: 0,
-          name: "carousel-arrow-left",
-          persisted: ""
-        }, {
-          default: withCtx(() => [
-            withDirectives(createBaseVNode("button", {
-              type: "button",
-              class: normalizeClass([unref(ns).e("arrow"), unref(ns).em("arrow", "left")]),
-              "aria-label": unref(t)("el.carousel.leftArrow"),
-              onMouseenter: _cache[0] || (_cache[0] = ($event) => unref(handleButtonEnter)("left")),
-              onMouseleave: _cache[1] || (_cache[1] = (...args) => unref(handleButtonLeave) && unref(handleButtonLeave)(...args)),
-              onClick: _cache[2] || (_cache[2] = withModifiers(($event) => unref(throttledArrowClick)(unref(activeIndex) - 1), ["stop"]))
-            }, [
-              createVNode(unref(ElIcon), null, {
-                default: withCtx(() => [
-                  createVNode(unref(arrow_left_default))
-                ]),
-                _: 1
-              })
-            ], 42, _hoisted_112), [
-              [
-                vShow,
-                (_ctx.arrow === "always" || unref(hover)) && (props.loop || unref(activeIndex) > 0)
-              ]
-            ])
-          ]),
-          _: 1
-        })) : createCommentVNode("v-if", true),
-        unref(arrowDisplay) ? (openBlock(), createBlock(Transition, {
-          key: 1,
-          name: "carousel-arrow-right",
-          persisted: ""
-        }, {
-          default: withCtx(() => [
-            withDirectives(createBaseVNode("button", {
-              type: "button",
-              class: normalizeClass([unref(ns).e("arrow"), unref(ns).em("arrow", "right")]),
-              "aria-label": unref(t)("el.carousel.rightArrow"),
-              onMouseenter: _cache[3] || (_cache[3] = ($event) => unref(handleButtonEnter)("right")),
-              onMouseleave: _cache[4] || (_cache[4] = (...args) => unref(handleButtonLeave) && unref(handleButtonLeave)(...args)),
-              onClick: _cache[5] || (_cache[5] = withModifiers(($event) => unref(throttledArrowClick)(unref(activeIndex) + 1), ["stop"]))
-            }, [
-              createVNode(unref(ElIcon), null, {
-                default: withCtx(() => [
-                  createVNode(unref(arrow_right_default))
-                ]),
-                _: 1
-              })
-            ], 42, _hoisted_27), [
-              [
-                vShow,
-                (_ctx.arrow === "always" || unref(hover)) && (props.loop || unref(activeIndex) < unref(items).length - 1)
-              ]
-            ])
-          ]),
-          _: 1
-        })) : createCommentVNode("v-if", true),
         createBaseVNode("div", {
-          class: normalizeClass(unref(carouselContainer)),
-          style: normalizeStyle(unref(containerStyle)),
-          onTransitionend: _cache[6] || (_cache[6] = (...args) => unref(handleTransitionEnd) && unref(handleTransitionEnd)(...args))
+          class: normalizeClass(unref(ns).e("container")),
+          style: normalizeStyle(unref(containerStyle))
         }, [
+          unref(arrowDisplay) ? (openBlock(), createBlock(Transition, {
+            key: 0,
+            name: "carousel-arrow-left",
+            persisted: ""
+          }, {
+            default: withCtx(() => [
+              withDirectives(createBaseVNode("button", {
+                type: "button",
+                class: normalizeClass([unref(ns).e("arrow"), unref(ns).em("arrow", "left")]),
+                onMouseenter: _cache[0] || (_cache[0] = ($event) => unref(handleButtonEnter)("left")),
+                onMouseleave: _cache[1] || (_cache[1] = (...args) => unref(handleButtonLeave) && unref(handleButtonLeave)(...args)),
+                onClick: _cache[2] || (_cache[2] = withModifiers(($event) => unref(throttledArrowClick)(unref(activeIndex) - 1), ["stop"]))
+              }, [
+                createVNode(unref(ElIcon), null, {
+                  default: withCtx(() => [
+                    createVNode(unref(arrow_left_default))
+                  ]),
+                  _: 1
+                })
+              ], 34), [
+                [
+                  vShow,
+                  (_ctx.arrow === "always" || unref(hover)) && (props.loop || unref(activeIndex) > 0)
+                ]
+              ])
+            ]),
+            _: 1
+          })) : createCommentVNode("v-if", true),
+          unref(arrowDisplay) ? (openBlock(), createBlock(Transition, {
+            key: 1,
+            name: "carousel-arrow-right",
+            persisted: ""
+          }, {
+            default: withCtx(() => [
+              withDirectives(createBaseVNode("button", {
+                type: "button",
+                class: normalizeClass([unref(ns).e("arrow"), unref(ns).em("arrow", "right")]),
+                onMouseenter: _cache[3] || (_cache[3] = ($event) => unref(handleButtonEnter)("right")),
+                onMouseleave: _cache[4] || (_cache[4] = (...args) => unref(handleButtonLeave) && unref(handleButtonLeave)(...args)),
+                onClick: _cache[5] || (_cache[5] = withModifiers(($event) => unref(throttledArrowClick)(unref(activeIndex) + 1), ["stop"]))
+              }, [
+                createVNode(unref(ElIcon), null, {
+                  default: withCtx(() => [
+                    createVNode(unref(arrow_right_default))
+                  ]),
+                  _: 1
+                })
+              ], 34), [
+                [
+                  vShow,
+                  (_ctx.arrow === "always" || unref(hover)) && (props.loop || unref(activeIndex) < unref(items).length - 1)
+                ]
+              ])
+            ]),
+            _: 1
+          })) : createCommentVNode("v-if", true),
           createVNode(unref(PlaceholderItem)),
           renderSlot(_ctx.$slots, "default")
-        ], 38),
+        ], 6),
         _ctx.indicatorPosition !== "none" ? (openBlock(), createElementBlock("ul", {
-          key: 2,
+          key: 0,
           class: normalizeClass(unref(indicatorsClasses))
         }, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(unref(items), (item, index) => {
@@ -29393,17 +28176,15 @@ var _sfc_main33 = defineComponent({
               onClick: withModifiers(($event) => unref(handleIndicatorClick)(index), ["stop"])
             }, [
               createBaseVNode("button", {
-                class: normalizeClass(unref(ns).e("button")),
-                "aria-label": unref(t)("el.carousel.indicator", { index: index + 1 })
+                class: normalizeClass(unref(ns).e("button"))
               }, [
-                unref(hasLabel) ? (openBlock(), createElementBlock("span", _hoisted_5, toDisplayString(item.props.label), 1)) : createCommentVNode("v-if", true)
-              ], 10, _hoisted_4)
-            ], 42, _hoisted_33)), [
+                unref(hasLabel) ? (openBlock(), createElementBlock("span", _hoisted_27, toDisplayString(item.props.label), 1)) : createCommentVNode("v-if", true)
+              ], 2)
+            ], 42, _hoisted_111)), [
               [vShow, unref(isTwoLengthShow)(index)]
             ]);
           }), 128))
-        ], 2)) : createCommentVNode("v-if", true),
-        props.motionBlur ? (openBlock(), createElementBlock("svg", _hoisted_6, _hoisted_8)) : createCommentVNode("v-if", true)
+        ], 2)) : createCommentVNode("v-if", true)
       ], 34);
     };
   }
@@ -29562,7 +28343,7 @@ var _sfc_main34 = defineComponent({
       ready,
       handleItemClick
     } = useCarouselItem(props, COMPONENT_NAME10);
-    const itemKls = computed(() => [
+    const itemKls = computed2(() => [
       ns.e("item"),
       ns.is("active", active.value),
       ns.is("in-stage", inStage.value),
@@ -29573,7 +28354,7 @@ var _sfc_main34 = defineComponent({
         [ns.em("item", "card-vertical")]: isCardType.value && isVertical.value
       }
     ]);
-    const itemStyle = computed(() => {
+    const itemStyle = computed2(() => {
       const translateType = `translate${unref(isVertical) ? "Y" : "X"}`;
       const _translate = `${translateType}(${unref(translate2)}px)`;
       const _scale = `scale(${unref(scale)})`;
@@ -29621,23 +28402,11 @@ var checkboxProps = {
     type: [String, Boolean, Number, Object],
     default: void 0
   },
-  value: {
-    type: [String, Boolean, Number, Object],
-    default: void 0
-  },
   indeterminate: Boolean,
   disabled: Boolean,
   checked: Boolean,
   name: {
     type: String,
-    default: void 0
-  },
-  trueValue: {
-    type: [String, Number],
-    default: void 0
-  },
-  falseValue: {
-    type: [String, Number],
     default: void 0
   },
   trueLabel: {
@@ -29662,8 +28431,7 @@ var checkboxProps = {
   validateEvent: {
     type: Boolean,
     default: true
-  },
-  ...useAriaProps(["ariaControls"])
+  }
 };
 var checkboxEmits = {
   [UPDATE_MODEL_EVENT]: (val) => isString(val) || isNumber3(val) || isBoolean2(val),
@@ -29679,13 +28447,13 @@ var useCheckboxDisabled = ({
   isChecked
 }) => {
   const checkboxGroup = inject(checkboxGroupContextKey, void 0);
-  const isLimitDisabled = computed(() => {
+  const isLimitDisabled = computed2(() => {
     var _a2, _b;
-    const max5 = (_a2 = checkboxGroup == null ? void 0 : checkboxGroup.max) == null ? void 0 : _a2.value;
-    const min5 = (_b = checkboxGroup == null ? void 0 : checkboxGroup.min) == null ? void 0 : _b.value;
-    return !isUndefined2(max5) && model.value.length >= max5 && !isChecked.value || !isUndefined2(min5) && model.value.length <= min5 && isChecked.value;
+    const max4 = (_a2 = checkboxGroup == null ? void 0 : checkboxGroup.max) == null ? void 0 : _a2.value;
+    const min4 = (_b = checkboxGroup == null ? void 0 : checkboxGroup.min) == null ? void 0 : _b.value;
+    return !isUndefined2(max4) && model.value.length >= max4 && !isChecked.value || !isUndefined2(min4) && model.value.length <= min4 && isChecked.value;
   });
-  const isDisabled = useFormDisabled(computed(() => (checkboxGroup == null ? void 0 : checkboxGroup.disabled.value) || isLimitDisabled.value));
+  const isDisabled = useFormDisabled(computed2(() => (checkboxGroup == null ? void 0 : checkboxGroup.disabled.value) || isLimitDisabled.value));
   return {
     isDisabled,
     isLimitDisabled
@@ -29704,8 +28472,8 @@ var useCheckboxEvent = (props, {
   const { formItem } = useFormItem();
   const { emit } = getCurrentInstance();
   function getLabeledValue(value) {
-    var _a2, _b, _c, _d;
-    return [true, props.trueValue, props.trueLabel].includes(value) ? (_b = (_a2 = props.trueValue) != null ? _a2 : props.trueLabel) != null ? _b : true : (_d = (_c = props.falseValue) != null ? _c : props.falseLabel) != null ? _d : false;
+    var _a2, _b;
+    return value === props.trueLabel || value === true ? (_a2 = props.trueLabel) != null ? _a2 : true : (_b = props.falseLabel) != null ? _b : false;
   }
   function emitChangeEvent(checked, e) {
     emit("change", getLabeledValue(checked), e);
@@ -29723,13 +28491,13 @@ var useCheckboxEvent = (props, {
       const eventTargets = e.composedPath();
       const hasLabel = eventTargets.some((item) => item.tagName === "LABEL");
       if (!hasLabel) {
-        model.value = getLabeledValue([false, props.falseValue, props.falseLabel].includes(model.value));
+        model.value = getLabeledValue([false, props.falseLabel].includes(model.value));
         await nextTick();
         emitChangeEvent(model.value, e);
       }
     }
   }
-  const validateEvent = computed(() => (checkboxGroup == null ? void 0 : checkboxGroup.validateEvent) || props.validateEvent);
+  const validateEvent = computed2(() => (checkboxGroup == null ? void 0 : checkboxGroup.validateEvent) || props.validateEvent);
   watch(() => props.modelValue, () => {
     if (validateEvent.value) {
       formItem == null ? void 0 : formItem.validate("change").catch((err) => debugWarn(err));
@@ -29746,9 +28514,9 @@ var useCheckboxModel = (props) => {
   const selfModel = ref(false);
   const { emit } = getCurrentInstance();
   const checkboxGroup = inject(checkboxGroupContextKey, void 0);
-  const isGroup = computed(() => isUndefined2(checkboxGroup) === false);
+  const isGroup = computed2(() => isUndefined2(checkboxGroup) === false);
   const isLimitExceeded = ref(false);
-  const model = computed({
+  const model = computed2({
     get() {
       var _a2, _b;
       return isGroup.value ? (_a2 = checkboxGroup == null ? void 0 : checkboxGroup.modelValue) == null ? void 0 : _a2.value : (_b = props.modelValue) != null ? _b : selfModel.value;
@@ -29775,52 +28543,55 @@ var useCheckboxModel = (props) => {
 var useCheckboxStatus = (props, slots, { model }) => {
   const checkboxGroup = inject(checkboxGroupContextKey, void 0);
   const isFocused = ref(false);
-  const actualValue = computed(() => {
-    if (!isPropAbsent(props.value)) {
-      return props.value;
-    }
-    return props.label;
-  });
-  const isChecked = computed(() => {
+  const isChecked = computed2(() => {
     const value = model.value;
     if (isBoolean2(value)) {
       return value;
     } else if (isArray(value)) {
-      if (isObject(actualValue.value)) {
-        return value.map(toRaw).some((o2) => isEqual_default(o2, actualValue.value));
+      if (isObject(props.label)) {
+        return value.map(toRaw).some((o2) => isEqual_default(o2, props.label));
       } else {
-        return value.map(toRaw).includes(actualValue.value);
+        return value.map(toRaw).includes(props.label);
       }
     } else if (value !== null && value !== void 0) {
-      return value === props.trueValue || value === props.trueLabel;
+      return value === props.trueLabel;
     } else {
       return !!value;
     }
   });
-  const checkboxButtonSize = useFormSize(computed(() => {
+  const checkboxButtonSize = useFormSize(computed2(() => {
     var _a2;
     return (_a2 = checkboxGroup == null ? void 0 : checkboxGroup.size) == null ? void 0 : _a2.value;
   }), {
     prop: true
   });
-  const checkboxSize = useFormSize(computed(() => {
+  const checkboxSize = useFormSize(computed2(() => {
     var _a2;
     return (_a2 = checkboxGroup == null ? void 0 : checkboxGroup.size) == null ? void 0 : _a2.value;
   }));
-  const hasOwnLabel = computed(() => {
-    return !!slots.default || !isPropAbsent(actualValue.value);
+  const hasOwnLabel = computed2(() => {
+    return !!slots.default || !isNil_default(props.label);
   });
   return {
     checkboxButtonSize,
     isChecked,
     isFocused,
     checkboxSize,
-    hasOwnLabel,
-    actualValue
+    hasOwnLabel
   };
 };
 
 // node_modules/element-plus/es/components/checkbox/src/composables/use-checkbox.mjs
+var setStoreValue = (props, { model }) => {
+  function addToStore() {
+    if (isArray(model.value) && !model.value.includes(props.label)) {
+      model.value.push(props.label);
+    } else {
+      model.value = props.trueLabel || true;
+    }
+  }
+  props.checked && addToStore();
+};
 var useCheckbox = (props, slots) => {
   const { formItem: elFormItem } = useFormItem();
   const { model, isGroup, isLimitExceeded } = useCheckboxModel(props);
@@ -29829,8 +28600,7 @@ var useCheckbox = (props, slots) => {
     isChecked,
     checkboxButtonSize,
     checkboxSize,
-    hasOwnLabel,
-    actualValue
+    hasOwnLabel
   } = useCheckboxStatus(props, slots, { model });
   const { isDisabled } = useCheckboxDisabled({ model, isChecked });
   const { inputId, isLabeledByFormItem } = useFormItemInputId(props, {
@@ -29845,46 +28615,7 @@ var useCheckbox = (props, slots) => {
     isDisabled,
     isLabeledByFormItem
   });
-  const setStoreValue = () => {
-    function addToStore() {
-      var _a2, _b;
-      if (isArray(model.value) && !model.value.includes(actualValue.value)) {
-        model.value.push(actualValue.value);
-      } else {
-        model.value = (_b = (_a2 = props.trueValue) != null ? _a2 : props.trueLabel) != null ? _b : true;
-      }
-    }
-    props.checked && addToStore();
-  };
-  setStoreValue();
-  useDeprecated({
-    from: "controls",
-    replacement: "aria-controls",
-    version: "2.8.0",
-    scope: "el-checkbox",
-    ref: "https://element-plus.org/en-US/component/checkbox.html"
-  }, computed(() => !!props.controls));
-  useDeprecated({
-    from: "label act as value",
-    replacement: "value",
-    version: "3.0.0",
-    scope: "el-checkbox",
-    ref: "https://element-plus.org/en-US/component/checkbox.html"
-  }, computed(() => isGroup.value && isPropAbsent(props.value)));
-  useDeprecated({
-    from: "true-label",
-    replacement: "true-value",
-    version: "3.0.0",
-    scope: "el-checkbox",
-    ref: "https://element-plus.org/en-US/component/checkbox.html"
-  }, computed(() => !!props.trueLabel));
-  useDeprecated({
-    from: "false-label",
-    replacement: "false-value",
-    version: "3.0.0",
-    scope: "el-checkbox",
-    ref: "https://element-plus.org/en-US/component/checkbox.html"
-  }, computed(() => !!props.falseLabel));
+  setStoreValue(props, { model });
   return {
     inputId,
     isLabeledByFormItem,
@@ -29895,14 +28626,13 @@ var useCheckbox = (props, slots) => {
     checkboxSize,
     hasOwnLabel,
     model,
-    actualValue,
     handleChange,
     onClickRoot
   };
 };
 
 // node_modules/element-plus/es/components/checkbox/src/checkbox2.mjs
-var _hoisted_113 = ["id", "indeterminate", "name", "tabindex", "disabled", "true-value", "false-value"];
+var _hoisted_112 = ["id", "indeterminate", "name", "tabindex", "disabled", "true-value", "false-value"];
 var _hoisted_28 = ["id", "indeterminate", "disabled", "value", "name", "tabindex"];
 var __default__29 = defineComponent({
   name: "ElCheckbox"
@@ -29923,12 +28653,11 @@ var _sfc_main35 = defineComponent({
       checkboxSize,
       hasOwnLabel,
       model,
-      actualValue,
       handleChange,
       onClickRoot
     } = useCheckbox(props, slots);
     const ns = useNamespace("checkbox");
-    const compKls = computed(() => {
+    const compKls = computed2(() => {
       return [
         ns.b(),
         ns.m(checkboxSize.value),
@@ -29937,7 +28666,7 @@ var _sfc_main35 = defineComponent({
         ns.is("checked", isChecked.value)
       ];
     });
-    const spanKls = computed(() => {
+    const spanKls = computed2(() => {
       return [
         ns.e("input"),
         ns.is("disabled", isDisabled.value),
@@ -29949,68 +28678,65 @@ var _sfc_main35 = defineComponent({
     return (_ctx, _cache) => {
       return openBlock(), createBlock(resolveDynamicComponent(!unref(hasOwnLabel) && unref(isLabeledByFormItem) ? "span" : "label"), {
         class: normalizeClass(unref(compKls)),
-        "aria-controls": _ctx.indeterminate ? _ctx.controls || _ctx.ariaControls : null,
+        "aria-controls": _ctx.indeterminate ? _ctx.controls : null,
         onClick: unref(onClickRoot)
       }, {
-        default: withCtx(() => {
-          var _a2, _b;
-          return [
-            createBaseVNode("span", {
-              class: normalizeClass(unref(spanKls))
-            }, [
-              _ctx.trueValue || _ctx.falseValue || _ctx.trueLabel || _ctx.falseLabel ? withDirectives((openBlock(), createElementBlock("input", {
-                key: 0,
-                id: unref(inputId),
-                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(model) ? model.value = $event : null),
-                class: normalizeClass(unref(ns).e("original")),
-                type: "checkbox",
-                indeterminate: _ctx.indeterminate,
-                name: _ctx.name,
-                tabindex: _ctx.tabindex,
-                disabled: unref(isDisabled),
-                "true-value": (_a2 = _ctx.trueValue) != null ? _a2 : _ctx.trueLabel,
-                "false-value": (_b = _ctx.falseValue) != null ? _b : _ctx.falseLabel,
-                onChange: _cache[1] || (_cache[1] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
-                onFocus: _cache[2] || (_cache[2] = ($event) => isFocused.value = true),
-                onBlur: _cache[3] || (_cache[3] = ($event) => isFocused.value = false),
-                onClick: _cache[4] || (_cache[4] = withModifiers(() => {
-                }, ["stop"]))
-              }, null, 42, _hoisted_113)), [
-                [vModelCheckbox, unref(model)]
-              ]) : withDirectives((openBlock(), createElementBlock("input", {
-                key: 1,
-                id: unref(inputId),
-                "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => isRef(model) ? model.value = $event : null),
-                class: normalizeClass(unref(ns).e("original")),
-                type: "checkbox",
-                indeterminate: _ctx.indeterminate,
-                disabled: unref(isDisabled),
-                value: unref(actualValue),
-                name: _ctx.name,
-                tabindex: _ctx.tabindex,
-                onChange: _cache[6] || (_cache[6] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
-                onFocus: _cache[7] || (_cache[7] = ($event) => isFocused.value = true),
-                onBlur: _cache[8] || (_cache[8] = ($event) => isFocused.value = false),
-                onClick: _cache[9] || (_cache[9] = withModifiers(() => {
-                }, ["stop"]))
-              }, null, 42, _hoisted_28)), [
-                [vModelCheckbox, unref(model)]
-              ]),
-              createBaseVNode("span", {
-                class: normalizeClass(unref(ns).e("inner"))
-              }, null, 2)
-            ], 2),
-            unref(hasOwnLabel) ? (openBlock(), createElementBlock("span", {
+        default: withCtx(() => [
+          createBaseVNode("span", {
+            class: normalizeClass(unref(spanKls))
+          }, [
+            _ctx.trueLabel || _ctx.falseLabel ? withDirectives((openBlock(), createElementBlock("input", {
               key: 0,
-              class: normalizeClass(unref(ns).e("label"))
-            }, [
-              renderSlot(_ctx.$slots, "default"),
-              !_ctx.$slots.default ? (openBlock(), createElementBlock(Fragment, { key: 0 }, [
-                createTextVNode(toDisplayString(_ctx.label), 1)
-              ], 64)) : createCommentVNode("v-if", true)
-            ], 2)) : createCommentVNode("v-if", true)
-          ];
-        }),
+              id: unref(inputId),
+              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(model) ? model.value = $event : null),
+              class: normalizeClass(unref(ns).e("original")),
+              type: "checkbox",
+              indeterminate: _ctx.indeterminate,
+              name: _ctx.name,
+              tabindex: _ctx.tabindex,
+              disabled: unref(isDisabled),
+              "true-value": _ctx.trueLabel,
+              "false-value": _ctx.falseLabel,
+              onChange: _cache[1] || (_cache[1] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
+              onFocus: _cache[2] || (_cache[2] = ($event) => isFocused.value = true),
+              onBlur: _cache[3] || (_cache[3] = ($event) => isFocused.value = false),
+              onClick: _cache[4] || (_cache[4] = withModifiers(() => {
+              }, ["stop"]))
+            }, null, 42, _hoisted_112)), [
+              [vModelCheckbox, unref(model)]
+            ]) : withDirectives((openBlock(), createElementBlock("input", {
+              key: 1,
+              id: unref(inputId),
+              "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => isRef(model) ? model.value = $event : null),
+              class: normalizeClass(unref(ns).e("original")),
+              type: "checkbox",
+              indeterminate: _ctx.indeterminate,
+              disabled: unref(isDisabled),
+              value: _ctx.label,
+              name: _ctx.name,
+              tabindex: _ctx.tabindex,
+              onChange: _cache[6] || (_cache[6] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
+              onFocus: _cache[7] || (_cache[7] = ($event) => isFocused.value = true),
+              onBlur: _cache[8] || (_cache[8] = ($event) => isFocused.value = false),
+              onClick: _cache[9] || (_cache[9] = withModifiers(() => {
+              }, ["stop"]))
+            }, null, 42, _hoisted_28)), [
+              [vModelCheckbox, unref(model)]
+            ]),
+            createBaseVNode("span", {
+              class: normalizeClass(unref(ns).e("inner"))
+            }, null, 2)
+          ], 2),
+          unref(hasOwnLabel) ? (openBlock(), createElementBlock("span", {
+            key: 0,
+            class: normalizeClass(unref(ns).e("label"))
+          }, [
+            renderSlot(_ctx.$slots, "default"),
+            !_ctx.$slots.default ? (openBlock(), createElementBlock(Fragment, { key: 0 }, [
+              createTextVNode(toDisplayString(_ctx.label), 1)
+            ], 64)) : createCommentVNode("v-if", true)
+          ], 2)) : createCommentVNode("v-if", true)
+        ]),
         _: 3
       }, 8, ["class", "aria-controls", "onClick"]);
     };
@@ -30019,7 +28745,7 @@ var _sfc_main35 = defineComponent({
 var Checkbox = _export_sfc(_sfc_main35, [["__file", "checkbox.vue"]]);
 
 // node_modules/element-plus/es/components/checkbox/src/checkbox-button.mjs
-var _hoisted_114 = ["name", "tabindex", "disabled", "true-value", "false-value"];
+var _hoisted_113 = ["name", "tabindex", "disabled", "true-value", "false-value"];
 var _hoisted_29 = ["name", "tabindex", "disabled", "value"];
 var __default__30 = defineComponent({
   name: "ElCheckboxButton"
@@ -30037,12 +28763,11 @@ var _sfc_main36 = defineComponent({
       isDisabled,
       checkboxButtonSize,
       model,
-      actualValue,
       handleChange
     } = useCheckbox(props, slots);
     const checkboxGroup = inject(checkboxGroupContextKey, void 0);
     const ns = useNamespace("checkbox");
-    const activeStyle = computed(() => {
+    const activeStyle = computed2(() => {
       var _a2, _b, _c, _d;
       const fillValue = (_b = (_a2 = checkboxGroup == null ? void 0 : checkboxGroup.fill) == null ? void 0 : _a2.value) != null ? _b : "";
       return {
@@ -30052,7 +28777,7 @@ var _sfc_main36 = defineComponent({
         boxShadow: fillValue ? `-1px 0 0 0 ${fillValue}` : void 0
       };
     });
-    const labelKls = computed(() => {
+    const labelKls = computed2(() => {
       return [
         ns.b("button"),
         ns.bm("button", checkboxButtonSize.value),
@@ -30062,11 +28787,10 @@ var _sfc_main36 = defineComponent({
       ];
     });
     return (_ctx, _cache) => {
-      var _a2, _b;
       return openBlock(), createElementBlock("label", {
         class: normalizeClass(unref(labelKls))
       }, [
-        _ctx.trueValue || _ctx.falseValue || _ctx.trueLabel || _ctx.falseLabel ? withDirectives((openBlock(), createElementBlock("input", {
+        _ctx.trueLabel || _ctx.falseLabel ? withDirectives((openBlock(), createElementBlock("input", {
           key: 0,
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(model) ? model.value = $event : null),
           class: normalizeClass(unref(ns).be("button", "original")),
@@ -30074,14 +28798,14 @@ var _sfc_main36 = defineComponent({
           name: _ctx.name,
           tabindex: _ctx.tabindex,
           disabled: unref(isDisabled),
-          "true-value": (_a2 = _ctx.trueValue) != null ? _a2 : _ctx.trueLabel,
-          "false-value": (_b = _ctx.falseValue) != null ? _b : _ctx.falseLabel,
+          "true-value": _ctx.trueLabel,
+          "false-value": _ctx.falseLabel,
           onChange: _cache[1] || (_cache[1] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
           onFocus: _cache[2] || (_cache[2] = ($event) => isFocused.value = true),
           onBlur: _cache[3] || (_cache[3] = ($event) => isFocused.value = false),
           onClick: _cache[4] || (_cache[4] = withModifiers(() => {
           }, ["stop"]))
-        }, null, 42, _hoisted_114)), [
+        }, null, 42, _hoisted_113)), [
           [vModelCheckbox, unref(model)]
         ]) : withDirectives((openBlock(), createElementBlock("input", {
           key: 1,
@@ -30091,7 +28815,7 @@ var _sfc_main36 = defineComponent({
           name: _ctx.name,
           tabindex: _ctx.tabindex,
           disabled: unref(isDisabled),
-          value: unref(actualValue),
+          value: _ctx.label,
           onChange: _cache[6] || (_cache[6] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
           onFocus: _cache[7] || (_cache[7] = ($event) => isFocused.value = true),
           onBlur: _cache[8] || (_cache[8] = ($event) => isFocused.value = false),
@@ -30135,8 +28859,7 @@ var checkboxGroupProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  },
-  ...useAriaProps(["ariaLabel"])
+  }
 });
 var checkboxGroupEmits = {
   [UPDATE_MODEL_EVENT]: (val) => isArray(val),
@@ -30163,7 +28886,7 @@ var _sfc_main37 = defineComponent({
       await nextTick();
       emit("change", value);
     };
-    const modelValue = computed({
+    const modelValue = computed2({
       get() {
         return props.modelValue;
       },
@@ -30184,13 +28907,6 @@ var _sfc_main37 = defineComponent({
       modelValue,
       changeEvent
     });
-    useDeprecated({
-      from: "label",
-      replacement: "aria-label",
-      version: "2.8.0",
-      scope: "el-checkbox-group",
-      ref: "https://element-plus.org/en-US/component/checkbox.html"
-    }, computed(() => !!props.label));
     watch(() => props.modelValue, () => {
       if (props.validateEvent) {
         formItem == null ? void 0 : formItem.validate("change").catch((err) => debugWarn(err));
@@ -30202,7 +28918,7 @@ var _sfc_main37 = defineComponent({
         id: unref(groupId),
         class: normalizeClass(unref(ns).b("group")),
         role: "group",
-        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || _ctx.ariaLabel || "checkbox-group" : void 0,
+        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || "checkbox-group" : void 0,
         "aria-labelledby": unref(isLabeledByFormItem) ? (_a2 = unref(formItem)) == null ? void 0 : _a2.labelId : void 0
       }, {
         default: withCtx(() => [
@@ -30225,27 +28941,23 @@ var ElCheckboxGroup = withNoopInstall(CheckboxGroup);
 
 // node_modules/element-plus/es/components/radio/src/radio.mjs
 var radioPropsBase = buildProps({
-  modelValue: {
-    type: [String, Number, Boolean],
-    default: void 0
-  },
   size: useSizeProp,
   disabled: Boolean,
   label: {
     type: [String, Number, Boolean],
-    default: void 0
-  },
-  value: {
-    type: [String, Number, Boolean],
-    default: void 0
-  },
-  name: {
-    type: String,
-    default: void 0
+    default: ""
   }
 });
 var radioProps = buildProps({
   ...radioPropsBase,
+  modelValue: {
+    type: [String, Number, Boolean],
+    default: ""
+  },
+  name: {
+    type: String,
+    default: ""
+  },
   border: Boolean
 });
 var radioEmits = {
@@ -30260,14 +28972,8 @@ var radioGroupKey = Symbol("radioGroupKey");
 var useRadio = (props, emit) => {
   const radioRef = ref();
   const radioGroup = inject(radioGroupKey, void 0);
-  const isGroup = computed(() => !!radioGroup);
-  const actualValue = computed(() => {
-    if (!isPropAbsent(props.value)) {
-      return props.value;
-    }
-    return props.label;
-  });
-  const modelValue = computed({
+  const isGroup = computed2(() => !!radioGroup);
+  const modelValue = computed2({
     get() {
       return isGroup.value ? radioGroup.modelValue : props.modelValue;
     },
@@ -30277,22 +28983,15 @@ var useRadio = (props, emit) => {
       } else {
         emit && emit(UPDATE_MODEL_EVENT, val);
       }
-      radioRef.value.checked = props.modelValue === actualValue.value;
+      radioRef.value.checked = props.modelValue === props.label;
     }
   });
-  const size3 = useFormSize(computed(() => radioGroup == null ? void 0 : radioGroup.size));
-  const disabled = useFormDisabled(computed(() => radioGroup == null ? void 0 : radioGroup.disabled));
+  const size3 = useFormSize(computed2(() => radioGroup == null ? void 0 : radioGroup.size));
+  const disabled = useFormDisabled(computed2(() => radioGroup == null ? void 0 : radioGroup.disabled));
   const focus = ref(false);
-  const tabIndex = computed(() => {
-    return disabled.value || isGroup.value && modelValue.value !== actualValue.value ? -1 : 0;
+  const tabIndex = computed2(() => {
+    return disabled.value || isGroup.value && modelValue.value !== props.label ? -1 : 0;
   });
-  useDeprecated({
-    from: "label act as value",
-    replacement: "value",
-    version: "3.0.0",
-    scope: "el-radio",
-    ref: "https://element-plus.org/en-US/component/radio.html"
-  }, computed(() => isGroup.value && isPropAbsent(props.value)));
   return {
     radioRef,
     isGroup,
@@ -30301,13 +29000,12 @@ var useRadio = (props, emit) => {
     size: size3,
     disabled,
     tabIndex,
-    modelValue,
-    actualValue
+    modelValue
   };
 };
 
 // node_modules/element-plus/es/components/radio/src/radio2.mjs
-var _hoisted_115 = ["value", "name", "disabled"];
+var _hoisted_114 = ["value", "name", "disabled"];
 var __default__32 = defineComponent({
   name: "ElRadio"
 });
@@ -30318,7 +29016,7 @@ var _sfc_main38 = defineComponent({
   setup(__props, { emit }) {
     const props = __props;
     const ns = useNamespace("radio");
-    const { radioRef, radioGroup, focus, size: size3, disabled, modelValue, actualValue } = useRadio(props, emit);
+    const { radioRef, radioGroup, focus, size: size3, disabled, modelValue } = useRadio(props, emit);
     function handleChange() {
       nextTick(() => emit("change", modelValue.value));
     }
@@ -30330,7 +29028,7 @@ var _sfc_main38 = defineComponent({
           unref(ns).is("disabled", unref(disabled)),
           unref(ns).is("focus", unref(focus)),
           unref(ns).is("bordered", _ctx.border),
-          unref(ns).is("checked", unref(modelValue) === unref(actualValue)),
+          unref(ns).is("checked", unref(modelValue) === _ctx.label),
           unref(ns).m(unref(size3))
         ])
       }, [
@@ -30338,7 +29036,7 @@ var _sfc_main38 = defineComponent({
           class: normalizeClass([
             unref(ns).e("input"),
             unref(ns).is("disabled", unref(disabled)),
-            unref(ns).is("checked", unref(modelValue) === unref(actualValue))
+            unref(ns).is("checked", unref(modelValue) === _ctx.label)
           ])
         }, [
           withDirectives(createBaseVNode("input", {
@@ -30346,7 +29044,7 @@ var _sfc_main38 = defineComponent({
             ref: radioRef,
             "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(modelValue) ? modelValue.value = $event : null),
             class: normalizeClass(unref(ns).e("original")),
-            value: unref(actualValue),
+            value: _ctx.label,
             name: _ctx.name || ((_a2 = unref(radioGroup)) == null ? void 0 : _a2.name),
             disabled: unref(disabled),
             type: "radio",
@@ -30355,7 +29053,7 @@ var _sfc_main38 = defineComponent({
             onChange: handleChange,
             onClick: _cache[3] || (_cache[3] = withModifiers(() => {
             }, ["stop"]))
-          }, null, 42, _hoisted_115), [
+          }, null, 42, _hoisted_114), [
             [vModelRadio, unref(modelValue)]
           ]),
           createBaseVNode("span", {
@@ -30379,11 +29077,15 @@ var Radio = _export_sfc(_sfc_main38, [["__file", "radio.vue"]]);
 
 // node_modules/element-plus/es/components/radio/src/radio-button.mjs
 var radioButtonProps = buildProps({
-  ...radioPropsBase
+  ...radioPropsBase,
+  name: {
+    type: String,
+    default: ""
+  }
 });
 
 // node_modules/element-plus/es/components/radio/src/radio-button2.mjs
-var _hoisted_116 = ["value", "name", "disabled"];
+var _hoisted_115 = ["value", "name", "disabled"];
 var __default__33 = defineComponent({
   name: "ElRadioButton"
 });
@@ -30393,8 +29095,8 @@ var _sfc_main39 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("radio");
-    const { radioRef, focus, size: size3, disabled, modelValue, radioGroup, actualValue } = useRadio(props);
-    const activeStyle = computed(() => {
+    const { radioRef, focus, size: size3, disabled, modelValue, radioGroup } = useRadio(props);
+    const activeStyle = computed2(() => {
       return {
         backgroundColor: (radioGroup == null ? void 0 : radioGroup.fill) || "",
         borderColor: (radioGroup == null ? void 0 : radioGroup.fill) || "",
@@ -30407,7 +29109,7 @@ var _sfc_main39 = defineComponent({
       return openBlock(), createElementBlock("label", {
         class: normalizeClass([
           unref(ns).b("button"),
-          unref(ns).is("active", unref(modelValue) === unref(actualValue)),
+          unref(ns).is("active", unref(modelValue) === _ctx.label),
           unref(ns).is("disabled", unref(disabled)),
           unref(ns).is("focus", unref(focus)),
           unref(ns).bm("button", unref(size3))
@@ -30418,7 +29120,7 @@ var _sfc_main39 = defineComponent({
           ref: radioRef,
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(modelValue) ? modelValue.value = $event : null),
           class: normalizeClass(unref(ns).be("button", "original-radio")),
-          value: unref(actualValue),
+          value: _ctx.label,
           type: "radio",
           name: _ctx.name || ((_a2 = unref(radioGroup)) == null ? void 0 : _a2.name),
           disabled: unref(disabled),
@@ -30426,12 +29128,12 @@ var _sfc_main39 = defineComponent({
           onBlur: _cache[2] || (_cache[2] = ($event) => focus.value = false),
           onClick: _cache[3] || (_cache[3] = withModifiers(() => {
           }, ["stop"]))
-        }, null, 42, _hoisted_116), [
+        }, null, 42, _hoisted_115), [
           [vModelRadio, unref(modelValue)]
         ]),
         createBaseVNode("span", {
           class: normalizeClass(unref(ns).be("button", "inner")),
-          style: normalizeStyle(unref(modelValue) === unref(actualValue) ? unref(activeStyle) : {}),
+          style: normalizeStyle(unref(modelValue) === _ctx.label ? unref(activeStyle) : {}),
           onKeydown: _cache[4] || (_cache[4] = withModifiers(() => {
           }, ["stop"]))
         }, [
@@ -30455,7 +29157,7 @@ var radioGroupProps = buildProps({
   disabled: Boolean,
   modelValue: {
     type: [String, Number, Boolean],
-    default: void 0
+    default: ""
   },
   fill: {
     type: String,
@@ -30476,13 +29178,12 @@ var radioGroupProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  },
-  ...useAriaProps(["ariaLabel"])
+  }
 });
 var radioGroupEmits = radioEmits;
 
 // node_modules/element-plus/es/components/radio/src/radio-group2.mjs
-var _hoisted_117 = ["id", "aria-label", "aria-labelledby"];
+var _hoisted_116 = ["id", "aria-label", "aria-labelledby"];
 var __default__34 = defineComponent({
   name: "ElRadioGroup"
 });
@@ -30510,7 +29211,7 @@ var _sfc_main40 = defineComponent({
         firstLabel.tabIndex = 0;
       }
     });
-    const name = computed(() => {
+    const name = computed2(() => {
       return props.name || radioId.value;
     });
     provide(radioGroupKey, reactive({
@@ -30523,13 +29224,6 @@ var _sfc_main40 = defineComponent({
         formItem == null ? void 0 : formItem.validate("change").catch((err) => debugWarn(err));
       }
     });
-    useDeprecated({
-      from: "label",
-      replacement: "aria-label",
-      version: "2.8.0",
-      scope: "el-radio-group",
-      ref: "https://element-plus.org/en-US/component/radio.html"
-    }, computed(() => !!props.label));
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         id: unref(groupId),
@@ -30537,11 +29231,11 @@ var _sfc_main40 = defineComponent({
         ref: radioGroupRef,
         class: normalizeClass(unref(ns).b("group")),
         role: "radiogroup",
-        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || _ctx.ariaLabel || "radio-group" : void 0,
+        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || "radio-group" : void 0,
         "aria-labelledby": unref(isLabeledByFormItem) ? unref(formItem).labelId : void 0
       }, [
         renderSlot(_ctx.$slots, "default")
-      ], 10, _hoisted_117);
+      ], 10, _hoisted_116);
     };
   }
 });
@@ -30599,18 +29293,18 @@ var _sfc_main41 = defineComponent({
   setup(props, { emit }) {
     const panel = inject(CASCADER_PANEL_INJECTION_KEY);
     const ns = useNamespace("cascader-node");
-    const isHoverMenu = computed(() => panel.isHoverMenu);
-    const multiple = computed(() => panel.config.multiple);
-    const checkStrictly = computed(() => panel.config.checkStrictly);
-    const checkedNodeId = computed(() => {
+    const isHoverMenu = computed2(() => panel.isHoverMenu);
+    const multiple = computed2(() => panel.config.multiple);
+    const checkStrictly = computed2(() => panel.config.checkStrictly);
+    const checkedNodeId = computed2(() => {
       var _a2;
       return (_a2 = panel.checkedNodes[0]) == null ? void 0 : _a2.uid;
     });
-    const isDisabled = computed(() => props.node.isDisabled);
-    const isLeaf2 = computed(() => props.node.isLeaf);
-    const expandable = computed(() => checkStrictly.value && !isLeaf2.value || !isDisabled.value);
-    const inExpandingPath = computed(() => isInPath(panel.expandingNode));
-    const inCheckedPath = computed(() => checkStrictly.value && panel.checkedNodes.some(isInPath));
+    const isDisabled = computed2(() => props.node.isDisabled);
+    const isLeaf2 = computed2(() => props.node.isLeaf);
+    const expandable = computed2(() => checkStrictly.value && !isLeaf2.value || !isDisabled.value);
+    const inExpandingPath = computed2(() => isInPath(panel.expandingNode));
+    const inCheckedPath = computed2(() => checkStrictly.value && panel.checkedNodes.some(isInPath));
     const isInPath = (node) => {
       var _a2;
       const { level, uid: uid2 } = props.node;
@@ -30692,7 +29386,7 @@ var _sfc_main41 = defineComponent({
     };
   }
 });
-var _hoisted_118 = ["id", "aria-haspopup", "aria-owns", "aria-expanded", "tabindex"];
+var _hoisted_117 = ["id", "aria-haspopup", "aria-owns", "aria-expanded", "tabindex"];
 var _hoisted_210 = createBaseVNode("span", null, null, -1);
 function _sfc_render2(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_checkbox = resolveComponent("el-checkbox");
@@ -30775,7 +29469,7 @@ function _sfc_render2(_ctx, _cache, $props, $setup, $data, $options) {
         _: 1
       }, 8, ["class"]))
     ], 64)) : createCommentVNode("v-if", true)
-  ], 42, _hoisted_118);
+  ], 42, _hoisted_117);
 }
 var ElCascaderNode = _export_sfc(_sfc_main41, [["render", _sfc_render2], ["__file", "node.vue"]]);
 
@@ -30807,9 +29501,9 @@ var _sfc_main42 = defineComponent({
     let hoverTimer = null;
     const panel = inject(CASCADER_PANEL_INJECTION_KEY);
     const hoverZone = ref(null);
-    const isEmpty3 = computed(() => !props.nodes.length);
-    const isLoading = computed(() => !panel.initialLoaded);
-    const menuId = computed(() => `${id.value}-${props.index}`);
+    const isEmpty3 = computed2(() => !props.nodes.length);
+    const isLoading = computed2(() => !panel.initialLoaded);
+    const menuId = computed2(() => `${id.value}-${props.index}`);
     const handleExpand = (e) => {
       activeNode = e.target;
     };
@@ -30819,14 +29513,14 @@ var _sfc_main42 = defineComponent({
       if (activeNode.contains(e.target)) {
         clearHoverTimer();
         const el = instance.vnode.el;
-        const { left: left3 } = el.getBoundingClientRect();
+        const { left: left2 } = el.getBoundingClientRect();
         const { offsetWidth, offsetHeight } = el;
-        const startX = e.clientX - left3;
-        const top2 = activeNode.offsetTop;
-        const bottom2 = top2 + activeNode.offsetHeight;
+        const startX = e.clientX - left2;
+        const top = activeNode.offsetTop;
+        const bottom = top + activeNode.offsetHeight;
         hoverZone.value.innerHTML = `
-          <path style="pointer-events: auto;" fill="transparent" d="M${startX} ${top2} L${offsetWidth} 0 V${top2} Z" />
-          <path style="pointer-events: auto;" fill="transparent" d="M${startX} ${bottom2} L${offsetWidth} ${offsetHeight} V${bottom2} Z" />
+          <path style="pointer-events: auto;" fill="transparent" d="M${startX} ${top} L${offsetWidth} 0 V${top} Z" />
+          <path style="pointer-events: auto;" fill="transparent" d="M${startX} ${bottom} L${offsetWidth} ${offsetHeight} V${bottom} Z" />
         `;
       } else if (!hoverTimer) {
         hoverTimer = window.setTimeout(clearHoverZone, panel.config.hoverThreshold);
@@ -31108,7 +29802,7 @@ var DefaultProps = {
   hoverThreshold: 500
 };
 var useCascaderConfig = (props) => {
-  return computed(() => ({
+  return computed2(() => ({
     ...DefaultProps,
     ...props.props
   }));
@@ -31173,8 +29867,8 @@ var _sfc_main43 = defineComponent({
     const menus = ref([]);
     const expandingNode = ref(null);
     const checkedNodes = ref([]);
-    const isHoverMenu = computed(() => config.value.expandTrigger === "hover");
-    const renderLabelFn = computed(() => props.renderLabel || slots.default);
+    const isHoverMenu = computed2(() => config.value.expandTrigger === "hover");
+    const renderLabelFn = computed2(() => props.renderLabel || slots.default);
     const initStore = () => {
       const { options } = props;
       const cfg = config.value;
@@ -31303,7 +29997,11 @@ var _sfc_main43 = defineComponent({
         expandingNode.value = null;
       }
       oldNodes.forEach((node) => node.doCheck(false));
-      reactive(newNodes).forEach((node) => node.doCheck(true));
+      if (props.props.multiple) {
+        reactive(newNodes).forEach((node) => node.doCheck(true));
+      } else {
+        newNodes.forEach((node) => node.doCheck(true));
+      }
       checkedNodes.value = newNodes;
       nextTick(scrollToExpandingNode);
     };
@@ -31458,16 +30156,16 @@ var _sfc_main44 = defineComponent({
     const props = __props;
     const tagSize = useFormSize();
     const ns = useNamespace("tag");
-    const containerKls = computed(() => {
-      const { type: type4, hit, effect: effect4, closable, round: round4 } = props;
+    const containerKls = computed2(() => {
+      const { type: type4, hit, effect, closable, round: round3 } = props;
       return [
         ns.b(),
         ns.is("closable", closable),
         ns.m(type4 || "primary"),
         ns.m(tagSize.value),
-        ns.m(effect4),
+        ns.m(effect),
         ns.is("hit", hit),
-        ns.is("round", round4)
+        ns.is("round", round3)
       ];
     });
     const handleClose = (event) => {
@@ -31582,12 +30280,11 @@ var cascaderProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  },
-  ...useEmptyValuesProps
+  }
 });
 var cascaderEmits = {
-  [UPDATE_MODEL_EVENT]: (_2) => true,
-  [CHANGE_EVENT]: (_2) => true,
+  [UPDATE_MODEL_EVENT]: (val) => !!val || val === null,
+  [CHANGE_EVENT]: (val) => !!val || val === null,
   focus: (evt) => evt instanceof FocusEvent,
   blur: (evt) => evt instanceof FocusEvent,
   visibleChange: (val) => isBoolean2(val),
@@ -31596,9 +30293,9 @@ var cascaderEmits = {
 };
 
 // node_modules/element-plus/es/components/cascader/src/cascader2.mjs
-var _hoisted_119 = { key: 0 };
+var _hoisted_118 = { key: 0 };
 var _hoisted_211 = ["placeholder", "onKeydown"];
-var _hoisted_34 = ["onClick"];
+var _hoisted_33 = ["onClick"];
 var COMPONENT_NAME11 = "ElCascader";
 var __default__36 = defineComponent({
   name: COMPONENT_NAME11
@@ -31632,7 +30329,6 @@ var _sfc_main45 = defineComponent({
     const nsInput = useNamespace("input");
     const { t } = useLocale();
     const { form, formItem } = useFormItem();
-    const { valueOnClear } = useEmptyValues(props);
     const tooltipRef = ref(null);
     const input = ref(null);
     const tagWrapper = ref(null);
@@ -31648,46 +30344,44 @@ var _sfc_main45 = defineComponent({
     const allPresentTags = ref([]);
     const suggestions = ref([]);
     const isOnComposition = ref(false);
-    const cascaderStyle = computed(() => {
+    const cascaderStyle = computed2(() => {
       return attrs.style;
     });
-    const isDisabled = computed(() => props.disabled || (form == null ? void 0 : form.disabled));
-    const inputPlaceholder = computed(() => props.placeholder || t("el.cascader.placeholder"));
-    const currentPlaceholder = computed(() => searchInputValue.value || presentTags.value.length > 0 || isOnComposition.value ? "" : inputPlaceholder.value);
+    const isDisabled = computed2(() => props.disabled || (form == null ? void 0 : form.disabled));
+    const inputPlaceholder = computed2(() => props.placeholder || t("el.cascader.placeholder"));
+    const currentPlaceholder = computed2(() => searchInputValue.value || presentTags.value.length > 0 || isOnComposition.value ? "" : inputPlaceholder.value);
     const realSize = useFormSize();
-    const tagSize = computed(() => ["small"].includes(realSize.value) ? "small" : "default");
-    const multiple = computed(() => !!props.props.multiple);
-    const readonly2 = computed(() => !props.filterable || multiple.value);
-    const searchKeyword = computed(() => multiple.value ? searchInputValue.value : inputValue.value);
-    const checkedNodes = computed(() => {
+    const tagSize = computed2(() => ["small"].includes(realSize.value) ? "small" : "default");
+    const multiple = computed2(() => !!props.props.multiple);
+    const readonly2 = computed2(() => !props.filterable || multiple.value);
+    const searchKeyword = computed2(() => multiple.value ? searchInputValue.value : inputValue.value);
+    const checkedNodes = computed2(() => {
       var _a2;
       return ((_a2 = cascaderPanelRef.value) == null ? void 0 : _a2.checkedNodes) || [];
     });
-    const clearBtnVisible = computed(() => {
+    const clearBtnVisible = computed2(() => {
       if (!props.clearable || isDisabled.value || filtering.value || !inputHover.value)
         return false;
       return !!checkedNodes.value.length;
     });
-    const presentText = computed(() => {
+    const presentText = computed2(() => {
       const { showAllLevels, separator } = props;
       const nodes = checkedNodes.value;
       return nodes.length ? multiple.value ? "" : nodes[0].calcText(showAllLevels, separator) : "";
     });
-    const validateState = computed(() => (formItem == null ? void 0 : formItem.validateState) || "");
-    const checkedValue = computed({
+    const checkedValue = computed2({
       get() {
         return cloneDeep_default(props.modelValue);
       },
       set(val) {
-        const value = val || valueOnClear.value;
-        emit(UPDATE_MODEL_EVENT, value);
-        emit(CHANGE_EVENT, value);
+        emit(UPDATE_MODEL_EVENT, val);
+        emit(CHANGE_EVENT, val);
         if (props.validateEvent) {
           formItem == null ? void 0 : formItem.validate("change").catch((err) => debugWarn(err));
         }
       }
     });
-    const cascaderKls = computed(() => {
+    const cascaderKls = computed2(() => {
       return [
         nsCascader.b(),
         nsCascader.m(realSize.value),
@@ -31695,17 +30389,17 @@ var _sfc_main45 = defineComponent({
         attrs.class
       ];
     });
-    const cascaderIconKls = computed(() => {
+    const cascaderIconKls = computed2(() => {
       return [
         nsInput.e("icon"),
         "icon-arrow-down",
         nsCascader.is("reverse", popperVisible.value)
       ];
     });
-    const inputClass = computed(() => {
+    const inputClass = computed2(() => {
       return nsCascader.is("focus", popperVisible.value || filterFocus.value);
     });
-    const contentRef = computed(() => {
+    const contentRef = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = tooltipRef.value) == null ? void 0 : _a2.popperRef) == null ? void 0 : _b.contentRef;
     });
@@ -32062,10 +30756,7 @@ var _sfc_main45 = defineComponent({
               key: 0,
               ref_key: "tagWrapper",
               ref: tagWrapper,
-              class: normalizeClass([
-                unref(nsCascader).e("tags"),
-                unref(nsCascader).is("validate", Boolean(unref(validateState)))
-              ])
+              class: normalizeClass(unref(nsCascader).e("tags"))
             }, [
               (openBlock(true), createElementBlock(Fragment, null, renderList(presentTags.value, (tag) => {
                 return openBlock(), createBlock(unref(ElTag), {
@@ -32078,7 +30769,7 @@ var _sfc_main45 = defineComponent({
                   onClose: ($event) => deleteTag(tag)
                 }, {
                   default: withCtx(() => [
-                    tag.isCollapseTag === false ? (openBlock(), createElementBlock("span", _hoisted_119, toDisplayString(tag.text), 1)) : (openBlock(), createBlock(unref(ElTooltip), {
+                    tag.isCollapseTag === false ? (openBlock(), createElementBlock("span", _hoisted_118, toDisplayString(tag.text), 1)) : (openBlock(), createBlock(unref(ElTooltip), {
                       key: 1,
                       disabled: popperVisible.value || !_ctx.collapseTagsTooltip,
                       "fallback-placements": ["bottom", "top", "right", "left"],
@@ -32186,7 +30877,7 @@ var _sfc_main45 = defineComponent({
                     ]),
                     _: 1
                   })) : createCommentVNode("v-if", true)
-                ], 10, _hoisted_34);
+                ], 10, _hoisted_33);
               }), 128)) : renderSlot(_ctx.$slots, "empty", { key: 1 }, () => [
                 createBaseVNode("li", {
                   class: normalizeClass(unref(nsCascader).e("empty-text"))
@@ -32240,7 +30931,7 @@ var _sfc_main46 = defineComponent({
   setup(__props, { emit }) {
     const props = __props;
     const ns = useNamespace("check-tag");
-    const containerKls = computed(() => [
+    const containerKls = computed2(() => [
       ns.b(),
       ns.is("checked", props.checked),
       ns.m(props.type || "primary")
@@ -32308,11 +30999,11 @@ var _sfc_main47 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("row");
-    const gutter = computed(() => props.gutter);
+    const gutter = computed2(() => props.gutter);
     provide(rowContextKey, {
       gutter
     });
-    const style = computed(() => {
+    const style = computed2(() => {
       const styles = {};
       if (!props.gutter) {
         return styles;
@@ -32320,7 +31011,7 @@ var _sfc_main47 = defineComponent({
       styles.marginRight = styles.marginLeft = `-${props.gutter / 2}px`;
       return styles;
     });
-    const rowKls = computed(() => [
+    const rowKls = computed2(() => [
       ns.b(),
       ns.is(`justify-${props.justify}`, props.justify !== "start"),
       ns.is(`align-${props.align}`, !!props.align)
@@ -32396,16 +31087,16 @@ var _sfc_main48 = defineComponent({
   props: colProps,
   setup(__props) {
     const props = __props;
-    const { gutter } = inject(rowContextKey, { gutter: computed(() => 0) });
+    const { gutter } = inject(rowContextKey, { gutter: computed2(() => 0) });
     const ns = useNamespace("col");
-    const style = computed(() => {
+    const style = computed2(() => {
       const styles = {};
       if (gutter.value) {
         styles.paddingLeft = styles.paddingRight = `${gutter.value / 2}px`;
       }
       return styles;
     });
-    const colKls = computed(() => {
+    const colKls = computed2(() => {
       const classes = [];
       const pos = ["span", "offset", "pull", "push"];
       pos.forEach((prop) => {
@@ -32502,7 +31193,7 @@ var useCollapse = (props, emit) => {
 };
 var useCollapseDOM = () => {
   const ns = useNamespace("collapse");
-  const rootKls = computed(() => ns.b());
+  const rootKls = computed2(() => ns.b());
   return {
     rootKls
   };
@@ -32549,7 +31240,7 @@ var _sfc_main50 = defineComponent({
       el.style.paddingTop = el.dataset.oldPaddingTop;
       el.style.paddingBottom = el.dataset.oldPaddingBottom;
     };
-    const on = {
+    const on2 = {
       beforeEnter(el) {
         if (!el.dataset)
           el.dataset = {};
@@ -32609,7 +31300,7 @@ var _sfc_main50 = defineComponent({
     return (_ctx, _cache) => {
       return openBlock(), createBlock(Transition, mergeProps({
         name: unref(ns).b()
-      }, toHandlers(on)), {
+      }, toHandlers(on2)), {
         default: withCtx(() => [
           renderSlot(_ctx.$slots, "default")
         ]),
@@ -32647,12 +31338,12 @@ var useCollapseItem = (props) => {
   const focusing = ref(false);
   const isClick = ref(false);
   const idInjection = useIdInjection();
-  const id = computed(() => idInjection.current++);
-  const name = computed(() => {
+  const id = computed2(() => idInjection.current++);
+  const name = computed2(() => {
     var _a2;
     return (_a2 = props.name) != null ? _a2 : `${namespace.value}-id-${idInjection.prefix}-${unref(id)}`;
   });
-  const isActive = computed(() => collapse == null ? void 0 : collapse.activeNames.value.includes(unref(name)));
+  const isActive = computed2(() => collapse == null ? void 0 : collapse.activeNames.value.includes(unref(name)));
   const handleFocus = () => {
     setTimeout(() => {
       if (!isClick.value) {
@@ -32683,24 +31374,24 @@ var useCollapseItem = (props) => {
 };
 var useCollapseItemDOM = (props, { focusing, isActive, id }) => {
   const ns = useNamespace("collapse");
-  const rootKls = computed(() => [
+  const rootKls = computed2(() => [
     ns.b("item"),
     ns.is("active", unref(isActive)),
     ns.is("disabled", props.disabled)
   ]);
-  const headKls = computed(() => [
+  const headKls = computed2(() => [
     ns.be("item", "header"),
     ns.is("active", unref(isActive)),
     { focusing: unref(focusing) && !props.disabled }
   ]);
-  const arrowKls = computed(() => [
+  const arrowKls = computed2(() => [
     ns.be("item", "arrow"),
     ns.is("active", unref(isActive))
   ]);
-  const itemWrapperKls = computed(() => ns.be("item", "wrap"));
-  const itemContentKls = computed(() => ns.be("item", "content"));
-  const scopedContentId = computed(() => ns.b(`content-${unref(id)}`));
-  const scopedHeadId = computed(() => ns.b(`head-${unref(id)}`));
+  const itemWrapperKls = computed2(() => ns.be("item", "wrap"));
+  const itemContentKls = computed2(() => ns.be("item", "content"));
+  const scopedContentId = computed2(() => ns.b(`content-${unref(id)}`));
+  const scopedHeadId = computed2(() => ns.b(`head-${unref(id)}`));
   return {
     arrowKls,
     headKls,
@@ -32713,7 +31404,7 @@ var useCollapseItemDOM = (props, { focusing, isActive, id }) => {
 };
 
 // node_modules/element-plus/es/components/collapse/src/collapse-item2.mjs
-var _hoisted_120 = ["id", "aria-expanded", "aria-controls", "aria-describedby", "tabindex"];
+var _hoisted_119 = ["id", "aria-expanded", "aria-controls", "aria-describedby", "tabindex"];
 var _hoisted_212 = ["id", "aria-hidden", "aria-labelledby"];
 var __default__42 = defineComponent({
   name: "ElCollapseItem"
@@ -32771,7 +31462,7 @@ var _sfc_main51 = defineComponent({
             ]),
             _: 1
           }, 8, ["class"])
-        ], 42, _hoisted_120),
+        ], 42, _hoisted_119),
         createVNode(unref(_CollapseTransition), null, {
           default: withCtx(() => [
             withDirectives(createBaseVNode("div", {
@@ -32872,15 +31563,15 @@ var useAlphaSlider = (props) => {
     const rect = el.getBoundingClientRect();
     const { clientX, clientY } = getClientXY(event);
     if (!props.vertical) {
-      let left3 = clientX - rect.left;
-      left3 = Math.max(thumb.value.offsetWidth / 2, left3);
-      left3 = Math.min(left3, rect.width - thumb.value.offsetWidth / 2);
-      props.color.set("alpha", Math.round((left3 - thumb.value.offsetWidth / 2) / (rect.width - thumb.value.offsetWidth) * 100));
+      let left2 = clientX - rect.left;
+      left2 = Math.max(thumb.value.offsetWidth / 2, left2);
+      left2 = Math.min(left2, rect.width - thumb.value.offsetWidth / 2);
+      props.color.set("alpha", Math.round((left2 - thumb.value.offsetWidth / 2) / (rect.width - thumb.value.offsetWidth) * 100));
     } else {
-      let top2 = clientY - rect.top;
-      top2 = Math.max(thumb.value.offsetHeight / 2, top2);
-      top2 = Math.min(top2, rect.height - thumb.value.offsetHeight / 2);
-      props.color.set("alpha", Math.round((top2 - thumb.value.offsetHeight / 2) / (rect.height - thumb.value.offsetHeight) * 100));
+      let top = clientY - rect.top;
+      top = Math.max(thumb.value.offsetHeight / 2, top);
+      top = Math.min(top, rect.height - thumb.value.offsetHeight / 2);
+      props.color.set("alpha", Math.round((top - thumb.value.offsetHeight / 2) / (rect.height - thumb.value.offsetHeight) * 100));
     }
   }
   return {
@@ -32951,11 +31642,11 @@ var useAlphaSliderDOM = (props, {
   });
   watch(() => props.color.get("alpha"), () => update2());
   watch(() => props.color.value, () => update2());
-  const rootKls = computed(() => [ns.b(), ns.is("vertical", props.vertical)]);
-  const barKls = computed(() => ns.e("bar"));
-  const thumbKls = computed(() => ns.e("thumb"));
-  const barStyle = computed(() => ({ background: background.value }));
-  const thumbStyle = computed(() => ({
+  const rootKls = computed2(() => [ns.b(), ns.is("vertical", props.vertical)]);
+  const barKls = computed2(() => ns.e("bar"));
+  const thumbKls = computed2(() => ns.e("thumb"));
+  const barStyle = computed2(() => ({ background: background.value }));
+  const thumbStyle = computed2(() => ({
     left: addUnit(thumbLeft.value),
     top: addUnit(thumbTop.value)
   }));
@@ -33023,7 +31714,7 @@ var _sfc_main53 = defineComponent({
     const bar = ref();
     const thumbLeft = ref(0);
     const thumbTop = ref(0);
-    const hueValue = computed(() => {
+    const hueValue = computed2(() => {
       return props.color.get("hue");
     });
     watch(() => hueValue.value, () => {
@@ -33043,15 +31734,15 @@ var _sfc_main53 = defineComponent({
       const { clientX, clientY } = getClientXY(event);
       let hue;
       if (!props.vertical) {
-        let left3 = clientX - rect.left;
-        left3 = Math.min(left3, rect.width - thumb.value.offsetWidth / 2);
-        left3 = Math.max(thumb.value.offsetWidth / 2, left3);
-        hue = Math.round((left3 - thumb.value.offsetWidth / 2) / (rect.width - thumb.value.offsetWidth) * 360);
+        let left2 = clientX - rect.left;
+        left2 = Math.min(left2, rect.width - thumb.value.offsetWidth / 2);
+        left2 = Math.max(thumb.value.offsetWidth / 2, left2);
+        hue = Math.round((left2 - thumb.value.offsetWidth / 2) / (rect.width - thumb.value.offsetWidth) * 360);
       } else {
-        let top2 = clientY - rect.top;
-        top2 = Math.min(top2, rect.height - thumb.value.offsetHeight / 2);
-        top2 = Math.max(thumb.value.offsetHeight / 2, top2);
-        hue = Math.round((top2 - thumb.value.offsetHeight / 2) / (rect.height - thumb.value.offsetHeight) * 360);
+        let top = clientY - rect.top;
+        top = Math.min(top, rect.height - thumb.value.offsetHeight / 2);
+        top = Math.max(thumb.value.offsetHeight / 2, top);
+        hue = Math.round((top - thumb.value.offsetHeight / 2) / (rect.height - thumb.value.offsetHeight) * 360);
       }
       props.color.set("hue", hue);
     }
@@ -33129,7 +31820,7 @@ function _sfc_render5(_ctx, _cache, $props, $setup, $data, $options) {
 }
 var HueSlider = _export_sfc(_sfc_main53, [["render", _sfc_render5], ["__file", "hue-slider.vue"]]);
 
-// node_modules/element-plus/es/components/color-picker/src/color-picker2.mjs
+// node_modules/element-plus/es/components/color-picker/src/color-picker.mjs
 var colorPickerProps = buildProps({
   modelValue: String,
   id: String,
@@ -33149,15 +31840,13 @@ var colorPickerProps = buildProps({
     type: [String, Number],
     default: 0
   },
-  teleported: useTooltipContentProps.teleported,
   predefine: {
     type: definePropType(Array)
   },
   validateEvent: {
     type: Boolean,
     default: true
-  },
-  ...useAriaProps(["ariaLabel"])
+  }
 });
 var colorPickerEmits = {
   [UPDATE_MODEL_EVENT]: (val) => isString(val) || isNil_default(val),
@@ -33182,18 +31871,18 @@ var isOnePointZero2 = function(n) {
 var isPercentage2 = function(n) {
   return typeof n === "string" && n.includes("%");
 };
-var bound012 = function(value, max5) {
+var bound012 = function(value, max4) {
   if (isOnePointZero2(value))
     value = "100%";
   const processPercent = isPercentage2(value);
-  value = Math.min(max5, Math.max(0, Number.parseFloat(`${value}`)));
+  value = Math.min(max4, Math.max(0, Number.parseFloat(`${value}`)));
   if (processPercent) {
-    value = Number.parseInt(`${value * max5}`, 10) / 100;
+    value = Number.parseInt(`${value * max4}`, 10) / 100;
   }
-  if (Math.abs(value - max5) < 1e-6) {
+  if (Math.abs(value - max4) < 1e-6) {
     return 1;
   }
-  return value % max5 / Number.parseFloat(max5);
+  return value % max4 / Number.parseFloat(max4);
 };
 var INT_HEX_MAP = {
   10: "A",
@@ -33248,16 +31937,16 @@ var rgb2hsv = (r, g, b2) => {
   r = bound012(r, 255);
   g = bound012(g, 255);
   b2 = bound012(b2, 255);
-  const max5 = Math.max(r, g, b2);
-  const min5 = Math.min(r, g, b2);
+  const max4 = Math.max(r, g, b2);
+  const min4 = Math.min(r, g, b2);
   let h3;
-  const v2 = max5;
-  const d2 = max5 - min5;
-  const s2 = max5 === 0 ? 0 : d2 / max5;
-  if (max5 === min5) {
+  const v2 = max4;
+  const d2 = max4 - min4;
+  const s2 = max4 === 0 ? 0 : d2 / max4;
+  if (max4 === min4) {
     h3 = 0;
   } else {
-    switch (max5) {
+    switch (max4) {
       case r: {
         h3 = (g - b2) / d2 + (g < b2 ? 6 : 0);
         break;
@@ -33282,12 +31971,12 @@ var hsv2rgb = function(h3, s2, v2) {
   const i = Math.floor(h3);
   const f2 = h3 - i;
   const p2 = v2 * (1 - s2);
-  const q = v2 * (1 - f2 * s2);
+  const q2 = v2 * (1 - f2 * s2);
   const t = v2 * (1 - (1 - f2) * s2);
   const mod = i % 6;
-  const r = [v2, q, p2, p2, t, v2][mod];
-  const g = [t, v2, v2, q, p2, p2][mod];
-  const b2 = [p2, p2, t, v2, v2, q][mod];
+  const r = [v2, q2, p2, p2, t, v2][mod];
+  const g = [t, v2, v2, q2, p2, p2][mod];
+  const b2 = [p2, p2, t, v2, v2, q2][mod];
   return {
     r: Math.round(r * 255),
     g: Math.round(g * 255),
@@ -33464,10 +32153,6 @@ var _sfc_main54 = defineComponent({
     color: {
       type: Object,
       required: true
-    },
-    enableAlpha: {
-      type: Boolean,
-      required: true
     }
   },
   setup(props) {
@@ -33490,7 +32175,7 @@ var _sfc_main54 = defineComponent({
     function parseColors(colors, color) {
       return colors.map((value) => {
         const c2 = new Color();
-        c2.enableAlpha = props.enableAlpha;
+        c2.enableAlpha = true;
         c2.format = "rgba";
         c2.fromString(value);
         c2.selected = c2.value === color.value;
@@ -33504,7 +32189,7 @@ var _sfc_main54 = defineComponent({
     };
   }
 });
-var _hoisted_121 = ["onClick"];
+var _hoisted_120 = ["onClick"];
 function _sfc_render6(_ctx, _cache, $props, $setup, $data, $options) {
   return openBlock(), createElementBlock("div", {
     class: normalizeClass(_ctx.ns.b())
@@ -33525,7 +32210,7 @@ function _sfc_render6(_ctx, _cache, $props, $setup, $data, $options) {
           createBaseVNode("div", {
             style: normalizeStyle({ backgroundColor: item.value })
           }, null, 4)
-        ], 10, _hoisted_121);
+        ], 10, _hoisted_120);
       }), 128))
     ], 2)
   ], 2);
@@ -33547,7 +32232,7 @@ var _sfc_main55 = defineComponent({
     const cursorTop = ref(0);
     const cursorLeft = ref(0);
     const background = ref("hsl(0, 100%, 50%)");
-    const colorValue = computed(() => {
+    const colorValue = computed2(() => {
       const hue = props.color.get("hue");
       const value = props.color.get("value");
       return { hue, value };
@@ -33565,17 +32250,17 @@ var _sfc_main55 = defineComponent({
       const el = instance.vnode.el;
       const rect = el.getBoundingClientRect();
       const { clientX, clientY } = getClientXY(event);
-      let left3 = clientX - rect.left;
-      let top2 = clientY - rect.top;
-      left3 = Math.max(0, left3);
-      left3 = Math.min(left3, rect.width);
-      top2 = Math.max(0, top2);
-      top2 = Math.min(top2, rect.height);
-      cursorLeft.value = left3;
-      cursorTop.value = top2;
+      let left2 = clientX - rect.left;
+      let top = clientY - rect.top;
+      left2 = Math.max(0, left2);
+      left2 = Math.min(left2, rect.width);
+      top = Math.max(0, top);
+      top = Math.min(top, rect.height);
+      cursorLeft.value = left2;
+      cursorTop.value = top;
       props.color.set({
-        saturation: left3 / rect.width * 100,
-        value: 100 - top2 / rect.height * 100
+        saturation: left2 / rect.width * 100,
+        value: 100 - top / rect.height * 100
       });
     }
     watch(() => colorValue.value, () => {
@@ -33603,9 +32288,9 @@ var _sfc_main55 = defineComponent({
     };
   }
 });
-var _hoisted_122 = createBaseVNode("div", null, null, -1);
+var _hoisted_121 = createBaseVNode("div", null, null, -1);
 var _hoisted_213 = [
-  _hoisted_122
+  _hoisted_121
 ];
 function _sfc_render7(_ctx, _cache, $props, $setup, $data, $options) {
   return openBlock(), createElementBlock("div", {
@@ -33631,8 +32316,8 @@ function _sfc_render7(_ctx, _cache, $props, $setup, $data, $options) {
 }
 var SvPanel = _export_sfc(_sfc_main55, [["render", _sfc_render7], ["__file", "sv-panel.vue"]]);
 
-// node_modules/element-plus/es/components/color-picker/src/color-picker.mjs
-var _hoisted_123 = ["onKeydown"];
+// node_modules/element-plus/es/components/color-picker/src/color-picker2.mjs
+var _hoisted_122 = ["onKeydown"];
 var _hoisted_214 = ["id", "aria-label", "aria-labelledby", "aria-description", "aria-disabled", "tabindex"];
 var __default__44 = defineComponent({
   name: "ElColorPicker"
@@ -33654,7 +32339,7 @@ var _sfc_main56 = defineComponent({
     const hue = ref();
     const sv = ref();
     const alpha = ref();
-    const popper2 = ref();
+    const popper = ref();
     const triggerRef = ref();
     const inputRef = ref();
     const {
@@ -33664,7 +32349,7 @@ var _sfc_main56 = defineComponent({
     } = useFocusController(triggerRef, {
       beforeBlur(event) {
         var _a2;
-        return (_a2 = popper2.value) == null ? void 0 : _a2.isFocusInsideContent(event);
+        return (_a2 = popper.value) == null ? void 0 : _a2.isFocusInsideContent(event);
       },
       afterBlur() {
         setShowPicker(false);
@@ -33685,29 +32370,22 @@ var _sfc_main56 = defineComponent({
     const showPicker = ref(false);
     const showPanelColor = ref(false);
     const customInput = ref("");
-    const displayedColor = computed(() => {
+    const displayedColor = computed2(() => {
       if (!props.modelValue && !showPanelColor.value) {
         return "transparent";
       }
       return displayedRgb(color, props.showAlpha);
     });
-    const currentColor = computed(() => {
+    const currentColor = computed2(() => {
       return !props.modelValue && !showPanelColor.value ? "" : color.value;
     });
-    const buttonAriaLabel = computed(() => {
-      return !isLabeledByFormItem.value ? props.label || props.ariaLabel || t("el.colorpicker.defaultLabel") : void 0;
+    const buttonAriaLabel = computed2(() => {
+      return !isLabeledByFormItem.value ? props.label || t("el.colorpicker.defaultLabel") : void 0;
     });
-    useDeprecated({
-      from: "label",
-      replacement: "aria-label",
-      version: "2.8.0",
-      scope: "el-color-picker",
-      ref: "https://element-plus.org/en-US/component/color-picker.html"
-    }, computed(() => !!props.label));
-    const buttonAriaLabelledby = computed(() => {
+    const buttonAriaLabelledby = computed2(() => {
       return isLabeledByFormItem.value ? formItem == null ? void 0 : formItem.labelId : void 0;
     });
-    const btnKls = computed(() => {
+    const btnKls = computed2(() => {
       return [
         ns.b("picker"),
         ns.is("disabled", colorDisabled.value),
@@ -33731,7 +32409,7 @@ var _sfc_main56 = defineComponent({
         return;
       setShowPicker(true);
     }
-    function hide3() {
+    function hide2() {
       debounceSetShowPicker(false);
       resetColor();
     }
@@ -33786,7 +32464,7 @@ var _sfc_main56 = defineComponent({
     function handleClickOutside(event) {
       if (!showPicker.value)
         return;
-      hide3();
+      hide2();
       if (isFocused.value) {
         const _event2 = new FocusEvent("focus", event);
         handleBlur(_event2);
@@ -33855,14 +32533,14 @@ var _sfc_main56 = defineComponent({
     expose({
       color,
       show,
-      hide: hide3,
+      hide: hide2,
       focus,
       blur
     });
     return (_ctx, _cache) => {
       return openBlock(), createBlock(unref(ElTooltip), {
         ref_key: "popper",
-        ref: popper2,
+        ref: popper,
         visible: showPicker.value,
         "show-arrow": false,
         "fallback-placements": ["bottom", "top", "right", "left"],
@@ -33872,7 +32550,6 @@ var _sfc_main56 = defineComponent({
         "stop-popper-mouse-event": false,
         effect: "light",
         trigger: "click",
-        teleported: _ctx.teleported,
         transition: `${unref(ns).namespace.value}-zoom-in-top`,
         persistent: "",
         onHide: _cache[2] || (_cache[2] = ($event) => setShowPicker(false))
@@ -33906,10 +32583,9 @@ var _sfc_main56 = defineComponent({
             _ctx.predefine ? (openBlock(), createBlock(Predefine, {
               key: 1,
               ref: "predefine",
-              "enable-alpha": _ctx.showAlpha,
               color: unref(color),
               colors: _ctx.predefine
-            }, null, 8, ["enable-alpha", "color", "colors"])) : createCommentVNode("v-if", true),
+            }, null, 8, ["color", "colors"])) : createCommentVNode("v-if", true),
             createBaseVNode("div", {
               class: normalizeClass(unref(ns).be("dropdown", "btns"))
             }, [
@@ -33950,17 +32626,16 @@ var _sfc_main56 = defineComponent({
                 _: 1
               }, 8, ["class"])
             ], 2)
-          ], 40, _hoisted_123)), [
+          ], 40, _hoisted_122)), [
             [unref(ClickOutside), handleClickOutside]
           ])
         ]),
         default: withCtx(() => [
-          createBaseVNode("div", mergeProps({
+          createBaseVNode("div", {
             id: unref(buttonId),
             ref_key: "triggerRef",
-            ref: triggerRef
-          }, _ctx.$attrs, {
-            class: unref(btnKls),
+            ref: triggerRef,
+            class: normalizeClass(unref(btnKls)),
             role: "button",
             "aria-label": unref(buttonAriaLabel),
             "aria-labelledby": unref(buttonAriaLabelledby),
@@ -33970,7 +32645,7 @@ var _sfc_main56 = defineComponent({
             onKeydown: handleKeyDown,
             onFocus: handleFocus,
             onBlur: _cache[1] || (_cache[1] = (...args) => unref(handleBlur) && unref(handleBlur)(...args))
-          }), [
+          }, [
             unref(colorDisabled) ? (openBlock(), createElementBlock("div", {
               key: 0,
               class: normalizeClass(unref(ns).be("picker", "mask"))
@@ -34011,10 +32686,10 @@ var _sfc_main56 = defineComponent({
                 ], 6)
               ], 2)
             ], 2)
-          ], 16, _hoisted_214)
+          ], 42, _hoisted_214)
         ]),
         _: 1
-      }, 8, ["visible", "popper-class", "teleported", "transition"]);
+      }, 8, ["visible", "popper-class", "transition"]);
     };
   }
 });
@@ -34038,7 +32713,7 @@ var _sfc_main57 = defineComponent({
     const props = __props;
     const slots = useSlots();
     const ns = useNamespace("container");
-    const isVertical = computed(() => {
+    const isVertical = computed2(() => {
       if (props.direction === "vertical") {
         return true;
       } else if (props.direction === "horizontal") {
@@ -34080,7 +32755,7 @@ var _sfc_main58 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("aside");
-    const style = computed(() => props.width ? ns.cssVarBlock({ width: props.width }) : {});
+    const style = computed2(() => props.width ? ns.cssVarBlock({ width: props.width }) : {});
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("aside", {
         class: normalizeClass(unref(ns).b()),
@@ -34108,7 +32783,7 @@ var _sfc_main59 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("footer");
-    const style = computed(() => props.height ? ns.cssVarBlock({ height: props.height }) : {});
+    const style = computed2(() => props.height ? ns.cssVarBlock({ height: props.height }) : {});
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("footer", {
         class: normalizeClass(unref(ns).b()),
@@ -34136,7 +32811,7 @@ var _sfc_main60 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("header");
-    const style = computed(() => {
+    const style = computed2(() => {
       return props.height ? ns.cssVarBlock({
         height: props.height
       }) : {};
@@ -34211,15 +32886,7 @@ var datePickerProps = buildProps({
 var import_dayjs11 = __toESM(require_dayjs_min(), 1);
 
 // node_modules/element-plus/es/components/date-picker/src/props/shared.mjs
-var selectionModes = [
-  "date",
-  "dates",
-  "year",
-  "years",
-  "month",
-  "week",
-  "range"
-];
+var selectionModes = ["date", "dates", "year", "month", "week", "range"];
 var datePickerSharedProps = buildProps({
   disabledDate: {
     type: definePropType(Function)
@@ -34302,24 +32969,24 @@ var import_dayjs7 = __toESM(require_dayjs_min(), 1);
 var isValidRange2 = (range4) => {
   if (!isArray(range4))
     return false;
-  const [left3, right3] = range4;
-  return import_dayjs7.default.isDayjs(left3) && import_dayjs7.default.isDayjs(right3) && left3.isSameOrBefore(right3);
+  const [left2, right2] = range4;
+  return import_dayjs7.default.isDayjs(left2) && import_dayjs7.default.isDayjs(right2) && left2.isSameOrBefore(right2);
 };
 var getDefaultValue = (defaultValue, { lang, unit: unit3, unlinkPanels }) => {
-  let start2;
+  let start;
   if (isArray(defaultValue)) {
-    let [left3, right3] = defaultValue.map((d2) => (0, import_dayjs7.default)(d2).locale(lang));
+    let [left2, right2] = defaultValue.map((d2) => (0, import_dayjs7.default)(d2).locale(lang));
     if (!unlinkPanels) {
-      right3 = left3.add(1, unit3);
+      right2 = left2.add(1, unit3);
     }
-    return [left3, right3];
+    return [left2, right2];
   } else if (defaultValue) {
-    start2 = (0, import_dayjs7.default)(defaultValue);
+    start = (0, import_dayjs7.default)(defaultValue);
   } else {
-    start2 = (0, import_dayjs7.default)();
+    start = (0, import_dayjs7.default)();
   }
-  start2 = start2.locale(lang);
-  return [start2, start2.add(1, unit3)];
+  start = start.locale(lang);
+  return [start, start.add(1, unit3)];
 };
 var buildPickerTable = (dimension, rows, {
   columnIndexOffset,
@@ -34384,22 +33051,22 @@ var useBasicDateTable = (props, emit) => {
   let focusWithClick = false;
   const firstDayOfWeek = props.date.$locale().weekStart || 7;
   const WEEKS_CONSTANT = props.date.locale("en").localeData().weekdaysShort().map((_2) => _2.toLowerCase());
-  const offsetDay = computed(() => {
+  const offsetDay = computed2(() => {
     return firstDayOfWeek > 3 ? 7 - firstDayOfWeek : -firstDayOfWeek;
   });
-  const startDate = computed(() => {
+  const startDate = computed2(() => {
     const startDayOfMonth = props.date.startOf("month");
     return startDayOfMonth.subtract(startDayOfMonth.day() || 7, "day");
   });
-  const WEEKS = computed(() => {
+  const WEEKS = computed2(() => {
     return WEEKS_CONSTANT.concat(WEEKS_CONSTANT).slice(firstDayOfWeek, firstDayOfWeek + 7);
   });
-  const hasCurrent = computed(() => {
+  const hasCurrent = computed2(() => {
     return flatten_default(unref(rows)).some((row) => {
       return row.isCurrent;
     });
   });
-  const days = computed(() => {
+  const days = computed2(() => {
     const startOfMonth = props.date.startOf("month");
     const startOfMonthDay = startOfMonth.day() || 7;
     const dateCountOfMonth = startOfMonth.daysInMonth();
@@ -34410,14 +33077,14 @@ var useBasicDateTable = (props, emit) => {
       dateCountOfLastMonth
     };
   });
-  const selectedDate = computed(() => {
+  const selectedDate = computed2(() => {
     return props.selectionMode === "dates" ? castArray2(props.parsedValue) : [];
   });
   const setDateText = (cell, { count, rowIndex, columnIndex }) => {
     const { startOfMonthDay, dateCountOfMonth, dateCountOfLastMonth } = unref(days);
-    const offset4 = unref(offsetDay);
+    const offset3 = unref(offsetDay);
     if (rowIndex >= 0 && rowIndex <= 1) {
-      const numberOfDaysFromPreviousMonth = startOfMonthDay + offset4 < 0 ? 7 + startOfMonthDay + offset4 : startOfMonthDay + offset4;
+      const numberOfDaysFromPreviousMonth = startOfMonthDay + offset3 < 0 ? 7 + startOfMonthDay + offset3 : startOfMonthDay + offset3;
       if (columnIndex + rowIndex * 7 >= numberOfDaysFromPreviousMonth) {
         cell.text = count;
         return true;
@@ -34441,7 +33108,7 @@ var useBasicDateTable = (props, emit) => {
     const _selectedDate = unref(selectedDate);
     const shouldIncrement = setDateText(cell, { count, rowIndex, columnIndex });
     const cellDate = cell.dayjs.toDate();
-    cell.selected = _selectedDate.find((d2) => d2.isSame(cell.dayjs, "day"));
+    cell.selected = _selectedDate.find((d2) => d2.valueOf() === cell.dayjs.valueOf());
     cell.isSelected = !!cell.selected;
     cell.isCurrent = isCurrent(cell);
     cell.disabled = disabledDate2 == null ? void 0 : disabledDate2(cellDate);
@@ -34450,17 +33117,17 @@ var useBasicDateTable = (props, emit) => {
   };
   const setRowMetadata = (row) => {
     if (props.selectionMode === "week") {
-      const [start2, end3] = props.showWeekNumber ? [1, 7] : [0, 6];
-      const isActive = isWeekActive(row[start2 + 1]);
-      row[start2].inRange = isActive;
-      row[start2].start = isActive;
-      row[end3].inRange = isActive;
-      row[end3].end = isActive;
+      const [start, end2] = props.showWeekNumber ? [1, 7] : [0, 6];
+      const isActive = isWeekActive(row[start + 1]);
+      row[start].inRange = isActive;
+      row[start].start = isActive;
+      row[end2].inRange = isActive;
+      row[end2].end = isActive;
     }
   };
-  const rows = computed(() => {
+  const rows = computed2(() => {
     const { minDate, maxDate, rangeState, showWeekNumber } = props;
-    const offset4 = unref(offsetDay);
+    const offset3 = unref(offsetDay);
     const rows_ = unref(tableRows);
     const dateUnit = "day";
     let count = 1;
@@ -34480,7 +33147,7 @@ var useBasicDateTable = (props, emit) => {
       nextEndDate: rangeState.endDate || maxDate || rangeState.selecting && minDate || null,
       now: (0, import_dayjs8.default)().locale(unref(lang)).startOf(dateUnit),
       unit: dateUnit,
-      relativeDateGetter: (idx) => unref(startDate).add(idx - offset4, dateUnit),
+      relativeDateGetter: (idx) => unref(startDate).add(idx - offset3, dateUnit),
       setCellMetadata: (...args) => {
         if (setCellMetadata(...args, count)) {
           count += 1;
@@ -34658,12 +33325,12 @@ var useBasicDateTableDOM = (props, {
 }) => {
   const ns = useNamespace("date-table");
   const { t } = useLocale();
-  const tableKls = computed(() => [
+  const tableKls = computed2(() => [
     ns.b(),
     { "is-week-mode": props.selectionMode === "week" }
   ]);
-  const tableLabel = computed(() => t("el.datepicker.dateTablePrompt"));
-  const weekLabel = computed(() => t("el.datepicker.week"));
+  const tableLabel = computed2(() => t("el.datepicker.dateTablePrompt"));
+  const weekLabel = computed2(() => t("el.datepicker.week"));
   const getCellClasses = (cell) => {
     const classes = [];
     if (isNormalDay(cell.type) && !cell.disabled) {
@@ -34743,13 +33410,13 @@ var ElDatePickerCell = defineComponent({
 });
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/basic-date-table.mjs
-var _hoisted_124 = ["aria-label"];
+var _hoisted_123 = ["aria-label"];
 var _hoisted_215 = {
   key: 0,
   scope: "col"
 };
-var _hoisted_35 = ["aria-label"];
-var _hoisted_42 = ["aria-current", "aria-selected", "tabindex"];
+var _hoisted_34 = ["aria-label"];
+var _hoisted_4 = ["aria-current", "aria-selected", "tabindex"];
 var _sfc_main62 = defineComponent({
   __name: "basic-date-table",
   props: basicDateTableProps,
@@ -34801,7 +33468,7 @@ var _sfc_main62 = defineComponent({
                 key,
                 "aria-label": unref(t)("el.datepicker.weeksFull." + week),
                 scope: "col"
-              }, toDisplayString(unref(t)("el.datepicker.weeks." + week)), 9, _hoisted_35);
+              }, toDisplayString(unref(t)("el.datepicker.weeks." + week)), 9, _hoisted_34);
             }), 128))
           ]),
           (openBlock(true), createElementBlock(Fragment, null, renderList(unref(rows), (row, rowKey2) => {
@@ -34821,12 +33488,12 @@ var _sfc_main62 = defineComponent({
                   onFocus: _cache[0] || (_cache[0] = (...args) => unref(handleFocus) && unref(handleFocus)(...args))
                 }, [
                   createVNode(unref(ElDatePickerCell), { cell }, null, 8, ["cell"])
-                ], 42, _hoisted_42);
+                ], 42, _hoisted_4);
               }), 128))
             ], 2);
           }), 128))
         ], 512)
-      ], 42, _hoisted_124);
+      ], 42, _hoisted_123);
     };
   }
 });
@@ -34842,9 +33509,9 @@ var basicMonthTableProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/basic-month-table.mjs
-var _hoisted_125 = ["aria-label"];
+var _hoisted_124 = ["aria-label"];
 var _hoisted_216 = ["aria-selected", "aria-label", "tabindex", "onKeydown"];
-var _hoisted_36 = { class: "cell" };
+var _hoisted_35 = { class: "cell" };
 var _sfc_main63 = defineComponent({
   __name: "basic-month-table",
   props: basicMonthTableProps,
@@ -34868,7 +33535,7 @@ var _sfc_main63 = defineComponent({
     ]);
     const lastRow = ref();
     const lastColumn = ref();
-    const rows = computed(() => {
+    const rows = computed2(() => {
       var _a2, _b;
       const rows2 = tableRows.value;
       const now2 = (0, import_dayjs9.default)().locale(lang.value).startOf("month");
@@ -35027,14 +33694,14 @@ var _sfc_main63 = defineComponent({
                   ]
                 }, [
                   createBaseVNode("div", null, [
-                    createBaseVNode("span", _hoisted_36, toDisplayString(unref(t)("el.datepicker.months." + months.value[cell.text])), 1)
+                    createBaseVNode("span", _hoisted_35, toDisplayString(unref(t)("el.datepicker.months." + months.value[cell.text])), 1)
                   ])
                 ], 42, _hoisted_216);
               }), 128))
             ]);
           }), 128))
         ], 512)
-      ], 42, _hoisted_125);
+      ], 42, _hoisted_124);
     };
   }
 });
@@ -35048,15 +33715,14 @@ var { date: date4, disabledDate, parsedValue } = datePickerSharedProps;
 var basicYearTableProps = buildProps({
   date: date4,
   disabledDate,
-  parsedValue,
-  selectionMode: selectionModeWithDefault("year")
+  parsedValue
 });
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/basic-year-table.mjs
-var _hoisted_126 = ["aria-label"];
+var _hoisted_125 = ["aria-label"];
 var _hoisted_217 = ["aria-selected", "tabindex", "onKeydown"];
-var _hoisted_37 = { class: "cell" };
-var _hoisted_43 = { key: 1 };
+var _hoisted_36 = { class: "cell" };
+var _hoisted_42 = { key: 1 };
 var _sfc_main64 = defineComponent({
   __name: "basic-year-table",
   props: basicYearTableProps,
@@ -35073,7 +33739,7 @@ var _sfc_main64 = defineComponent({
     const { t, lang } = useLocale();
     const tbodyRef = ref();
     const currentCellRef = ref();
-    const startYear = computed(() => {
+    const startYear = computed2(() => {
       return Math.floor(props.date.year() / 10) * 10;
     });
     const focus = () => {
@@ -35089,7 +33755,7 @@ var _sfc_main64 = defineComponent({
       return kls;
     };
     const isSelectedCell = (year) => {
-      return year === startYear.value && props.date.year() < startYear.value && props.date.year() > startYear.value + 9 || castArray2(props.date).findIndex((date5) => date5.year() === year) >= 0 || castArray2(props.parsedValue).findIndex((date5) => (date5 == null ? void 0 : date5.year()) === year) >= 0;
+      return year === startYear.value && props.date.year() < startYear.value && props.date.year() > startYear.value + 9 || castArray2(props.date).findIndex((date5) => date5.year() === year) >= 0;
     };
     const handleYearTableClick = (event) => {
       const clickTarget = event.target;
@@ -35098,16 +33764,7 @@ var _sfc_main64 = defineComponent({
         if (hasClass(target2, "disabled"))
           return;
         const year = target2.textContent || target2.innerText;
-        if (props.selectionMode === "years") {
-          if (event.type === "keydown") {
-            emit("pick", castArray2(props.parsedValue), false);
-            return;
-          }
-          const newValue = hasClass(target2, "current") ? castArray2(props.parsedValue).filter((d2) => (d2 == null ? void 0 : d2.year()) !== Number(year)) : castArray2(props.parsedValue).concat([(0, import_dayjs10.default)(year)]);
-          emit("pick", newValue);
-        } else {
-          emit("pick", Number(year));
-        }
+        emit("pick", Number(year));
       }
     };
     watch(() => props.date, async () => {
@@ -35149,27 +33806,25 @@ var _sfc_main64 = defineComponent({
                       withKeys(withModifiers(handleYearTableClick, ["prevent", "stop"]), ["enter"])
                     ]
                   }, [
-                    createBaseVNode("div", null, [
-                      createBaseVNode("span", _hoisted_37, toDisplayString(unref(startYear) + i * 4 + j), 1)
-                    ])
-                  ], 42, _hoisted_217)) : (openBlock(), createElementBlock("td", _hoisted_43))
+                    createBaseVNode("span", _hoisted_36, toDisplayString(unref(startYear) + i * 4 + j), 1)
+                  ], 42, _hoisted_217)) : (openBlock(), createElementBlock("td", _hoisted_42))
                 ], 64);
               }), 64))
             ]);
           }), 64))
         ], 512)
-      ], 10, _hoisted_126);
+      ], 10, _hoisted_125);
     };
   }
 });
 var YearTable = _export_sfc(_sfc_main64, [["__file", "basic-year-table.vue"]]);
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/panel-date-pick.mjs
-var _hoisted_127 = ["onClick"];
+var _hoisted_126 = ["onClick"];
 var _hoisted_218 = ["aria-label"];
-var _hoisted_38 = ["aria-label"];
-var _hoisted_44 = ["aria-label"];
-var _hoisted_52 = ["aria-label"];
+var _hoisted_37 = ["aria-label"];
+var _hoisted_43 = ["aria-label"];
+var _hoisted_5 = ["aria-label"];
 var _sfc_main65 = defineComponent({
   __name: "panel-date-pick",
   props: panelDatePickProps,
@@ -35183,20 +33838,20 @@ var _sfc_main65 = defineComponent({
     const slots = useSlots();
     const { t, lang } = useLocale();
     const pickerBase = inject("EP_PICKER_BASE");
-    const popper2 = inject(TOOLTIP_INJECTION_KEY);
+    const popper = inject(TOOLTIP_INJECTION_KEY);
     const { shortcuts, disabledDate: disabledDate2, cellClassName, defaultTime } = pickerBase.props;
     const defaultValue = toRef(pickerBase.props, "defaultValue");
     const currentViewRef = ref();
     const innerDate = ref((0, import_dayjs11.default)().locale(lang.value));
     const isChangeToNow = ref(false);
     let isShortcut = false;
-    const defaultTimeD = computed(() => {
+    const defaultTimeD = computed2(() => {
       return (0, import_dayjs11.default)(defaultTime).locale(lang.value);
     });
-    const month = computed(() => {
+    const month = computed2(() => {
       return innerDate.value.month();
     });
-    const year = computed(() => {
+    const year = computed2(() => {
       return innerDate.value.year();
     });
     const selectableRange = ref([]);
@@ -35258,7 +33913,7 @@ var _sfc_main65 = defineComponent({
       handlePanelChange("year");
     };
     const currentView = ref("date");
-    const yearLabel = computed(() => {
+    const yearLabel = computed2(() => {
       const yearTranslation = t("el.datepicker.year");
       if (currentView.value === "year") {
         const startYear = Math.floor(year.value / 10) * 10;
@@ -35284,16 +33939,16 @@ var _sfc_main65 = defineComponent({
         });
       }
     };
-    const selectionMode = computed(() => {
+    const selectionMode = computed2(() => {
       const { type: type4 } = props;
-      if (["week", "month", "year", "years", "dates"].includes(type4))
+      if (["week", "month", "year", "dates"].includes(type4))
         return type4;
       return "date";
     });
-    const keyboardMode = computed(() => {
+    const keyboardMode = computed2(() => {
       return selectionMode.value === "date" ? currentView.value : selectionMode.value;
     });
-    const hasShortcuts = computed(() => !!shortcuts.length);
+    const hasShortcuts = computed2(() => !!shortcuts.length);
     const handleMonthPick = async (month2) => {
       innerDate.value = innerDate.value.startOf("month").month(month2);
       if (selectionMode.value === "month") {
@@ -35308,12 +33963,10 @@ var _sfc_main65 = defineComponent({
       }
       handlePanelChange("month");
     };
-    const handleYearPick = async (year2, keepOpen) => {
+    const handleYearPick = async (year2) => {
       if (selectionMode.value === "year") {
         innerDate.value = innerDate.value.startOf("year").year(year2);
         emit(innerDate.value, false);
-      } else if (selectionMode.value === "years") {
-        emit(year2, keepOpen != null ? keepOpen : true);
       } else {
         innerDate.value = innerDate.value.year(year2);
         currentView.value = "month";
@@ -35330,15 +33983,11 @@ var _sfc_main65 = defineComponent({
       await nextTick();
       handleFocusPicker();
     };
-    const showTime = computed(() => props.type === "datetime" || props.type === "datetimerange");
-    const footerVisible = computed(() => {
-      const showDateFooter = showTime.value || selectionMode.value === "dates";
-      const showYearFooter = selectionMode.value === "years";
-      const isDateView = currentView.value === "date";
-      const isYearView = currentView.value === "year";
-      return showDateFooter && isDateView || showYearFooter && isYearView;
+    const showTime = computed2(() => props.type === "datetime" || props.type === "datetimerange");
+    const footerVisible = computed2(() => {
+      return showTime.value || selectionMode.value === "dates";
     });
-    const disabledConfirm = computed(() => {
+    const disabledConfirm = computed2(() => {
       if (!disabledDate2)
         return false;
       if (!props.parsedValue)
@@ -35349,7 +33998,7 @@ var _sfc_main65 = defineComponent({
       return disabledDate2(props.parsedValue.toDate());
     });
     const onConfirm = () => {
-      if (selectionMode.value === "dates" || selectionMode.value === "years") {
+      if (selectionMode.value === "dates") {
         emit(props.parsedValue);
       } else {
         let result2 = props.parsedValue;
@@ -35362,7 +34011,7 @@ var _sfc_main65 = defineComponent({
         emit(result2);
       }
     };
-    const disabledNow = computed(() => {
+    const disabledNow = computed2(() => {
       if (!disabledDate2)
         return false;
       return disabledDate2((0, import_dayjs11.default)().locale(lang.value).toDate());
@@ -35376,20 +34025,20 @@ var _sfc_main65 = defineComponent({
         emit(innerDate.value);
       }
     };
-    const timeFormat = computed(() => {
+    const timeFormat = computed2(() => {
       return props.timeFormat || extractTimeFormat(props.format);
     });
-    const dateFormat = computed(() => {
+    const dateFormat = computed2(() => {
       return props.dateFormat || extractDateFormat(props.format);
     });
-    const visibleTime = computed(() => {
+    const visibleTime = computed2(() => {
       if (userInputTime.value)
         return userInputTime.value;
       if (!props.parsedValue && !defaultValue.value)
         return;
       return (props.parsedValue || innerDate.value).format(timeFormat.value);
     });
-    const visibleDate = computed(() => {
+    const visibleDate = computed2(() => {
       if (userInputDate.value)
         return userInputDate.value;
       if (!props.parsedValue && !defaultValue.value)
@@ -35448,7 +34097,10 @@ var _sfc_main65 = defineComponent({
       return import_dayjs11.default.isDayjs(date5) && date5.isValid() && (disabledDate2 ? !disabledDate2(date5.toDate()) : true);
     };
     const formatToString = (value) => {
-      return isArray(value) ? value.map((_2) => _2.format(props.format)) : value.format(props.format);
+      if (selectionMode.value === "dates") {
+        return value.map((_2) => _2.format(props.format));
+      }
+      return value.format(props.format);
     };
     const parseUserInput = (value) => {
       return (0, import_dayjs11.default)(value, props.format).locale(lang.value);
@@ -35494,36 +34146,36 @@ var _sfc_main65 = defineComponent({
     };
     const handleKeyControl = (code) => {
       var _a2;
-      const { up: up2, down: down2, left: left3, right: right3, home: home2, end: end3, pageUp: pageUp2, pageDown: pageDown2 } = EVENT_CODE;
+      const { up: up2, down: down2, left: left2, right: right2, home: home2, end: end2, pageUp: pageUp2, pageDown: pageDown2 } = EVENT_CODE;
       const mapping = {
         year: {
           [up2]: -4,
           [down2]: 4,
-          [left3]: -1,
-          [right3]: 1,
+          [left2]: -1,
+          [right2]: 1,
           offset: (date5, step) => date5.setFullYear(date5.getFullYear() + step)
         },
         month: {
           [up2]: -4,
           [down2]: 4,
-          [left3]: -1,
-          [right3]: 1,
+          [left2]: -1,
+          [right2]: 1,
           offset: (date5, step) => date5.setMonth(date5.getMonth() + step)
         },
         week: {
           [up2]: -1,
           [down2]: 1,
-          [left3]: -1,
-          [right3]: 1,
+          [left2]: -1,
+          [right2]: 1,
           offset: (date5, step) => date5.setDate(date5.getDate() + step * 7)
         },
         date: {
           [up2]: -7,
           [down2]: 7,
-          [left3]: -1,
-          [right3]: 1,
+          [left2]: -1,
+          [right2]: 1,
           [home2]: (date5) => -date5.getDay(),
-          [end3]: (date5) => -date5.getDay() + 6,
+          [end2]: (date5) => -date5.getDay() + 6,
           [pageUp2]: (date5) => -new Date(date5.getFullYear(), date5.getMonth(), 0).getDate(),
           [pageDown2]: (date5) => new Date(date5.getFullYear(), date5.getMonth() + 1, 0).getDate(),
           offset: (date5, step) => date5.setDate(date5.getDate() + step)
@@ -35551,14 +34203,11 @@ var _sfc_main65 = defineComponent({
       if (["month", "year"].includes(val)) {
         currentView.value = val;
         return;
-      } else if (val === "years") {
-        currentView.value = "year";
-        return;
       }
       currentView.value = "date";
     }, { immediate: true });
     watch(() => currentView.value, () => {
-      popper2 == null ? void 0 : popper2.updatePopper();
+      popper == null ? void 0 : popper.updatePopper();
     });
     watch(() => defaultValue.value, (val) => {
       if (val) {
@@ -35567,7 +34216,7 @@ var _sfc_main65 = defineComponent({
     }, { immediate: true });
     watch(() => props.parsedValue, (val) => {
       if (val) {
-        if (selectionMode.value === "dates" || selectionMode.value === "years")
+        if (selectionMode.value === "dates")
           return;
         if (Array.isArray(val))
           return;
@@ -35607,7 +34256,7 @@ var _sfc_main65 = defineComponent({
                 type: "button",
                 class: normalizeClass(unref(ppNs).e("shortcut")),
                 onClick: ($event) => handleShortcutClick(shortcut)
-              }, toDisplayString(shortcut.text), 11, _hoisted_127);
+              }, toDisplayString(shortcut.text), 11, _hoisted_126);
             }), 128))
           ], 2)) : createCommentVNode("v-if", true),
           createBaseVNode("div", {
@@ -35685,7 +34334,7 @@ var _sfc_main65 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_38), [
+                ], 10, _hoisted_37), [
                   [vShow, currentView.value === "date"]
                 ])
               ], 2),
@@ -35725,7 +34374,7 @@ var _sfc_main65 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_44), [
+                ], 10, _hoisted_43), [
                   [vShow, currentView.value === "date"]
                 ]),
                 createBaseVNode("button", {
@@ -35740,7 +34389,7 @@ var _sfc_main65 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_52)
+                ], 10, _hoisted_5)
               ], 2)
             ], 2), [
               [vShow, currentView.value !== "time"]
@@ -35764,12 +34413,11 @@ var _sfc_main65 = defineComponent({
                 key: 1,
                 ref_key: "currentViewRef",
                 ref: currentViewRef,
-                "selection-mode": unref(selectionMode),
                 date: innerDate.value,
                 "disabled-date": unref(disabledDate2),
                 "parsed-value": _ctx.parsedValue,
                 onPick: handleYearPick
-              }, null, 8, ["selection-mode", "date", "disabled-date", "parsed-value"])) : createCommentVNode("v-if", true),
+              }, null, 8, ["date", "disabled-date", "parsed-value"])) : createCommentVNode("v-if", true),
               currentView.value === "month" ? (openBlock(), createBlock(MonthTable, {
                 key: 2,
                 ref_key: "currentViewRef",
@@ -35797,7 +34445,7 @@ var _sfc_main65 = defineComponent({
             ]),
             _: 1
           }, 8, ["class", "disabled"]), [
-            [vShow, unref(selectionMode) !== "dates" && unref(selectionMode) !== "years"]
+            [vShow, unref(selectionMode) !== "dates"]
           ]),
           createVNode(unref(ElButton), {
             plain: "",
@@ -35812,7 +34460,7 @@ var _sfc_main65 = defineComponent({
             _: 1
           }, 8, ["class", "disabled"])
         ], 2), [
-          [vShow, unref(footerVisible)]
+          [vShow, unref(footerVisible) && currentView.value === "date"]
         ])
       ], 2);
     };
@@ -35891,15 +34539,15 @@ var useRangePicker = (props, {
     }
   };
   const restoreDefault = () => {
-    const [start2, end3] = getDefaultValue(unref(defaultValue), {
+    const [start, end2] = getDefaultValue(unref(defaultValue), {
       lang: unref(lang),
       unit: unit3,
       unlinkPanels: props.unlinkPanels
     });
     minDate.value = void 0;
     maxDate.value = void 0;
-    leftDate.value = start2;
-    rightDate.value = end3;
+    leftDate.value = start;
+    rightDate.value = end2;
   };
   watch(defaultValue, (val) => {
     if (val) {
@@ -35908,10 +34556,10 @@ var useRangePicker = (props, {
   }, { immediate: true });
   watch(() => props.parsedValue, (parsedValue2) => {
     if (isArray(parsedValue2) && parsedValue2.length === 2) {
-      const [start2, end3] = parsedValue2;
-      minDate.value = start2;
-      leftDate.value = start2;
-      maxDate.value = end3;
+      const [start, end2] = parsedValue2;
+      minDate.value = start;
+      leftDate.value = start;
+      maxDate.value = end2;
       onParsedValueChanged(unref(minDate), unref(maxDate));
     } else {
       restoreDefault();
@@ -35933,14 +34581,14 @@ var useRangePicker = (props, {
 };
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/panel-date-range.mjs
-var _hoisted_128 = ["onClick"];
+var _hoisted_127 = ["onClick"];
 var _hoisted_219 = ["aria-label"];
-var _hoisted_39 = ["aria-label"];
-var _hoisted_45 = ["disabled", "aria-label"];
-var _hoisted_53 = ["disabled", "aria-label"];
-var _hoisted_62 = ["disabled", "aria-label"];
-var _hoisted_72 = ["disabled", "aria-label"];
-var _hoisted_82 = ["aria-label"];
+var _hoisted_38 = ["aria-label"];
+var _hoisted_44 = ["disabled", "aria-label"];
+var _hoisted_52 = ["disabled", "aria-label"];
+var _hoisted_6 = ["disabled", "aria-label"];
+var _hoisted_7 = ["disabled", "aria-label"];
+var _hoisted_8 = ["aria-label"];
 var _hoisted_9 = ["aria-label"];
 var unit = "month";
 var _sfc_main66 = defineComponent({
@@ -35955,8 +34603,7 @@ var _sfc_main66 = defineComponent({
   setup(__props, { emit }) {
     const props = __props;
     const pickerBase = inject("EP_PICKER_BASE");
-    const { disabledDate: disabledDate2, cellClassName, defaultTime, clearable } = pickerBase.props;
-    const format2 = toRef(pickerBase.props, "format");
+    const { disabledDate: disabledDate2, cellClassName, format: format2, defaultTime, clearable } = pickerBase.props;
     const shortcuts = toRef(pickerBase.props, "shortcuts");
     const defaultValue = toRef(pickerBase.props, "defaultValue");
     const { lang } = useLocale();
@@ -35988,58 +34635,58 @@ var _sfc_main66 = defineComponent({
       min: null,
       max: null
     });
-    const leftLabel = computed(() => {
+    const leftLabel = computed2(() => {
       return `${leftDate.value.year()} ${t("el.datepicker.year")} ${t(`el.datepicker.month${leftDate.value.month() + 1}`)}`;
     });
-    const rightLabel = computed(() => {
+    const rightLabel = computed2(() => {
       return `${rightDate.value.year()} ${t("el.datepicker.year")} ${t(`el.datepicker.month${rightDate.value.month() + 1}`)}`;
     });
-    const leftYear = computed(() => {
+    const leftYear = computed2(() => {
       return leftDate.value.year();
     });
-    const leftMonth = computed(() => {
+    const leftMonth = computed2(() => {
       return leftDate.value.month();
     });
-    const rightYear = computed(() => {
+    const rightYear = computed2(() => {
       return rightDate.value.year();
     });
-    const rightMonth = computed(() => {
+    const rightMonth = computed2(() => {
       return rightDate.value.month();
     });
-    const hasShortcuts = computed(() => !!shortcuts.value.length);
-    const minVisibleDate = computed(() => {
+    const hasShortcuts = computed2(() => !!shortcuts.value.length);
+    const minVisibleDate = computed2(() => {
       if (dateUserInput.value.min !== null)
         return dateUserInput.value.min;
       if (minDate.value)
         return minDate.value.format(dateFormat.value);
       return "";
     });
-    const maxVisibleDate = computed(() => {
+    const maxVisibleDate = computed2(() => {
       if (dateUserInput.value.max !== null)
         return dateUserInput.value.max;
       if (maxDate.value || minDate.value)
         return (maxDate.value || minDate.value).format(dateFormat.value);
       return "";
     });
-    const minVisibleTime = computed(() => {
+    const minVisibleTime = computed2(() => {
       if (timeUserInput.value.min !== null)
         return timeUserInput.value.min;
       if (minDate.value)
         return minDate.value.format(timeFormat.value);
       return "";
     });
-    const maxVisibleTime = computed(() => {
+    const maxVisibleTime = computed2(() => {
       if (timeUserInput.value.max !== null)
         return timeUserInput.value.max;
       if (maxDate.value || minDate.value)
         return (maxDate.value || minDate.value).format(timeFormat.value);
       return "";
     });
-    const timeFormat = computed(() => {
-      return props.timeFormat || extractTimeFormat(format2.value);
+    const timeFormat = computed2(() => {
+      return props.timeFormat || extractTimeFormat(format2);
     });
-    const dateFormat = computed(() => {
-      return props.dateFormat || extractDateFormat(format2.value);
+    const dateFormat = computed2(() => {
+      return props.dateFormat || extractDateFormat(format2);
     });
     const isValidValue3 = (date5) => {
       return isValidRange2(date5) && (disabledDate2 ? !disabledDate2(date5[0].toDate()) && !disabledDate2(date5[1].toDate()) : true);
@@ -36095,18 +34742,18 @@ var _sfc_main66 = defineComponent({
     const handlePanelChange = (mode) => {
       emit("panel-change", [leftDate.value.toDate(), rightDate.value.toDate()], mode);
     };
-    const enableMonthArrow = computed(() => {
+    const enableMonthArrow = computed2(() => {
       const nextMonth = (leftMonth.value + 1) % 12;
       const yearOffset = leftMonth.value + 1 >= 12 ? 1 : 0;
       return props.unlinkPanels && new Date(leftYear.value + yearOffset, nextMonth) < new Date(rightYear.value, rightMonth.value);
     });
-    const enableYearArrow = computed(() => {
+    const enableYearArrow = computed2(() => {
       return props.unlinkPanels && rightYear.value * 12 + rightMonth.value - (leftYear.value * 12 + leftMonth.value + 1) >= 12;
     });
-    const btnDisabled = computed(() => {
+    const btnDisabled = computed2(() => {
       return !(minDate.value && maxDate.value && !rangeState.value.selecting && isValidRange2([minDate.value, maxDate.value]));
     });
-    const showTime = computed(() => props.type === "datetime" || props.type === "datetimerange");
+    const showTime = computed2(() => props.type === "datetime" || props.type === "datetimerange");
     const formatEmit = (emitDayjs, index) => {
       if (!emitDayjs)
         return;
@@ -36173,10 +34820,16 @@ var _sfc_main66 = defineComponent({
         if (type4 === "min") {
           minTimePickerVisible.value = true;
           minDate.value = (minDate.value || leftDate.value).hour(parsedValueD.hour()).minute(parsedValueD.minute()).second(parsedValueD.second());
+          if (!maxDate.value || maxDate.value.isBefore(minDate.value)) {
+            maxDate.value = minDate.value;
+          }
         } else {
           maxTimePickerVisible.value = true;
           maxDate.value = (maxDate.value || rightDate.value).hour(parsedValueD.hour()).minute(parsedValueD.minute()).second(parsedValueD.second());
           rightDate.value = maxDate.value;
+          if (maxDate.value && maxDate.value.isBefore(minDate.value)) {
+            minDate.value = maxDate.value;
+          }
         }
       }
     };
@@ -36185,15 +34838,9 @@ var _sfc_main66 = defineComponent({
       if (type4 === "min") {
         leftDate.value = minDate.value;
         minTimePickerVisible.value = false;
-        if (!maxDate.value || maxDate.value.isBefore(minDate.value)) {
-          maxDate.value = minDate.value;
-        }
       } else {
         rightDate.value = maxDate.value;
         maxTimePickerVisible.value = false;
-        if (maxDate.value && maxDate.value.isBefore(minDate.value)) {
-          minDate.value = maxDate.value;
-        }
       }
     };
     const handleMinTimePick = (value, visible, first) => {
@@ -36232,15 +34879,13 @@ var _sfc_main66 = defineComponent({
         unlinkPanels: props.unlinkPanels
       })[0];
       rightDate.value = leftDate.value.add(1, "month");
-      maxDate.value = void 0;
-      minDate.value = void 0;
       emit("pick", null);
     };
     const formatToString = (value) => {
-      return isArray(value) ? value.map((_2) => _2.format(format2.value)) : value.format(format2.value);
+      return isArray(value) ? value.map((_2) => _2.format(format2)) : value.format(format2);
     };
     const parseUserInput = (value) => {
-      return isArray(value) ? value.map((_2) => (0, import_dayjs13.default)(_2, format2.value).locale(lang.value)) : (0, import_dayjs13.default)(value, format2.value).locale(lang.value);
+      return isArray(value) ? value.map((_2) => (0, import_dayjs13.default)(_2, format2).locale(lang.value)) : (0, import_dayjs13.default)(value, format2).locale(lang.value);
     };
     function onParsedValueChanged(minDate2, maxDate2) {
       if (props.unlinkPanels && maxDate2) {
@@ -36287,7 +34932,7 @@ var _sfc_main66 = defineComponent({
                 type: "button",
                 class: normalizeClass(unref(ppNs).e("shortcut")),
                 onClick: ($event) => unref(handleShortcutClick)(shortcut)
-              }, toDisplayString(shortcut.text), 11, _hoisted_128);
+              }, toDisplayString(shortcut.text), 11, _hoisted_127);
             }), 128))
           ], 2)) : createCommentVNode("v-if", true),
           createBaseVNode("div", {
@@ -36423,7 +35068,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_39),
+                ], 10, _hoisted_38),
                 _ctx.unlinkPanels ? (openBlock(), createElementBlock("button", {
                   key: 0,
                   type: "button",
@@ -36438,7 +35083,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_45)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_44)) : createCommentVNode("v-if", true),
                 _ctx.unlinkPanels ? (openBlock(), createElementBlock("button", {
                   key: 1,
                   type: "button",
@@ -36456,7 +35101,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_53)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_52)) : createCommentVNode("v-if", true),
                 createBaseVNode("div", null, toDisplayString(unref(leftLabel)), 1)
               ], 2),
               createVNode(DateTable2, {
@@ -36492,7 +35137,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_62)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_6)) : createCommentVNode("v-if", true),
                 _ctx.unlinkPanels ? (openBlock(), createElementBlock("button", {
                   key: 1,
                   type: "button",
@@ -36510,7 +35155,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_72)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_7)) : createCommentVNode("v-if", true),
                 createBaseVNode("button", {
                   type: "button",
                   "aria-label": unref(t)(`el.datepicker.nextYear`),
@@ -36523,7 +35168,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_82),
+                ], 10, _hoisted_8),
                 createBaseVNode("button", {
                   type: "button",
                   class: normalizeClass([unref(ppNs).e("icon-btn"), "arrow-right"]),
@@ -36627,16 +35272,16 @@ var useMonthRangeHeader = ({
   const rightPrevYear = () => {
     rightDate.value = rightDate.value.subtract(1, "year");
   };
-  const leftLabel = computed(() => {
+  const leftLabel = computed2(() => {
     return `${leftDate.value.year()} ${t("el.datepicker.year")}`;
   });
-  const rightLabel = computed(() => {
+  const rightLabel = computed2(() => {
     return `${rightDate.value.year()} ${t("el.datepicker.year")}`;
   });
-  const leftYear = computed(() => {
+  const leftYear = computed2(() => {
     return leftDate.value.year();
   });
-  const rightYear = computed(() => {
+  const rightYear = computed2(() => {
     return rightDate.value.year() === leftDate.value.year() ? leftDate.value.year() + 1 : rightDate.value.year();
   });
   return {
@@ -36652,9 +35297,9 @@ var useMonthRangeHeader = ({
 };
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/panel-month-range.mjs
-var _hoisted_129 = ["onClick"];
+var _hoisted_128 = ["onClick"];
 var _hoisted_220 = ["disabled"];
-var _hoisted_310 = ["disabled"];
+var _hoisted_39 = ["disabled"];
 var unit2 = "year";
 var __default__50 = defineComponent({
   name: "DatePickerMonthRange"
@@ -36667,8 +35312,7 @@ var _sfc_main67 = defineComponent({
     const props = __props;
     const { lang } = useLocale();
     const pickerBase = inject("EP_PICKER_BASE");
-    const { shortcuts, disabledDate: disabledDate2 } = pickerBase.props;
-    const format2 = toRef(pickerBase.props, "format");
+    const { shortcuts, disabledDate: disabledDate2, format: format2 } = pickerBase.props;
     const defaultValue = toRef(pickerBase.props, "defaultValue");
     const leftDate = ref((0, import_dayjs14.default)().locale(lang.value));
     const rightDate = ref((0, import_dayjs14.default)().locale(lang.value).add(1, unit2));
@@ -36689,7 +35333,7 @@ var _sfc_main67 = defineComponent({
       unit: unit2,
       onParsedValueChanged
     });
-    const hasShortcuts = computed(() => !!shortcuts.length);
+    const hasShortcuts = computed2(() => !!shortcuts.length);
     const {
       leftPrevYear,
       rightNextYear,
@@ -36704,7 +35348,7 @@ var _sfc_main67 = defineComponent({
       leftDate,
       rightDate
     });
-    const enableYearArrow = computed(() => {
+    const enableYearArrow = computed2(() => {
       return props.unlinkPanels && rightYear.value > leftYear.value + 1;
     });
     const handleRangePick = (val, close2 = true) => {
@@ -36721,7 +35365,7 @@ var _sfc_main67 = defineComponent({
       handleRangeConfirm();
     };
     const formatToString = (days) => {
-      return days.map((day) => day.format(format2.value));
+      return days.map((day) => day.format(format2));
     };
     function onParsedValueChanged(minDate2, maxDate2) {
       if (props.unlinkPanels && maxDate2) {
@@ -36759,7 +35403,7 @@ var _sfc_main67 = defineComponent({
                 type: "button",
                 class: normalizeClass(unref(ppNs).e("shortcut")),
                 onClick: ($event) => unref(handleShortcutClick)(shortcut)
-              }, toDisplayString(shortcut.text), 11, _hoisted_129);
+              }, toDisplayString(shortcut.text), 11, _hoisted_128);
             }), 128))
           ], 2)) : createCommentVNode("v-if", true),
           createBaseVNode("div", {
@@ -36833,7 +35477,7 @@ var _sfc_main67 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_310)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_39)) : createCommentVNode("v-if", true),
                 createBaseVNode("button", {
                   type: "button",
                   class: normalizeClass([unref(ppNs).e("icon-btn"), "d-arrow-right"]),
@@ -37050,7 +35694,7 @@ var descriptionsRowProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/descriptions/src/descriptions-row2.mjs
-var _hoisted_130 = { key: 1 };
+var _hoisted_129 = { key: 1 };
 var __default__51 = defineComponent({
   name: "ElDescriptionsRow"
 });
@@ -37081,7 +35725,7 @@ var _sfc_main68 = defineComponent({
             }, null, 8, ["cell"]);
           }), 128))
         ])
-      ], 64)) : (openBlock(), createElementBlock("tr", _hoisted_130, [
+      ], 64)) : (openBlock(), createElementBlock("tr", _hoisted_129, [
         (openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.row, (cell, _index) => {
           return openBlock(), createElementBlock(Fragment, {
             key: `tr3-${_index}`
@@ -37150,7 +35794,7 @@ var _sfc_main69 = defineComponent({
     const descriptionsSize = useFormSize();
     const slots = useSlots();
     provide(descriptionsKey, props);
-    const descriptionKls = computed(() => [ns.b(), ns.m(descriptionsSize.value)]);
+    const descriptionKls = computed2(() => [ns.b(), ns.m(descriptionsSize.value)]);
     const filledNode = (node, span, count, isLast = false) => {
       if (!node.props) {
         node.props = {};
@@ -37382,9 +36026,9 @@ var dialogContentEmits = {
 };
 
 // node_modules/element-plus/es/components/dialog/src/dialog-content2.mjs
-var _hoisted_131 = ["aria-level"];
+var _hoisted_130 = ["aria-level"];
 var _hoisted_221 = ["aria-label"];
-var _hoisted_311 = ["id"];
+var _hoisted_310 = ["id"];
 var __default__53 = defineComponent({ name: "ElDialogContent" });
 var _sfc_main70 = defineComponent({
   ...__default__53,
@@ -37396,7 +36040,7 @@ var _sfc_main70 = defineComponent({
     const { Close } = CloseComponents;
     const { dialogRef, headerRef, bodyId, ns, style } = inject(dialogInjectionKey);
     const { focusTrapRef } = inject(FOCUS_TRAP_INJECTION_KEY);
-    const dialogKls = computed(() => [
+    const dialogKls = computed2(() => [
       ns.b(),
       ns.is("fullscreen", props.fullscreen),
       ns.is("draggable", props.draggable),
@@ -37404,8 +36048,8 @@ var _sfc_main70 = defineComponent({
       { [ns.m("center")]: props.center }
     ]);
     const composedDialogRef = composeRefs(focusTrapRef, dialogRef);
-    const draggable2 = computed(() => props.draggable);
-    const overflow = computed(() => props.overflow);
+    const draggable2 = computed2(() => props.draggable);
+    const overflow = computed2(() => props.overflow);
     useDraggable(dialogRef, headerRef, draggable2, overflow);
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -37424,7 +36068,7 @@ var _sfc_main70 = defineComponent({
               role: "heading",
               "aria-level": _ctx.ariaLevel,
               class: normalizeClass(unref(ns).e("title"))
-            }, toDisplayString(_ctx.title), 11, _hoisted_131)
+            }, toDisplayString(_ctx.title), 11, _hoisted_130)
           ]),
           _ctx.showClose ? (openBlock(), createElementBlock("button", {
             key: 0,
@@ -37448,7 +36092,7 @@ var _sfc_main70 = defineComponent({
           class: normalizeClass(unref(ns).e("body"))
         }, [
           renderSlot(_ctx.$slots, "default")
-        ], 10, _hoisted_311),
+        ], 10, _hoisted_310),
         _ctx.$slots.footer ? (openBlock(), createElementBlock("footer", {
           key: 0,
           class: normalizeClass(unref(ns).e("footer"))
@@ -37543,7 +36187,7 @@ var useDialog = (props, targetRef) => {
   let openTimer = void 0;
   let closeTimer = void 0;
   const namespace = useGlobalConfig("namespace", defaultNamespace);
-  const style = computed(() => {
+  const style = computed2(() => {
     const style2 = {};
     const varPrefix = `--${namespace.value}-dialog`;
     if (!props.fullscreen) {
@@ -37556,7 +36200,7 @@ var useDialog = (props, targetRef) => {
     }
     return style2;
   });
-  const overlayDialogStyle = computed(() => {
+  const overlayDialogStyle = computed2(() => {
     if (props.alignCenter) {
       return { display: "flex" };
     }
@@ -37596,14 +36240,14 @@ var useDialog = (props, targetRef) => {
     }
   }
   function handleClose() {
-    function hide3(shouldCancel) {
+    function hide2(shouldCancel) {
       if (shouldCancel)
         return;
       closed.value = true;
       visible.value = false;
     }
     if (props.beforeClose) {
-      props.beforeClose(hide3);
+      props.beforeClose(hide2);
     } else {
       close2();
     }
@@ -37700,7 +36344,7 @@ var useDialog = (props, targetRef) => {
 };
 
 // node_modules/element-plus/es/components/dialog/src/dialog2.mjs
-var _hoisted_132 = ["aria-label", "aria-labelledby", "aria-describedby"];
+var _hoisted_131 = ["aria-label", "aria-labelledby", "aria-describedby"];
 var __default__54 = defineComponent({
   name: "ElDialog",
   inheritAttrs: false
@@ -37718,7 +36362,7 @@ var _sfc_main71 = defineComponent({
       replacement: "the header slot",
       version: "3.0.0",
       ref: "https://element-plus.org/en-US/component/dialog.html#slots"
-    }, computed(() => !!slots.title));
+    }, computed2(() => !!slots.title));
     const ns = useNamespace("dialog");
     const dialogRef = ref();
     const headerRef = ref();
@@ -37750,7 +36394,7 @@ var _sfc_main71 = defineComponent({
       style
     });
     const overlayEvent = useSameTarget(onModalClick);
-    const draggable2 = computed(() => props.draggable && !props.fullscreen);
+    const draggable2 = computed2(() => props.draggable && !props.fullscreen);
     expose({
       visible,
       dialogContentRef
@@ -37836,7 +36480,7 @@ var _sfc_main71 = defineComponent({
                     ]),
                     _: 3
                   }, 8, ["trapped", "onFocusAfterTrapped", "onFocusAfterReleased", "onFocusoutPrevented", "onReleaseRequested"])
-                ], 46, _hoisted_132)
+                ], 46, _hoisted_131)
               ]),
               _: 3
             }, 8, ["mask", "overlay-class", "z-index"]), [
@@ -37882,7 +36526,7 @@ var _sfc_main72 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("divider");
-    const dividerStyle = computed(() => {
+    const dividerStyle = computed2(() => {
       return ns.cssVar({
         "border-style": props.borderStyle
       });
@@ -37936,10 +36580,10 @@ var drawerProps = buildProps({
 var drawerEmits = dialogEmits;
 
 // node_modules/element-plus/es/components/drawer/src/drawer2.mjs
-var _hoisted_133 = ["aria-label", "aria-labelledby", "aria-describedby"];
+var _hoisted_132 = ["aria-label", "aria-labelledby", "aria-describedby"];
 var _hoisted_222 = ["id", "aria-level"];
-var _hoisted_312 = ["aria-label"];
-var _hoisted_46 = ["id"];
+var _hoisted_311 = ["aria-label"];
+var _hoisted_45 = ["id"];
 var __default__56 = defineComponent({
   name: "ElDrawer",
   inheritAttrs: false
@@ -37957,7 +36601,7 @@ var _sfc_main73 = defineComponent({
       replacement: "the header slot",
       version: "3.0.0",
       ref: "https://element-plus.org/en-US/component/drawer.html#slots"
-    }, computed(() => !!slots.title));
+    }, computed2(() => !!slots.title));
     const drawerRef = ref();
     const focusStartRef = ref();
     const ns = useNamespace("drawer");
@@ -37970,7 +36614,6 @@ var _sfc_main73 = defineComponent({
       rendered,
       titleId,
       bodyId,
-      zIndex: zIndex2,
       onModalClick,
       onOpenAutoFocus,
       onCloseAutoFocus,
@@ -37978,8 +36621,8 @@ var _sfc_main73 = defineComponent({
       onCloseRequested,
       handleClose
     } = useDialog(props, drawerRef);
-    const isHorizontal2 = computed(() => props.direction === "rtl" || props.direction === "ltr");
-    const drawerSize = computed(() => addUnit(props.size));
+    const isHorizontal2 = computed2(() => props.direction === "rtl" || props.direction === "ltr");
+    const drawerSize = computed2(() => addUnit(props.size));
     expose({
       handleClose,
       afterEnter,
@@ -38001,7 +36644,7 @@ var _sfc_main73 = defineComponent({
             withDirectives(createVNode(unref(ElOverlay), {
               mask: _ctx.modal,
               "overlay-class": _ctx.modalClass,
-              "z-index": unref(zIndex2),
+              "z-index": _ctx.zIndex,
               onClick: unref(onModalClick)
             }, {
               default: withCtx(() => [
@@ -38071,7 +36714,7 @@ var _sfc_main73 = defineComponent({
                             ]),
                             _: 1
                           }, 8, ["class"])
-                        ], 10, _hoisted_312)) : createCommentVNode("v-if", true)
+                        ], 10, _hoisted_311)) : createCommentVNode("v-if", true)
                       ], 2)) : createCommentVNode("v-if", true),
                       unref(rendered) ? (openBlock(), createElementBlock("div", {
                         key: 1,
@@ -38079,14 +36722,14 @@ var _sfc_main73 = defineComponent({
                         class: normalizeClass(unref(ns).e("body"))
                       }, [
                         renderSlot(_ctx.$slots, "default")
-                      ], 10, _hoisted_46)) : createCommentVNode("v-if", true),
+                      ], 10, _hoisted_45)) : createCommentVNode("v-if", true),
                       _ctx.$slots.footer ? (openBlock(), createElementBlock("div", {
                         key: 2,
                         class: normalizeClass(unref(ns).e("footer"))
                       }, [
                         renderSlot(_ctx.$slots, "footer")
                       ], 2)) : createCommentVNode("v-if", true)
-                    ], 16, _hoisted_133)
+                    ], 16, _hoisted_132)
                   ]),
                   _: 3
                 }, 8, ["trapped", "focus-trap-el", "focus-start-el", "onFocusAfterTrapped", "onFocusAfterReleased", "onFocusoutPrevented", "onReleaseRequested"])
@@ -38278,7 +36921,7 @@ var _sfc_main76 = defineComponent({
     const isClickFocus = ref(false);
     const rovingFocusGroupRef = ref(null);
     const { getItems } = inject(COLLECTION_INJECTION_KEY, void 0);
-    const rovingFocusGroupRootStyle = computed(() => {
+    const rovingFocusGroupRootStyle = computed2(() => {
       return [
         {
           outline: "none"
@@ -38330,7 +36973,7 @@ var _sfc_main76 = defineComponent({
     provide(ROVING_FOCUS_GROUP_INJECTION_KEY, {
       currentTabbedId: readonly(currentTabbedId),
       loop: toRef(props, "loop"),
-      tabIndex: computed(() => {
+      tabIndex: computed2(() => {
         return unref(isBackingOut) ? -1 : 0;
       }),
       rovingFocusGroupRef,
@@ -38452,10 +37095,10 @@ var _sfc_main78 = defineComponent({
         });
       }
     });
-    const isCurrentTab = computed(() => currentTabbedId.value === unref(id));
+    const isCurrentTab = computed2(() => currentTabbedId.value === unref(id));
     provide(ROVING_FOCUS_GROUP_ITEM_INJECTION_KEY, {
       rovingFocusGroupItemRef,
-      tabIndex: computed(() => unref(isCurrentTab) ? 0 : -1),
+      tabIndex: computed2(() => unref(isCurrentTab) ? 0 : -1),
       handleMousedown,
       handleFocus,
       handleKeydown
@@ -38609,13 +37252,13 @@ var _sfc_main79 = defineComponent({
     const currentTabId = ref(null);
     const isUsingKeyboard = ref(false);
     const triggerKeys = [EVENT_CODE.enter, EVENT_CODE.space, EVENT_CODE.down];
-    const wrapStyle = computed(() => ({
+    const wrapStyle = computed2(() => ({
       maxHeight: addUnit(props.maxHeight)
     }));
-    const dropdownTriggerKls = computed(() => [ns.m(dropdownSize.value)]);
-    const trigger = computed(() => castArray_default(props.trigger));
+    const dropdownTriggerKls = computed2(() => [ns.m(dropdownSize.value)]);
+    const trigger = computed2(() => castArray_default(props.trigger));
     const defaultTriggerId = useId().value;
-    const triggerId = computed(() => {
+    const triggerId = computed2(() => {
       return props.id || defaultTriggerId;
     });
     watch([triggeringElementRef, trigger], ([triggeringElement, trigger2], [prevTriggeringElement]) => {
@@ -38684,7 +37327,7 @@ var _sfc_main79 = defineComponent({
     }
     provide(DROPDOWN_INJECTION_KEY, {
       contentRef,
-      role: computed(() => props.role),
+      role: computed2(() => props.role),
       triggerId,
       isUsingKeyboard,
       onItemEnter,
@@ -38890,7 +37533,7 @@ var _sfc_main80 = defineComponent({
       handleMousedown
     } = inject(ROVING_FOCUS_GROUP_ITEM_INJECTION_KEY, void 0);
     const itemRef = composeRefs(dropdownCollectionItemRef, rovingFocusCollectionItemRef, rovingFocusGroupItemRef);
-    const role = computed(() => {
+    const role = computed2(() => {
       if (menuRole.value === "menu") {
         return "menuitem";
       } else if (menuRole.value === "navigation") {
@@ -38921,7 +37564,7 @@ var _sfc_main80 = defineComponent({
     };
   }
 });
-var _hoisted_134 = ["aria-disabled", "tabindex", "role"];
+var _hoisted_133 = ["aria-disabled", "tabindex", "role"];
 function _sfc_render14(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_icon = resolveComponent("el-icon");
   return openBlock(), createElementBlock(Fragment, null, [
@@ -38949,7 +37592,7 @@ function _sfc_render14(_ctx, _cache, $props, $setup, $data, $options) {
         _: 1
       })) : createCommentVNode("v-if", true),
       renderSlot(_ctx.$slots, "default")
-    ], 16, _hoisted_134)
+    ], 16, _hoisted_133)
   ], 64);
 }
 var ElDropdownItemImpl = _export_sfc(_sfc_main80, [["render", _sfc_render14], ["__file", "dropdown-item-impl.vue"]]);
@@ -38957,7 +37600,7 @@ var ElDropdownItemImpl = _export_sfc(_sfc_main80, [["render", _sfc_render14], ["
 // node_modules/element-plus/es/components/dropdown/src/useDropdown.mjs
 var useDropdown = () => {
   const elDropdown = inject("elDropdown", {});
-  const _elDropdownSize = computed(() => elDropdown == null ? void 0 : elDropdown.dropdownSize);
+  const _elDropdownSize = computed2(() => elDropdown == null ? void 0 : elDropdown.dropdownSize);
   return {
     elDropdown,
     _elDropdownSize
@@ -38979,7 +37622,7 @@ var _sfc_main81 = defineComponent({
     const { elDropdown } = useDropdown();
     const _instance = getCurrentInstance();
     const itemRef = ref(null);
-    const textContent = computed(() => {
+    const textContent = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = unref(itemRef)) == null ? void 0 : _a2.textContent) != null ? _b : "";
     });
@@ -39024,7 +37667,7 @@ var _sfc_main81 = defineComponent({
       }
       (_c = elDropdown.commandHandler) == null ? void 0 : _c.call(elDropdown, props.command, _instance, e);
     });
-    const propsAndAttrs = computed(() => {
+    const propsAndAttrs = computed2(() => {
       return { ...props, ...attrs };
     });
     return {
@@ -39089,7 +37732,7 @@ var _sfc_main82 = defineComponent({
       onMousedown
     } = inject(ROVING_FOCUS_GROUP_INJECTION_KEY, void 0);
     const { collectionRef: rovingFocusGroupCollectionRef } = inject(COLLECTION_INJECTION_KEY, void 0);
-    const dropdownKls = computed(() => {
+    const dropdownKls = computed2(() => {
       return [ns.b("menu"), ns.bm("menu", size3 == null ? void 0 : size3.value)];
     });
     const dropdownListWrapperRef = composeRefs(contentRef, dropdownCollectionRef, focusTrapRef, rovingFocusGroupRef, rovingFocusGroupCollectionRef);
@@ -39135,7 +37778,7 @@ var _sfc_main82 = defineComponent({
     };
   }
 });
-var _hoisted_135 = ["role", "aria-labelledby"];
+var _hoisted_134 = ["role", "aria-labelledby"];
 function _sfc_render16(_ctx, _cache, $props, $setup, $data, $options) {
   return openBlock(), createElementBlock("ul", {
     ref: _ctx.dropdownListWrapperRef,
@@ -39150,7 +37793,7 @@ function _sfc_render16(_ctx, _cache, $props, $setup, $data, $options) {
     onMousedown: _cache[3] || (_cache[3] = withModifiers((...args) => _ctx.onMousedown && _ctx.onMousedown(...args), ["self"]))
   }, [
     renderSlot(_ctx.$slots, "default")
-  ], 46, _hoisted_135);
+  ], 46, _hoisted_134);
 }
 var DropdownMenu = _export_sfc(_sfc_main82, [["render", _sfc_render16], ["__file", "dropdown-menu.vue"]]);
 
@@ -39163,19 +37806,19 @@ var ElDropdownItem = withNoopInstall(DropdownItem);
 var ElDropdownMenu = withNoopInstall(DropdownMenu);
 
 // node_modules/element-plus/es/components/empty/src/img-empty.mjs
-var _hoisted_136 = {
+var _hoisted_135 = {
   viewBox: "0 0 79 86",
   version: "1.1",
   xmlns: "http://www.w3.org/2000/svg",
   "xmlns:xlink": "http://www.w3.org/1999/xlink"
 };
 var _hoisted_223 = ["id"];
-var _hoisted_313 = ["stop-color"];
-var _hoisted_47 = ["stop-color"];
-var _hoisted_54 = ["id"];
-var _hoisted_63 = ["stop-color"];
-var _hoisted_73 = ["stop-color"];
-var _hoisted_83 = ["id"];
+var _hoisted_312 = ["stop-color"];
+var _hoisted_46 = ["stop-color"];
+var _hoisted_53 = ["id"];
+var _hoisted_62 = ["stop-color"];
+var _hoisted_72 = ["stop-color"];
+var _hoisted_82 = ["id"];
 var _hoisted_92 = {
   id: "Illustrations",
   stroke: "none",
@@ -39192,7 +37835,7 @@ var _hoisted_11 = {
   transform: "translate(1268.000000, 535.000000)"
 };
 var _hoisted_1210 = ["fill"];
-var _hoisted_137 = ["fill"];
+var _hoisted_136 = ["fill"];
 var _hoisted_142 = {
   id: "Group-Copy",
   transform: "translate(34.500000, 31.500000) scale(-1, 1) rotate(-25.000000) translate(-34.500000, -31.500000) translate(7.000000, 10.000000)"
@@ -39218,7 +37861,7 @@ var _sfc_main83 = defineComponent({
     const ns = useNamespace("empty");
     const id = useId();
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("svg", _hoisted_136, [
+      return openBlock(), createElementBlock("svg", _hoisted_135, [
         createBaseVNode("defs", null, [
           createBaseVNode("linearGradient", {
             id: `linearGradient-1-${unref(id)}`,
@@ -39230,11 +37873,11 @@ var _sfc_main83 = defineComponent({
             createBaseVNode("stop", {
               "stop-color": `var(${unref(ns).cssVarBlockName("fill-color-1")})`,
               offset: "0%"
-            }, null, 8, _hoisted_313),
+            }, null, 8, _hoisted_312),
             createBaseVNode("stop", {
               "stop-color": `var(${unref(ns).cssVarBlockName("fill-color-4")})`,
               offset: "100%"
-            }, null, 8, _hoisted_47)
+            }, null, 8, _hoisted_46)
           ], 8, _hoisted_223),
           createBaseVNode("linearGradient", {
             id: `linearGradient-2-${unref(id)}`,
@@ -39246,19 +37889,19 @@ var _sfc_main83 = defineComponent({
             createBaseVNode("stop", {
               "stop-color": `var(${unref(ns).cssVarBlockName("fill-color-1")})`,
               offset: "0%"
-            }, null, 8, _hoisted_63),
+            }, null, 8, _hoisted_62),
             createBaseVNode("stop", {
               "stop-color": `var(${unref(ns).cssVarBlockName("fill-color-6")})`,
               offset: "100%"
-            }, null, 8, _hoisted_73)
-          ], 8, _hoisted_54),
+            }, null, 8, _hoisted_72)
+          ], 8, _hoisted_53),
           createBaseVNode("rect", {
             id: `path-3-${unref(id)}`,
             x: "0",
             y: "0",
             width: "17",
             height: "36"
-          }, null, 8, _hoisted_83)
+          }, null, 8, _hoisted_82)
         ]),
         createBaseVNode("g", _hoisted_92, [
           createBaseVNode("g", _hoisted_10, [
@@ -39273,7 +37916,7 @@ var _sfc_main83 = defineComponent({
                 fill: `var(${unref(ns).cssVarBlockName("fill-color-7")})`,
                 transform: "translate(27.500000, 51.500000) scale(1, -1) translate(-27.500000, -51.500000) ",
                 points: "13 58 53 58 42 45 2 45"
-              }, null, 8, _hoisted_137),
+              }, null, 8, _hoisted_136),
               createBaseVNode("g", _hoisted_142, [
                 createBaseVNode("polygon", {
                   id: "Rectangle-Copy-10",
@@ -39354,7 +37997,7 @@ var emptyProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/empty/src/empty2.mjs
-var _hoisted_138 = ["src"];
+var _hoisted_137 = ["src"];
 var _hoisted_225 = { key: 1 };
 var __default__58 = defineComponent({
   name: "ElEmpty"
@@ -39366,8 +38009,8 @@ var _sfc_main84 = defineComponent({
     const props = __props;
     const { t } = useLocale();
     const ns = useNamespace("empty");
-    const emptyDescription = computed(() => props.description || t("el.table.emptyText"));
-    const imageStyle = computed(() => ({
+    const emptyDescription = computed2(() => props.description || t("el.table.emptyText"));
+    const imageStyle = computed2(() => ({
       width: addUnit(props.imageSize)
     }));
     return (_ctx, _cache) => {
@@ -39382,7 +38025,7 @@ var _sfc_main84 = defineComponent({
             key: 0,
             src: _ctx.image,
             ondragstart: "return false"
-          }, null, 8, _hoisted_138)) : renderSlot(_ctx.$slots, "image", { key: 1 }, () => [
+          }, null, 8, _hoisted_137)) : renderSlot(_ctx.$slots, "image", { key: 1 }, () => [
             createVNode(ImgEmpty)
           ])
         ], 6),
@@ -39452,7 +38095,7 @@ var imageViewerEmits = {
 };
 
 // node_modules/element-plus/es/components/image-viewer/src/image-viewer2.mjs
-var _hoisted_139 = ["src", "crossorigin"];
+var _hoisted_138 = ["src", "crossorigin"];
 var __default__59 = defineComponent({
   name: "ElImageViewer"
 });
@@ -39490,30 +38133,30 @@ var _sfc_main85 = defineComponent({
       enableTransition: false
     });
     const zIndex2 = ref((_a2 = props.zIndex) != null ? _a2 : nextZIndex());
-    const isSingle = computed(() => {
+    const isSingle = computed2(() => {
       const { urlList } = props;
       return urlList.length <= 1;
     });
-    const isFirst = computed(() => {
+    const isFirst = computed2(() => {
       return activeIndex.value === 0;
     });
-    const isLast = computed(() => {
+    const isLast = computed2(() => {
       return activeIndex.value === props.urlList.length - 1;
     });
-    const currentImg = computed(() => {
+    const currentImg = computed2(() => {
       return props.urlList[activeIndex.value];
     });
-    const arrowPrevKls = computed(() => [
+    const arrowPrevKls = computed2(() => [
       ns.e("btn"),
       ns.e("prev"),
       ns.is("disabled", !props.infinite && isFirst.value)
     ]);
-    const arrowNextKls = computed(() => [
+    const arrowNextKls = computed2(() => [
       ns.e("btn"),
       ns.e("next"),
       ns.is("disabled", !props.infinite && isLast.value)
     ]);
-    const imgStyle = computed(() => {
+    const imgStyle = computed2(() => {
       const { scale, deg, offsetX, offsetY, enableTransition } = transform2.value;
       let translateX = offsetX / scale;
       let translateY = offsetY / scale;
@@ -39543,7 +38186,7 @@ var _sfc_main85 = defineComponent({
       }
       return style;
     });
-    function hide3() {
+    function hide2() {
       unregisterEventListener();
       emit("close");
     }
@@ -39551,7 +38194,7 @@ var _sfc_main85 = defineComponent({
       const keydownHandler = throttle_default((e) => {
         switch (e.code) {
           case EVENT_CODE.esc:
-            props.closeOnPressEscape && hide3();
+            props.closeOnPressEscape && hide2();
             break;
           case EVENT_CODE.space:
             toggleMode();
@@ -39717,12 +38360,12 @@ var _sfc_main85 = defineComponent({
             }, [
               createBaseVNode("div", {
                 class: normalizeClass(unref(ns).e("mask")),
-                onClick: _cache[0] || (_cache[0] = withModifiers(($event) => _ctx.hideOnClickModal && hide3(), ["self"]))
+                onClick: _cache[0] || (_cache[0] = withModifiers(($event) => _ctx.hideOnClickModal && hide2(), ["self"]))
               }, null, 2),
               createCommentVNode(" CLOSE "),
               createBaseVNode("span", {
                 class: normalizeClass([unref(ns).e("btn"), unref(ns).e("close")]),
-                onClick: hide3
+                onClick: hide2
               }, [
                 createVNode(unref(ElIcon), null, {
                   default: withCtx(() => [
@@ -39825,7 +38468,7 @@ var _sfc_main85 = defineComponent({
                     onLoad: handleImgLoad,
                     onError: handleImgError,
                     onMousedown: handleMouseDown
-                  }, null, 46, _hoisted_139)), [
+                  }, null, 46, _hoisted_138)), [
                     [vShow, i === activeIndex.value]
                   ]);
                 }), 128))
@@ -39909,7 +38552,7 @@ var imageEmits = {
 };
 
 // node_modules/element-plus/es/components/image/src/image2.mjs
-var _hoisted_140 = ["src", "loading", "crossorigin"];
+var _hoisted_139 = ["src", "loading", "crossorigin"];
 var _hoisted_226 = { key: 0 };
 var __default__60 = defineComponent({
   name: "ElImage",
@@ -39935,24 +38578,24 @@ var _sfc_main86 = defineComponent({
     const supportLoading = isClient && "loading" in HTMLImageElement.prototype;
     let stopScrollListener;
     let stopWheelListener;
-    const imageKls = computed(() => [
+    const imageKls = computed2(() => [
       ns.e("inner"),
       preview.value && ns.e("preview"),
       isLoading.value && ns.is("loading")
     ]);
-    const containerStyle = computed(() => rawAttrs.style);
-    const imageStyle = computed(() => {
+    const containerStyle = computed2(() => rawAttrs.style);
+    const imageStyle = computed2(() => {
       const { fit } = props;
       if (isClient && fit) {
         return { objectFit: fit };
       }
       return {};
     });
-    const preview = computed(() => {
+    const preview = computed2(() => {
       const { previewSrcList } = props;
       return Array.isArray(previewSrcList) && previewSrcList.length > 0;
     });
-    const imageIndex = computed(() => {
+    const imageIndex = computed2(() => {
       const { previewSrcList, initialIndex } = props;
       let previewIndex = initialIndex;
       if (initialIndex > previewSrcList.length - 1) {
@@ -39960,7 +38603,7 @@ var _sfc_main86 = defineComponent({
       }
       return previewIndex;
     });
-    const isManual = computed(() => {
+    const isManual = computed2(() => {
       if (props.loading === "eager")
         return false;
       return !supportLoading && props.loading === "lazy" || props.lazy;
@@ -40082,7 +38725,7 @@ var _sfc_main86 = defineComponent({
             onClick: clickHandler,
             onLoad: handleLoad,
             onError: handleError
-          }), null, 16, _hoisted_140)) : createCommentVNode("v-if", true),
+          }), null, 16, _hoisted_139)) : createCommentVNode("v-if", true),
           isLoading.value ? (openBlock(), createElementBlock("div", {
             key: 1,
             class: normalizeClass(unref(ns).e("wrapper"))
@@ -40174,8 +38817,7 @@ var inputNumberProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  },
-  ...useAriaProps(["ariaLabel"])
+  }
 });
 var inputNumberEmits = {
   [CHANGE_EVENT]: (cur, prev) => prev !== cur,
@@ -40186,7 +38828,7 @@ var inputNumberEmits = {
 };
 
 // node_modules/element-plus/es/components/input-number/src/input-number2.mjs
-var _hoisted_141 = ["aria-label", "onKeydown"];
+var _hoisted_140 = ["aria-label", "onKeydown"];
 var _hoisted_227 = ["aria-label", "onKeydown"];
 var __default__61 = defineComponent({
   name: "ElInputNumber"
@@ -40205,9 +38847,9 @@ var _sfc_main87 = defineComponent({
       userInput: null
     });
     const { formItem } = useFormItem();
-    const minDisabled = computed(() => isNumber3(props.modelValue) && props.modelValue <= props.min);
-    const maxDisabled = computed(() => isNumber3(props.modelValue) && props.modelValue >= props.max);
-    const numPrecision = computed(() => {
+    const minDisabled = computed2(() => isNumber3(props.modelValue) && props.modelValue <= props.min);
+    const maxDisabled = computed2(() => isNumber3(props.modelValue) && props.modelValue >= props.max);
+    const numPrecision = computed2(() => {
       const stepPrecision = getPrecision(props.step);
       if (!isUndefined2(props.precision)) {
         if (stepPrecision > props.precision) {
@@ -40218,12 +38860,12 @@ var _sfc_main87 = defineComponent({
         return Math.max(getPrecision(props.modelValue), stepPrecision);
       }
     });
-    const controlsAtRight = computed(() => {
+    const controlsAtRight = computed2(() => {
       return props.controls && props.controlsPosition === "right";
     });
     const inputNumberSize = useFormSize();
     const inputNumberDisabled = useFormDisabled();
-    const displayValue = computed(() => {
+    const displayValue = computed2(() => {
       if (data.userInput !== null) {
         return data.userInput;
       }
@@ -40293,8 +38935,8 @@ var _sfc_main87 = defineComponent({
       setCurrentValueToModelValue();
     };
     const verifyValue = (value, update2) => {
-      const { max: max5, min: min5, step, precision, stepStrictly, valueOnClear } = props;
-      if (max5 < min5) {
+      const { max: max4, min: min4, step, precision, stepStrictly, valueOnClear } = props;
+      if (max4 < min4) {
         throwError("InputNumber", "min should not be greater than max.");
       }
       let newVal = Number(value);
@@ -40305,7 +38947,7 @@ var _sfc_main87 = defineComponent({
         if (valueOnClear === null) {
           return null;
         }
-        newVal = isString(valueOnClear) ? { min: min5, max: max5 }[valueOnClear] : valueOnClear;
+        newVal = isString(valueOnClear) ? { min: min4, max: max4 }[valueOnClear] : valueOnClear;
       }
       if (stepStrictly) {
         newVal = toPrecision(Math.round(newVal / step) * step, precision);
@@ -40313,8 +38955,8 @@ var _sfc_main87 = defineComponent({
       if (!isUndefined2(precision)) {
         newVal = toPrecision(newVal, precision);
       }
-      if (newVal > max5 || newVal < min5) {
-        newVal = newVal > max5 ? max5 : min5;
+      if (newVal > max4 || newVal < min4) {
+        newVal = newVal > max4 ? max4 : min4;
         update2 && emit(UPDATE_MODEL_EVENT, newVal);
       }
       return newVal;
@@ -40327,13 +38969,11 @@ var _sfc_main87 = defineComponent({
         emit(UPDATE_MODEL_EVENT, newVal);
         return;
       }
-      if (oldVal === newVal && value)
+      if (oldVal === newVal)
         return;
       data.userInput = null;
       emit(UPDATE_MODEL_EVENT, newVal);
-      if (oldVal !== newVal) {
-        emit(CHANGE_EVENT, newVal, oldVal);
-      }
+      emit(CHANGE_EVENT, newVal, oldVal);
       if (props.validateEvent) {
         (_a2 = formItem == null ? void 0 : formItem.validate) == null ? void 0 : _a2.call(formItem, "change").catch((err) => debugWarn(err));
       }
@@ -40377,10 +39017,6 @@ var _sfc_main87 = defineComponent({
         data.currentValue = props.modelValue;
       }
     };
-    const handleWheel = (e) => {
-      if (document.activeElement === e.target)
-        e.preventDefault();
-    };
     watch(() => props.modelValue, (value, oldValue) => {
       const newValue = verifyValue(value, true);
       if (data.userInput === null && newValue !== oldValue) {
@@ -40389,16 +39025,16 @@ var _sfc_main87 = defineComponent({
     }, { immediate: true });
     onMounted(() => {
       var _a2;
-      const { min: min5, max: max5, modelValue } = props;
+      const { min: min4, max: max4, modelValue } = props;
       const innerInput = (_a2 = input.value) == null ? void 0 : _a2.input;
       innerInput.setAttribute("role", "spinbutton");
-      if (Number.isFinite(max5)) {
-        innerInput.setAttribute("aria-valuemax", String(max5));
+      if (Number.isFinite(max4)) {
+        innerInput.setAttribute("aria-valuemax", String(max4));
       } else {
         innerInput.removeAttribute("aria-valuemax");
       }
-      if (Number.isFinite(min5)) {
-        innerInput.setAttribute("aria-valuemin", String(min5));
+      if (Number.isFinite(min4)) {
+        innerInput.setAttribute("aria-valuemin", String(min4));
       } else {
         innerInput.removeAttribute("aria-valuemin");
       }
@@ -40411,20 +39047,12 @@ var _sfc_main87 = defineComponent({
         }
         emit(UPDATE_MODEL_EVENT, val);
       }
-      innerInput.addEventListener("wheel", handleWheel, { passive: false });
     });
     onUpdated(() => {
       var _a2, _b;
       const innerInput = (_a2 = input.value) == null ? void 0 : _a2.input;
       innerInput == null ? void 0 : innerInput.setAttribute("aria-valuenow", `${(_b = data.currentValue) != null ? _b : ""}`);
     });
-    useDeprecated({
-      from: "label",
-      replacement: "aria-label",
-      version: "2.8.0",
-      scope: "el-input-number",
-      ref: "https://element-plus.org/en-US/component/input-number.html"
-    }, computed(() => !!props.label));
     expose({
       focus,
       blur
@@ -40438,7 +39066,7 @@ var _sfc_main87 = defineComponent({
           unref(ns).is("without-controls", !_ctx.controls),
           unref(ns).is("controls-right", unref(controlsAtRight))
         ]),
-        onDragstart: _cache[0] || (_cache[0] = withModifiers(() => {
+        onDragstart: _cache[1] || (_cache[1] = withModifiers(() => {
         }, ["prevent"]))
       }, [
         _ctx.controls ? withDirectives((openBlock(), createElementBlock("span", {
@@ -40448,15 +39076,13 @@ var _sfc_main87 = defineComponent({
           class: normalizeClass([unref(ns).e("decrease"), unref(ns).is("disabled", unref(minDisabled))]),
           onKeydown: withKeys(decrease, ["enter"])
         }, [
-          renderSlot(_ctx.$slots, "decrease-icon", {}, () => [
-            createVNode(unref(ElIcon), null, {
-              default: withCtx(() => [
-                unref(controlsAtRight) ? (openBlock(), createBlock(unref(arrow_down_default), { key: 0 })) : (openBlock(), createBlock(unref(minus_default), { key: 1 }))
-              ]),
-              _: 1
-            })
-          ])
-        ], 42, _hoisted_141)), [
+          createVNode(unref(ElIcon), null, {
+            default: withCtx(() => [
+              unref(controlsAtRight) ? (openBlock(), createBlock(unref(arrow_down_default), { key: 0 })) : (openBlock(), createBlock(unref(minus_default), { key: 1 }))
+            ]),
+            _: 1
+          })
+        ], 42, _hoisted_140)), [
           [unref(vRepeatClick), decrease]
         ]) : createCommentVNode("v-if", true),
         _ctx.controls ? withDirectives((openBlock(), createElementBlock("span", {
@@ -40466,14 +39092,12 @@ var _sfc_main87 = defineComponent({
           class: normalizeClass([unref(ns).e("increase"), unref(ns).is("disabled", unref(maxDisabled))]),
           onKeydown: withKeys(increase, ["enter"])
         }, [
-          renderSlot(_ctx.$slots, "increase-icon", {}, () => [
-            createVNode(unref(ElIcon), null, {
-              default: withCtx(() => [
-                unref(controlsAtRight) ? (openBlock(), createBlock(unref(arrow_up_default), { key: 0 })) : (openBlock(), createBlock(unref(plus_default), { key: 1 }))
-              ]),
-              _: 1
-            })
-          ])
+          createVNode(unref(ElIcon), null, {
+            default: withCtx(() => [
+              unref(controlsAtRight) ? (openBlock(), createBlock(unref(arrow_up_default), { key: 0 })) : (openBlock(), createBlock(unref(plus_default), { key: 1 }))
+            ]),
+            _: 1
+          })
         ], 42, _hoisted_227)), [
           [unref(vRepeatClick), increase]
         ]) : createCommentVNode("v-if", true),
@@ -40491,8 +39115,10 @@ var _sfc_main87 = defineComponent({
           max: _ctx.max,
           min: _ctx.min,
           name: _ctx.name,
-          "aria-label": _ctx.label || _ctx.ariaLabel,
+          label: _ctx.label,
           "validate-event": false,
+          onWheel: _cache[0] || (_cache[0] = withModifiers(() => {
+          }, ["prevent"])),
           onKeydown: [
             withKeys(withModifiers(increase, ["prevent"]), ["up"]),
             withKeys(withModifiers(decrease, ["prevent"]), ["down"])
@@ -40501,7 +39127,7 @@ var _sfc_main87 = defineComponent({
           onFocus: handleFocus,
           onInput: handleInput,
           onChange: handleInputChange
-        }, null, 8, ["id", "step", "model-value", "placeholder", "readonly", "disabled", "size", "max", "min", "name", "aria-label", "onKeydown"])
+        }, null, 8, ["id", "step", "model-value", "placeholder", "readonly", "disabled", "size", "max", "min", "name", "label", "onKeydown"])
       ], 34);
     };
   }
@@ -40537,7 +39163,7 @@ var linkEmits = {
 };
 
 // node_modules/element-plus/es/components/link/src/link2.mjs
-var _hoisted_143 = ["href", "target"];
+var _hoisted_141 = ["href", "target"];
 var __default__62 = defineComponent({
   name: "ElLink"
 });
@@ -40548,7 +39174,7 @@ var _sfc_main88 = defineComponent({
   setup(__props, { emit }) {
     const props = __props;
     const ns = useNamespace("link");
-    const linkKls = computed(() => [
+    const linkKls = computed2(() => [
       ns.b(),
       ns.m(props.type),
       ns.is("disabled", props.disabled),
@@ -40578,7 +39204,7 @@ var _sfc_main88 = defineComponent({
           renderSlot(_ctx.$slots, "default")
         ], 2)) : createCommentVNode("v-if", true),
         _ctx.$slots.icon ? renderSlot(_ctx.$slots, "icon", { key: 2 }) : createCommentVNode("v-if", true)
-      ], 10, _hoisted_143);
+      ], 10, _hoisted_141);
     };
   }
 });
@@ -40770,7 +39396,7 @@ var ElMenuCollapseTransition = _export_sfc(_sfc_main89, [["render", _sfc_render1
 
 // node_modules/element-plus/es/components/menu/src/use-menu.mjs
 function useMenu(instance, currentIndex) {
-  const indexPath = computed(() => {
+  const indexPath = computed2(() => {
     let parent2 = instance.parent;
     const path = [currentIndex.value];
     while (parent2.type.name !== "ElMenu") {
@@ -40781,7 +39407,7 @@ function useMenu(instance, currentIndex) {
     }
     return path;
   });
-  const parentMenu = computed(() => {
+  const parentMenu = computed2(() => {
     let parent2 = instance.parent;
     while (parent2 && !["ElMenu", "ElSubMenu"].includes(parent2.type.name)) {
       parent2 = parent2.parent;
@@ -40796,7 +39422,7 @@ function useMenu(instance, currentIndex) {
 
 // node_modules/element-plus/es/components/menu/src/use-menu-color.mjs
 function useMenuColor(props) {
-  const menuBarColor = computed(() => {
+  const menuBarColor = computed2(() => {
     const color = props.backgroundColor;
     if (!color) {
       return "";
@@ -40810,7 +39436,7 @@ function useMenuColor(props) {
 // node_modules/element-plus/es/components/menu/src/use-menu-css-var.mjs
 var useMenuCssVar = (props, level) => {
   const ns = useNamespace("menu");
-  return computed(() => {
+  return computed2(() => {
     return ns.cssVarBlock({
       "text-color": props.textColor || "",
       "hover-text-color": props.textColor || "",
@@ -40832,6 +39458,10 @@ var subMenuProps = buildProps({
   hideTimeout: Number,
   popperClass: String,
   disabled: Boolean,
+  popperAppendToBody: {
+    type: Boolean,
+    default: void 0
+  },
   teleported: {
     type: Boolean,
     default: void 0
@@ -40855,8 +39485,15 @@ var SubMenu2 = defineComponent({
   name: COMPONENT_NAME13,
   props: subMenuProps,
   setup(props, { slots, expose }) {
+    useDeprecated({
+      from: "popper-append-to-body",
+      replacement: "teleported",
+      scope: COMPONENT_NAME13,
+      version: "2.3.0",
+      ref: "https://element-plus.org/en-US/component/menu.html#submenu-attributes"
+    }, computed2(() => props.popperAppendToBody !== void 0));
     const instance = getCurrentInstance();
-    const { indexPath, parentMenu } = useMenu(instance, computed(() => props.index));
+    const { indexPath, parentMenu } = useMenu(instance, computed2(() => props.index));
     const nsMenu = useNamespace("menu");
     const nsSubMenu = useNamespace("sub-menu");
     const rootMenu = inject("rootMenu");
@@ -40871,19 +39508,20 @@ var SubMenu2 = defineComponent({
     const mouseInChild = ref(false);
     const verticalTitleRef = ref();
     const vPopper = ref(null);
-    const currentPlacement = computed(() => mode.value === "horizontal" && isFirstLevel.value ? "bottom-start" : "right-start");
-    const subMenuTitleIcon = computed(() => {
+    const currentPlacement = computed2(() => mode.value === "horizontal" && isFirstLevel.value ? "bottom-start" : "right-start");
+    const subMenuTitleIcon = computed2(() => {
       return mode.value === "horizontal" && isFirstLevel.value || mode.value === "vertical" && !rootMenu.props.collapse ? props.expandCloseIcon && props.expandOpenIcon ? opened.value ? props.expandOpenIcon : props.expandCloseIcon : arrow_down_default : props.collapseCloseIcon && props.collapseOpenIcon ? opened.value ? props.collapseOpenIcon : props.collapseCloseIcon : arrow_right_default;
     });
-    const isFirstLevel = computed(() => {
+    const isFirstLevel = computed2(() => {
       return subMenu.level === 0;
     });
-    const appendToBody = computed(() => {
-      const value = props.teleported;
+    const appendToBody = computed2(() => {
+      var _a2;
+      const value = (_a2 = props.teleported) != null ? _a2 : props.popperAppendToBody;
       return value === void 0 ? isFirstLevel.value : value;
     });
-    const menuTransitionName = computed(() => rootMenu.props.collapse ? `${nsMenu.namespace.value}-zoom-in-left` : `${nsMenu.namespace.value}-zoom-in-top`);
-    const fallbackPlacements = computed(() => mode.value === "horizontal" && isFirstLevel.value ? [
+    const menuTransitionName = computed2(() => rootMenu.props.collapse ? `${nsMenu.namespace.value}-zoom-in-left` : `${nsMenu.namespace.value}-zoom-in-top`);
+    const fallbackPlacements = computed2(() => mode.value === "horizontal" && isFirstLevel.value ? [
       "bottom-start",
       "bottom-end",
       "top-start",
@@ -40900,8 +39538,8 @@ var SubMenu2 = defineComponent({
       "top-start",
       "top-end"
     ]);
-    const opened = computed(() => rootMenu.openedMenus.includes(props.index));
-    const active = computed(() => {
+    const opened = computed2(() => rootMenu.openedMenus.includes(props.index));
+    const active = computed2(() => {
       let isActive = false;
       Object.values(items.value).forEach((item2) => {
         if (item2.active) {
@@ -40915,26 +39553,26 @@ var SubMenu2 = defineComponent({
       });
       return isActive;
     });
-    const mode = computed(() => rootMenu.props.mode);
+    const mode = computed2(() => rootMenu.props.mode);
     const item = reactive({
       index: props.index,
       indexPath,
       active
     });
     const ulStyle = useMenuCssVar(rootMenu.props, subMenu.level + 1);
-    const subMenuPopperOffset = computed(() => {
+    const subMenuPopperOffset = computed2(() => {
       var _a2;
       return (_a2 = props.popperOffset) != null ? _a2 : rootMenu.props.popperOffset;
     });
-    const subMenuPopperClass = computed(() => {
+    const subMenuPopperClass = computed2(() => {
       var _a2;
       return (_a2 = props.popperClass) != null ? _a2 : rootMenu.props.popperClass;
     });
-    const subMenuShowTimeout = computed(() => {
+    const subMenuShowTimeout = computed2(() => {
       var _a2;
       return (_a2 = props.showTimeout) != null ? _a2 : rootMenu.props.showTimeout;
     });
-    const subMenuHideTimeout = computed(() => {
+    const subMenuHideTimeout = computed2(() => {
       var _a2;
       return (_a2 = props.hideTimeout) != null ? _a2 : rootMenu.props.hideTimeout;
     });
@@ -41182,7 +39820,7 @@ var Menu2 = defineComponent({
     const activeIndex = ref(props.defaultActive);
     const items = ref({});
     const subMenus = ref({});
-    const isMenuPopup = computed(() => {
+    const isMenuPopup = computed2(() => {
       return props.mode === "horizontal" || props.mode === "vertical" && props.collapse;
     });
     const initMenu = () => {
@@ -41281,7 +39919,7 @@ var Menu2 = defineComponent({
       return sliceIndex2 === items2.length ? -1 : sliceIndex2;
     };
     const getIndexPath = (index) => subMenus.value[index].indexPath;
-    const debounce3 = (fn2, wait = 33.34) => {
+    const debounce2 = (fn2, wait = 33.34) => {
       let timmer;
       return () => {
         timmer && clearTimeout(timmer);
@@ -41292,15 +39930,13 @@ var Menu2 = defineComponent({
     };
     let isFirstTimeRender = true;
     const handleResize = () => {
-      if (sliceIndex.value === calcSliceIndex())
-        return;
       const callback = () => {
         sliceIndex.value = -1;
         nextTick(() => {
           sliceIndex.value = calcSliceIndex();
         });
       };
-      isFirstTimeRender ? callback() : debounce3(callback)();
+      isFirstTimeRender ? callback() : debounce2(callback)();
       isFirstTimeRender = false;
     };
     watch(() => props.defaultActive, (currentActive) => {
@@ -41466,7 +40102,7 @@ var _sfc_main90 = defineComponent({
     const subMenu = inject(`subMenu:${parentMenu.value.uid}`);
     if (!subMenu)
       throwError(COMPONENT_NAME14, "can not inject sub menu");
-    const active = computed(() => props.index === rootMenu.activeIndex);
+    const active = computed2(() => props.index === rootMenu.activeIndex);
     const item = reactive({
       index: props.index,
       indexPath,
@@ -41538,12 +40174,12 @@ function _sfc_render18(_ctx, _cache, $props, $setup, $data, $options) {
 }
 var MenuItem2 = _export_sfc(_sfc_main90, [["render", _sfc_render18], ["__file", "menu-item.vue"]]);
 
-// node_modules/element-plus/es/components/menu/src/menu-item-group.mjs
+// node_modules/element-plus/es/components/menu/src/menu-item-group2.mjs
 var menuItemGroupProps = {
   title: String
 };
 
-// node_modules/element-plus/es/components/menu/src/menu-item-group2.mjs
+// node_modules/element-plus/es/components/menu/src/menu-item-group.mjs
 var COMPONENT_NAME15 = "ElMenuItemGroup";
 var _sfc_main91 = defineComponent({
   name: COMPONENT_NAME15,
@@ -41600,7 +40236,7 @@ var pageHeaderEmits = {
 };
 
 // node_modules/element-plus/es/components/page-header/src/page-header2.mjs
-var _hoisted_144 = ["aria-label"];
+var _hoisted_143 = ["aria-label"];
 var __default__63 = defineComponent({
   name: "ElPageHeader"
 });
@@ -41612,7 +40248,7 @@ var _sfc_main92 = defineComponent({
     const slots = useSlots();
     const { t } = useLocale();
     const ns = useNamespace("page-header");
-    const kls = computed(() => {
+    const kls = computed2(() => {
       return [
         ns.b(),
         {
@@ -41660,7 +40296,7 @@ var _sfc_main92 = defineComponent({
                     _: 1
                   })) : createCommentVNode("v-if", true)
                 ])
-              ], 10, _hoisted_144)) : createCommentVNode("v-if", true),
+              ], 10, _hoisted_143)) : createCommentVNode("v-if", true),
               createBaseVNode("div", {
                 class: normalizeClass(unref(ns).e("title"))
               }, [
@@ -41722,7 +40358,7 @@ var paginationPrevEmits = {
 };
 
 // node_modules/element-plus/es/components/pagination/src/components/prev2.mjs
-var _hoisted_145 = ["disabled", "aria-label", "aria-disabled"];
+var _hoisted_144 = ["disabled", "aria-label", "aria-disabled"];
 var _hoisted_228 = { key: 0 };
 var __default__64 = defineComponent({
   name: "ElPaginationPrev"
@@ -41734,7 +40370,7 @@ var _sfc_main93 = defineComponent({
   setup(__props) {
     const props = __props;
     const { t } = useLocale();
-    const internalDisabled = computed(() => props.disabled || props.currentPage <= 1);
+    const internalDisabled = computed2(() => props.disabled || props.currentPage <= 1);
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("button", {
         type: "button",
@@ -41750,7 +40386,7 @@ var _sfc_main93 = defineComponent({
           ]),
           _: 1
         }))
-      ], 8, _hoisted_145);
+      ], 8, _hoisted_144);
     };
   }
 });
@@ -41776,7 +40412,7 @@ var paginationNextProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/pagination/src/components/next2.mjs
-var _hoisted_146 = ["disabled", "aria-label", "aria-disabled"];
+var _hoisted_145 = ["disabled", "aria-label", "aria-disabled"];
 var _hoisted_229 = { key: 0 };
 var __default__65 = defineComponent({
   name: "ElPaginationNext"
@@ -41788,7 +40424,7 @@ var _sfc_main94 = defineComponent({
   setup(__props) {
     const props = __props;
     const { t } = useLocale();
-    const internalDisabled = computed(() => props.disabled || props.currentPage === props.pageCount || props.pageCount === 0);
+    const internalDisabled = computed2(() => props.disabled || props.currentPage === props.pageCount || props.pageCount === 0);
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("button", {
         type: "button",
@@ -41804,7 +40440,7 @@ var _sfc_main94 = defineComponent({
           ]),
           _: 1
         }))
-      ], 8, _hoisted_146);
+      ], 8, _hoisted_145);
     };
   }
 });
@@ -41818,14 +40454,14 @@ var selectKey = Symbol("ElSelect");
 function useOption(props, states) {
   const select = inject(selectKey);
   const selectGroup = inject(selectGroupKey, { disabled: false });
-  const itemSelected = computed(() => {
+  const itemSelected = computed2(() => {
     if (select.props.multiple) {
-      return contains2(select.props.modelValue, props.value);
+      return contains(select.props.modelValue, props.value);
     } else {
-      return contains2([select.props.modelValue], props.value);
+      return contains([select.props.modelValue], props.value);
     }
   });
-  const limitReached = computed(() => {
+  const limitReached = computed2(() => {
     if (select.props.multiple) {
       const modelValue = select.props.modelValue || [];
       return !itemSelected.value && modelValue.length >= select.props.multipleLimit && select.props.multipleLimit > 0;
@@ -41833,17 +40469,17 @@ function useOption(props, states) {
       return false;
     }
   });
-  const currentLabel = computed(() => {
+  const currentLabel = computed2(() => {
     return props.label || (isObject(props.value) ? "" : props.value);
   });
-  const currentValue = computed(() => {
+  const currentValue = computed2(() => {
     return props.value || props.label || "";
   });
-  const isDisabled = computed(() => {
+  const isDisabled = computed2(() => {
     return props.disabled || states.groupDisabled || limitReached.value;
   });
   const instance = getCurrentInstance();
-  const contains2 = (arr = [], target2) => {
+  const contains = (arr = [], target2) => {
     if (!isObject(props.value)) {
       return arr && arr.includes(target2);
     } else {
@@ -41909,7 +40545,7 @@ var _sfc_main95 = defineComponent({
   setup(props) {
     const ns = useNamespace("select");
     const id = useId();
-    const containerKls = computed(() => [
+    const containerKls = computed2(() => [
       ns.be("dropdown", "item"),
       ns.is("disabled", unref(isDisabled)),
       ns.is("selected", unref(itemSelected)),
@@ -41968,7 +40604,7 @@ var _sfc_main95 = defineComponent({
     };
   }
 });
-var _hoisted_147 = ["id", "aria-disabled", "aria-selected"];
+var _hoisted_146 = ["id", "aria-disabled", "aria-selected"];
 function _sfc_render20(_ctx, _cache, $props, $setup, $data, $options) {
   return withDirectives((openBlock(), createElementBlock("li", {
     id: _ctx.id,
@@ -41982,7 +40618,7 @@ function _sfc_render20(_ctx, _cache, $props, $setup, $data, $options) {
     renderSlot(_ctx.$slots, "default", {}, () => [
       createBaseVNode("span", null, toDisplayString(_ctx.currentLabel), 1)
     ])
-  ], 42, _hoisted_147)), [
+  ], 42, _hoisted_146)), [
     [vShow, _ctx.visible]
   ]);
 }
@@ -41995,9 +40631,9 @@ var _sfc_main96 = defineComponent({
   setup() {
     const select = inject(selectKey);
     const ns = useNamespace("select");
-    const popperClass = computed(() => select.props.popperClass);
-    const isMultiple = computed(() => select.props.multiple);
-    const isFitInputWidth = computed(() => select.props.fitInputWidth);
+    const popperClass = computed2(() => select.props.popperClass);
+    const isMultiple = computed2(() => select.props.multiple);
+    const isFitInputWidth = computed2(() => select.props.fitInputWidth);
     const minWidth = ref("");
     function updateMinWidth() {
       var _a2;
@@ -42088,6 +40724,13 @@ var useSelect = (props, emit) => {
     menuVisibleOnFocus: false,
     isBeforeHide: false
   });
+  useDeprecated({
+    from: "suffixTransition",
+    replacement: "override style scheme",
+    version: "2.3.0",
+    scope: "props",
+    ref: "https://element-plus.org/en-US/component/select.html#select-attributes"
+  }, computed2(() => props.suffixTransition === false));
   const selectRef = ref(null);
   const selectionRef = ref(null);
   const tooltipRef = ref(null);
@@ -42122,20 +40765,20 @@ var useSelect = (props, emit) => {
   const { inputId } = useFormItemInputId(props, {
     formItemContext: formItem
   });
-  const { valueOnClear, isEmptyValue: isEmptyValue2 } = useEmptyValues(props);
-  const selectDisabled = computed(() => props.disabled || (form == null ? void 0 : form.disabled));
-  const hasModelValue = computed(() => {
-    return props.multiple ? isArray(props.modelValue) && props.modelValue.length > 0 : !isEmptyValue2(props.modelValue);
+  const selectDisabled = computed2(() => props.disabled || (form == null ? void 0 : form.disabled));
+  const hasModelValue = computed2(() => {
+    return props.multiple ? isArray(props.modelValue) && props.modelValue.length > 0 : props.modelValue !== void 0 && props.modelValue !== null && props.modelValue !== "";
   });
-  const showClose = computed(() => {
-    return props.clearable && !selectDisabled.value && states.inputHovering && hasModelValue.value;
+  const showClose = computed2(() => {
+    const criteria = props.clearable && !selectDisabled.value && states.inputHovering && hasModelValue.value;
+    return criteria;
   });
-  const iconComponent = computed(() => props.remote && props.filterable && !props.remoteShowSuffix ? "" : props.suffixIcon);
-  const iconReverse = computed(() => nsSelect.is("reverse", iconComponent.value && expanded.value));
-  const validateState = computed(() => (formItem == null ? void 0 : formItem.validateState) || "");
-  const validateIcon = computed(() => ValidateComponentsMap[validateState.value]);
-  const debounce$1 = computed(() => props.remote ? 300 : 0);
-  const emptyText = computed(() => {
+  const iconComponent = computed2(() => props.remote && props.filterable && !props.remoteShowSuffix ? "" : props.suffixIcon);
+  const iconReverse = computed2(() => nsSelect.is("reverse", iconComponent.value && expanded.value && props.suffixTransition));
+  const validateState = computed2(() => (formItem == null ? void 0 : formItem.validateState) || "");
+  const validateIcon = computed2(() => ValidateComponentsMap[validateState.value]);
+  const debounce$1 = computed2(() => props.remote ? 300 : 0);
+  const emptyText = computed2(() => {
     if (props.loading) {
       return props.loadingText || t("el.select.loading");
     } else {
@@ -42150,8 +40793,8 @@ var useSelect = (props, emit) => {
     }
     return null;
   });
-  const filteredOptionsCount = computed(() => optionsArray.value.filter((option) => option.visible).length);
-  const optionsArray = computed(() => {
+  const filteredOptionsCount = computed2(() => optionsArray.value.filter((option) => option.visible).length);
+  const optionsArray = computed2(() => {
     const list = Array.from(states.options.values());
     const newList = [];
     states.optionValues.forEach((item) => {
@@ -42162,8 +40805,8 @@ var useSelect = (props, emit) => {
     });
     return newList.length >= list.length ? newList : list;
   });
-  const cachedOptionsArray = computed(() => Array.from(states.cachedOptions.values()));
-  const showNewOption = computed(() => {
+  const cachedOptionsArray = computed2(() => Array.from(states.cachedOptions.values()));
+  const showNewOption = computed2(() => {
     const hasExistingOption = optionsArray.value.filter((option) => {
       return !option.created;
     }).some((option) => {
@@ -42177,13 +40820,12 @@ var useSelect = (props, emit) => {
     if (props.filterable && props.remote && isFunction(props.remoteMethod))
       return;
     optionsArray.value.forEach((option) => {
-      var _a2;
-      (_a2 = option.updateOption) == null ? void 0 : _a2.call(option, states.inputValue);
+      option.updateOption(states.inputValue);
     });
   };
   const selectSize = useFormSize();
-  const collapseTagSize = computed(() => ["small"].includes(selectSize.value) ? "small" : "default");
-  const dropdownMenuVisible = computed({
+  const collapseTagSize = computed2(() => ["small"].includes(selectSize.value) ? "small" : "default");
+  const dropdownMenuVisible = computed2({
     get() {
       return expanded.value && emptyText.value !== false;
     },
@@ -42191,18 +40833,17 @@ var useSelect = (props, emit) => {
       expanded.value = val;
     }
   });
-  const shouldShowPlaceholder = computed(() => {
+  const shouldShowPlaceholder = computed2(() => {
     if (isArray(props.modelValue)) {
       return props.modelValue.length === 0 && !states.inputValue;
     }
     return props.filterable ? !states.inputValue : true;
   });
-  const currentPlaceholder = computed(() => {
+  const currentPlaceholder = computed2(() => {
     var _a2;
     const _placeholder = (_a2 = props.placeholder) != null ? _a2 : t("el.select.placeholder");
     return props.multiple || !hasModelValue.value ? _placeholder : states.selectedLabel;
   });
-  const mouseEnterEventName = computed(() => isIOS ? null : "mouseenter");
   watch(() => props.modelValue, (val, oldVal) => {
     if (props.multiple) {
       if (props.filterable && !props.reserveKeyword) {
@@ -42308,9 +40949,7 @@ var useSelect = (props, emit) => {
         option = {
           value,
           currentLabel: cachedOption.currentLabel,
-          get isDisabled() {
-            return cachedOption.isDisabled;
-          }
+          isDisabled: cachedOption.isDisabled
         };
         break;
       }
@@ -42330,7 +40969,15 @@ var useSelect = (props, emit) => {
         return getValueKey(item) === getValueKey(states.selected);
       });
     } else {
-      states.hoveringIndex = optionsArray.value.findIndex((item) => states.selected.some((selected) => getValueKey(selected) === getValueKey(item)));
+      if (states.selected.length > 0) {
+        states.hoveringIndex = Math.min(...states.selected.map((selected) => {
+          return optionsArray.value.findIndex((item) => {
+            return getValueKey(item) === getValueKey(selected);
+          });
+        }));
+      } else {
+        states.hoveringIndex = -1;
+      }
     }
   };
   const resetSelectionWidth = () => {
@@ -42372,7 +41019,7 @@ var useSelect = (props, emit) => {
       emit(CHANGE_EVENT, val);
     }
   };
-  const getLastNotDisabledIndex = (value) => findLastIndex_default(value, (it) => !states.disabledOptions.has(it));
+  const getLastNotDisabledIndex = (value) => findLastIndex_default(value, (it2) => !states.disabledOptions.has(it2));
   const deletePrevTag = (e) => {
     if (!props.multiple)
       return;
@@ -42383,11 +41030,9 @@ var useSelect = (props, emit) => {
       const lastNotDisabledIndex = getLastNotDisabledIndex(value);
       if (lastNotDisabledIndex < 0)
         return;
-      const removeTagValue = value[lastNotDisabledIndex];
       value.splice(lastNotDisabledIndex, 1);
       emit(UPDATE_MODEL_EVENT, value);
       emitChange(value);
-      emit("remove-tag", removeTagValue);
     }
   };
   const deleteTag = (event, tag) => {
@@ -42404,8 +41049,8 @@ var useSelect = (props, emit) => {
   };
   const deleteSelected = (event) => {
     event.stopPropagation();
-    const value = props.multiple ? [] : valueOnClear.value;
-    if (props.multiple) {
+    const value = props.multiple ? [] : "";
+    if (!isString(value)) {
       for (const item of states.selected) {
         if (item.isDisabled)
           value.push(item.value);
@@ -42494,12 +41139,11 @@ var useSelect = (props, emit) => {
     handleCompositionUpdate,
     handleCompositionEnd
   } = useInput((e) => onInput(e));
-  const popperRef = computed(() => {
+  const popperRef = computed2(() => {
     var _a2, _b;
     return (_b = (_a2 = tooltipRef.value) == null ? void 0 : _a2.popperRef) == null ? void 0 : _b.contentRef;
   });
   const handleMenuEnter = () => {
-    states.isBeforeHide = false;
     nextTick(() => scrollToOption(states.selected));
   };
   const focus = () => {
@@ -42529,8 +41173,6 @@ var useSelect = (props, emit) => {
   const toggleMenu = () => {
     if (selectDisabled.value)
       return;
-    if (isIOS)
-      states.inputHovering = true;
     if (states.menuVisibleOnFocus) {
       states.menuVisibleOnFocus = false;
     } else {
@@ -42549,14 +41191,14 @@ var useSelect = (props, emit) => {
   const getValueKey = (item) => {
     return isObject(item.value) ? get_default(item.value, props.valueKey) : item.value;
   };
-  const optionsAllDisabled = computed(() => optionsArray.value.filter((option) => option.visible).every((option) => option.disabled));
-  const showTagList = computed(() => {
+  const optionsAllDisabled = computed2(() => optionsArray.value.filter((option) => option.visible).every((option) => option.disabled));
+  const showTagList = computed2(() => {
     if (!props.multiple) {
       return [];
     }
     return props.collapseTags ? states.selected.slice(0, props.maxCollapseTags) : states.selected;
   });
-  const collapseTagList = computed(() => {
+  const collapseTagList = computed2(() => {
     if (!props.multiple) {
       return [];
     }
@@ -42594,15 +41236,15 @@ var useSelect = (props, emit) => {
     const style = window.getComputedStyle(selectionRef.value);
     return Number.parseFloat(style.gap || "6px");
   };
-  const tagStyle = computed(() => {
+  const tagStyle = computed2(() => {
     const gapWidth = getGapWidth();
     const maxWidth = collapseItemRef.value && props.maxCollapseTags === 1 ? states.selectionWidth - states.collapseItemWidth - gapWidth : states.selectionWidth;
     return { maxWidth: `${maxWidth}px` };
   });
-  const collapseTagStyle = computed(() => {
+  const collapseTagStyle = computed2(() => {
     return { maxWidth: `${states.selectionWidth}px` };
   });
-  const inputStyle = computed(() => ({
+  const inputStyle = computed2(() => ({
     width: `${Math.max(states.calculatorWidth, MINIMUM_INPUT_WIDTH)}px`
   }));
   if (props.multiple && !isArray(props.modelValue)) {
@@ -42645,7 +41287,6 @@ var useSelect = (props, emit) => {
     hasModelValue,
     shouldShowPlaceholder,
     currentPlaceholder,
-    mouseEnterEventName,
     showClose,
     iconComponent,
     iconReverse,
@@ -42816,17 +41457,19 @@ var SelectProps = buildProps({
     default: true
   },
   remoteShowSuffix: Boolean,
+  suffixTransition: {
+    type: Boolean,
+    default: true
+  },
   placement: {
     type: definePropType(String),
-    values: placements,
+    values: Ee,
     default: "bottom-start"
   },
-  fallbackPlacements: {
-    type: definePropType(Array),
-    default: ["bottom-start", "top-start", "right", "left"]
-  },
-  ...useEmptyValuesProps,
-  ...useAriaProps(["ariaLabel"])
+  ariaLabel: {
+    type: String,
+    default: void 0
+  }
 });
 
 // node_modules/element-plus/es/components/select/src/select2.mjs
@@ -42872,9 +41515,8 @@ var _sfc_main97 = defineComponent({
     };
   }
 });
-var _hoisted_148 = ["id", "name", "disabled", "autocomplete", "readonly", "aria-activedescendant", "aria-controls", "aria-expanded", "aria-label"];
+var _hoisted_147 = ["id", "disabled", "autocomplete", "readonly", "aria-activedescendant", "aria-controls", "aria-expanded", "aria-label"];
 var _hoisted_230 = ["textContent"];
-var _hoisted_314 = { key: 1 };
 function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_tag = resolveComponent("el-tag");
   const _component_el_tooltip = resolveComponent("el-tooltip");
@@ -42887,9 +41529,9 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
   return withDirectives((openBlock(), createElementBlock("div", {
     ref: "selectRef",
     class: normalizeClass([_ctx.nsSelect.b(), _ctx.nsSelect.m(_ctx.selectSize)]),
-    [toHandlerKey(_ctx.mouseEnterEventName)]: _cache[16] || (_cache[16] = ($event) => _ctx.states.inputHovering = true),
-    onMouseleave: _cache[17] || (_cache[17] = ($event) => _ctx.states.inputHovering = false),
-    onClick: _cache[18] || (_cache[18] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["prevent", "stop"]))
+    onMouseenter: _cache[14] || (_cache[14] = ($event) => _ctx.states.inputHovering = true),
+    onMouseleave: _cache[15] || (_cache[15] = ($event) => _ctx.states.inputHovering = false),
+    onClick: _cache[16] || (_cache[16] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["stop"]))
   }, [
     createVNode(_component_el_tooltip, {
       ref: "tooltipRef",
@@ -42898,7 +41540,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
       teleported: _ctx.teleported,
       "popper-class": [_ctx.nsSelect.e("popper"), _ctx.popperClass],
       "popper-options": _ctx.popperOptions,
-      "fallback-placements": _ctx.fallbackPlacements,
+      "fallback-placements": ["bottom-start", "top-start", "right", "left"],
       effect: _ctx.effect,
       pure: "",
       trigger: "click",
@@ -42907,7 +41549,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
       "gpu-acceleration": false,
       persistent: _ctx.persistent,
       onBeforeShow: _ctx.handleMenuEnter,
-      onHide: _cache[15] || (_cache[15] = ($event) => _ctx.states.isBeforeHide = false)
+      onHide: _cache[13] || (_cache[13] = ($event) => _ctx.states.isBeforeHide = false)
     }, {
       default: withCtx(() => {
         var _a2;
@@ -42953,14 +41595,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
                       default: withCtx(() => [
                         createBaseVNode("span", {
                           class: normalizeClass(_ctx.nsSelect.e("tags-text"))
-                        }, [
-                          renderSlot(_ctx.$slots, "label", {
-                            label: item.currentLabel,
-                            value: item.value
-                          }, () => [
-                            createTextVNode(toDisplayString(item.currentLabel), 1)
-                          ])
-                        ], 2)
+                        }, toDisplayString(item.currentLabel), 3)
                       ]),
                       _: 2
                     }, 1032, ["closable", "size", "type", "style", "onClose"])
@@ -43017,14 +41652,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
                             default: withCtx(() => [
                               createBaseVNode("span", {
                                 class: normalizeClass(_ctx.nsSelect.e("tags-text"))
-                              }, [
-                                renderSlot(_ctx.$slots, "label", {
-                                  label: item.currentLabel,
-                                  value: item.value
-                                }, () => [
-                                  createTextVNode(toDisplayString(item.currentLabel), 1)
-                                ])
-                              ], 2)
+                              }, toDisplayString(item.currentLabel), 3)
                             ]),
                             _: 2
                           }, 1032, ["closable", "size", "type", "onClose"])
@@ -43032,7 +41660,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
                       }), 128))
                     ], 2)
                   ]),
-                  _: 3
+                  _: 1
                 }, 8, ["disabled", "effect", "teleported"])) : createCommentVNode("v-if", true)
               ]) : createCommentVNode("v-if", true),
               !_ctx.selectDisabled ? (openBlock(), createElementBlock("div", {
@@ -43048,7 +41676,6 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
                   ref: "inputRef",
                   "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => _ctx.states.inputValue = $event),
                   type: "text",
-                  name: _ctx.name,
                   class: normalizeClass([_ctx.nsSelect.e("input"), _ctx.nsSelect.is(_ctx.selectSize)]),
                   disabled: _ctx.selectDisabled,
                   autocomplete: _ctx.autocomplete,
@@ -43076,7 +41703,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
                   onCompositionend: _cache[10] || (_cache[10] = (...args) => _ctx.handleCompositionEnd && _ctx.handleCompositionEnd(...args)),
                   onInput: _cache[11] || (_cache[11] = (...args) => _ctx.onInput && _ctx.onInput(...args)),
                   onClick: _cache[12] || (_cache[12] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["stop"]))
-                }, null, 46, _hoisted_148), [
+                }, null, 46, _hoisted_147), [
                   [vModelText, _ctx.states.inputValue]
                 ]),
                 _ctx.filterable ? (openBlock(), createElementBlock("span", {
@@ -43095,13 +41722,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
                   _ctx.nsSelect.is("transparent", !_ctx.hasModelValue || _ctx.expanded && !_ctx.states.inputValue)
                 ])
               }, [
-                _ctx.hasModelValue ? renderSlot(_ctx.$slots, "label", {
-                  key: 0,
-                  label: _ctx.currentPlaceholder,
-                  value: _ctx.modelValue
-                }, () => [
-                  createBaseVNode("span", null, toDisplayString(_ctx.currentPlaceholder), 1)
-                ]) : (openBlock(), createElementBlock("span", _hoisted_314, toDisplayString(_ctx.currentPlaceholder), 1))
+                createBaseVNode("span", null, toDisplayString(_ctx.currentPlaceholder), 1)
               ], 2)) : createCommentVNode("v-if", true)
             ], 2),
             createBaseVNode("div", {
@@ -43145,9 +41766,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
           default: withCtx(() => [
             _ctx.$slots.header ? (openBlock(), createElementBlock("div", {
               key: 0,
-              class: normalizeClass(_ctx.nsSelect.be("dropdown", "header")),
-              onClick: _cache[13] || (_cache[13] = withModifiers(() => {
-              }, ["stop"]))
+              class: normalizeClass(_ctx.nsSelect.be("dropdown", "header"))
             }, [
               renderSlot(_ctx.$slots, "header")
             ], 2)) : createCommentVNode("v-if", true),
@@ -43194,9 +41813,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
             ], 2)) : createCommentVNode("v-if", true),
             _ctx.$slots.footer ? (openBlock(), createElementBlock("div", {
               key: 3,
-              class: normalizeClass(_ctx.nsSelect.be("dropdown", "footer")),
-              onClick: _cache[14] || (_cache[14] = withModifiers(() => {
-              }, ["stop"]))
+              class: normalizeClass(_ctx.nsSelect.be("dropdown", "footer"))
             }, [
               renderSlot(_ctx.$slots, "footer")
             ], 2)) : createCommentVNode("v-if", true)
@@ -43205,8 +41822,8 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
         }, 512)
       ]),
       _: 3
-    }, 8, ["visible", "placement", "teleported", "popper-class", "popper-options", "fallback-placements", "effect", "transition", "persistent", "onBeforeShow"])
-  ], 16)), [
+    }, 8, ["visible", "placement", "teleported", "popper-class", "popper-options", "effect", "transition", "persistent", "onBeforeShow"])
+  ], 34)), [
     [_directive_click_outside, _ctx.handleClickOutside, _ctx.popperRef]
   ]);
 }
@@ -43228,24 +41845,21 @@ var _sfc_main98 = defineComponent({
     provide(selectGroupKey, reactive({
       ...toRefs(props)
     }));
-    const visible = computed(() => children.value.some((option) => option.visible === true));
-    const isOption = (node) => {
-      var _a2, _b;
-      return ((_a2 = node.type) == null ? void 0 : _a2.name) === "ElOption" && !!((_b = node.component) == null ? void 0 : _b.proxy);
-    };
+    const visible = computed2(() => children.value.some((option) => option.visible === true));
     const flattedChildren2 = (node) => {
-      const Nodes = castArray_default(node);
       const children2 = [];
-      Nodes.forEach((child) => {
-        var _a2, _b;
-        if (isOption(child)) {
-          children2.push(child.component.proxy);
-        } else if ((_a2 = child.children) == null ? void 0 : _a2.length) {
-          children2.push(...flattedChildren2(child.children));
-        } else if ((_b = child.component) == null ? void 0 : _b.subTree) {
-          children2.push(...flattedChildren2(child.component.subTree));
-        }
-      });
+      if (isArray(node.children)) {
+        node.children.forEach((child) => {
+          var _a2, _b;
+          if (child.type && child.type.name === "ElOption" && child.component && child.component.proxy) {
+            children2.push(child.component.proxy);
+          } else if ((_a2 = child.children) == null ? void 0 : _a2.length) {
+            children2.push(...flattedChildren2(child));
+          } else if ((_b = child.component) == null ? void 0 : _b.subTree) {
+            children2.push(...flattedChildren2(child.component.subTree));
+          }
+        });
+      }
       return children2;
     };
     const updateChildren = () => {
@@ -43344,7 +41958,7 @@ var _sfc_main99 = defineComponent({
     watch(() => props.pageSize, (newVal) => {
       innerPageSize.value = newVal;
     });
-    const innerPageSizes = computed(() => props.pageSizes);
+    const innerPageSizes = computed2(() => props.pageSizes);
     function handleChange(val) {
       var _a2;
       if (val !== innerPageSize.value) {
@@ -43391,7 +42005,7 @@ var paginationJumperProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/pagination/src/components/jumper2.mjs
-var _hoisted_149 = ["disabled"];
+var _hoisted_148 = ["disabled"];
 var __default__67 = defineComponent({
   name: "ElPaginationJumper"
 });
@@ -43403,7 +42017,7 @@ var _sfc_main100 = defineComponent({
     const ns = useNamespace("pagination");
     const { pageCount, disabled, currentPage, changeEvent } = usePagination();
     const userInput = ref();
-    const innerValue = computed(() => {
+    const innerValue = computed2(() => {
       var _a2;
       return (_a2 = userInput.value) != null ? _a2 : currentPage == null ? void 0 : currentPage.value;
     });
@@ -43431,15 +42045,15 @@ var _sfc_main100 = defineComponent({
           disabled: unref(disabled),
           "model-value": unref(innerValue),
           "validate-event": false,
-          "aria-label": unref(t)("el.pagination.page"),
+          label: unref(t)("el.pagination.page"),
           type: "number",
           "onUpdate:modelValue": handleInput,
           onChange: handleChange
-        }, null, 8, ["size", "class", "max", "disabled", "model-value", "aria-label"]),
+        }, null, 8, ["size", "class", "max", "disabled", "model-value", "label"]),
         createBaseVNode("span", {
           class: normalizeClass([unref(ns).e("classifier")])
         }, toDisplayString(unref(t)("el.pagination.pageClassifier")), 3)
-      ], 10, _hoisted_149);
+      ], 10, _hoisted_148);
     };
   }
 });
@@ -43454,7 +42068,7 @@ var paginationTotalProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/pagination/src/components/total2.mjs
-var _hoisted_150 = ["disabled"];
+var _hoisted_149 = ["disabled"];
 var __default__68 = defineComponent({
   name: "ElPaginationTotal"
 });
@@ -43471,7 +42085,7 @@ var _sfc_main101 = defineComponent({
         disabled: unref(disabled)
       }, toDisplayString(unref(t)("el.pagination.total", {
         total: _ctx.total
-      })), 11, _hoisted_150);
+      })), 11, _hoisted_149);
     };
   }
 });
@@ -43495,12 +42109,12 @@ var paginationPagerProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/pagination/src/components/pager2.mjs
-var _hoisted_151 = ["onKeyup"];
+var _hoisted_150 = ["onKeyup"];
 var _hoisted_231 = ["aria-current", "aria-label", "tabindex"];
-var _hoisted_315 = ["tabindex", "aria-label"];
-var _hoisted_48 = ["aria-current", "aria-label", "tabindex"];
-var _hoisted_55 = ["tabindex", "aria-label"];
-var _hoisted_64 = ["aria-current", "aria-label", "tabindex"];
+var _hoisted_313 = ["tabindex", "aria-label"];
+var _hoisted_47 = ["aria-current", "aria-label", "tabindex"];
+var _hoisted_54 = ["tabindex", "aria-label"];
+var _hoisted_63 = ["aria-current", "aria-label", "tabindex"];
 var __default__69 = defineComponent({
   name: "ElPaginationPager"
 });
@@ -43519,7 +42133,7 @@ var _sfc_main102 = defineComponent({
     const quickNextHover = ref(false);
     const quickPrevFocus = ref(false);
     const quickNextFocus = ref(false);
-    const pagers = computed(() => {
+    const pagers = computed2(() => {
       const pagerCount = props.pagerCount;
       const halfPagerCount = (pagerCount - 1) / 2;
       const currentPage = Number(props.currentPage);
@@ -43545,8 +42159,8 @@ var _sfc_main102 = defineComponent({
           array4.push(i);
         }
       } else if (showPrevMore2 && showNextMore2) {
-        const offset4 = Math.floor(pagerCount / 2) - 1;
-        for (let i = currentPage - offset4; i <= currentPage + offset4; i++) {
+        const offset3 = Math.floor(pagerCount / 2) - 1;
+        for (let i = currentPage - offset3; i <= currentPage + offset3; i++) {
           array4.push(i);
         }
       } else {
@@ -43556,19 +42170,19 @@ var _sfc_main102 = defineComponent({
       }
       return array4;
     });
-    const prevMoreKls = computed(() => [
+    const prevMoreKls = computed2(() => [
       "more",
       "btn-quickprev",
       nsIcon.b(),
       nsPager.is("disabled", props.disabled)
     ]);
-    const nextMoreKls = computed(() => [
+    const nextMoreKls = computed2(() => [
       "more",
       "btn-quicknext",
       nsIcon.b(),
       nsPager.is("disabled", props.disabled)
     ]);
-    const tabindex = computed(() => props.disabled ? -1 : 0);
+    const tabindex = computed2(() => props.disabled ? -1 : 0);
     watchEffect(() => {
       const halfPagerCount = (props.pagerCount - 1) / 2;
       showPrevMore.value = false;
@@ -43664,7 +42278,7 @@ var _sfc_main102 = defineComponent({
           onBlur: _cache[3] || (_cache[3] = ($event) => quickPrevFocus.value = false)
         }, [
           (quickPrevHover.value || quickPrevFocus.value) && !_ctx.disabled ? (openBlock(), createBlock(unref(d_arrow_left_default), { key: 0 })) : (openBlock(), createBlock(unref(more_filled_default), { key: 1 }))
-        ], 42, _hoisted_315)) : createCommentVNode("v-if", true),
+        ], 42, _hoisted_313)) : createCommentVNode("v-if", true),
         (openBlock(true), createElementBlock(Fragment, null, renderList(unref(pagers), (pager) => {
           return openBlock(), createElementBlock("li", {
             key: pager,
@@ -43675,7 +42289,7 @@ var _sfc_main102 = defineComponent({
             "aria-current": _ctx.currentPage === pager,
             "aria-label": unref(t)("el.pagination.currentPage", { pager }),
             tabindex: unref(tabindex)
-          }, toDisplayString(pager), 11, _hoisted_48);
+          }, toDisplayString(pager), 11, _hoisted_47);
         }), 128)),
         showNextMore.value ? (openBlock(), createElementBlock("li", {
           key: 2,
@@ -43688,7 +42302,7 @@ var _sfc_main102 = defineComponent({
           onBlur: _cache[7] || (_cache[7] = ($event) => quickNextFocus.value = false)
         }, [
           (quickNextHover.value || quickNextFocus.value) && !_ctx.disabled ? (openBlock(), createBlock(unref(d_arrow_right_default), { key: 0 })) : (openBlock(), createBlock(unref(more_filled_default), { key: 1 }))
-        ], 42, _hoisted_55)) : createCommentVNode("v-if", true),
+        ], 42, _hoisted_54)) : createCommentVNode("v-if", true),
         _ctx.pageCount > 1 ? (openBlock(), createElementBlock("li", {
           key: 3,
           class: normalizeClass([[
@@ -43698,8 +42312,8 @@ var _sfc_main102 = defineComponent({
           "aria-current": _ctx.currentPage === _ctx.pageCount,
           "aria-label": unref(t)("el.pagination.currentPage", { pager: _ctx.pageCount }),
           tabindex: unref(tabindex)
-        }, toDisplayString(_ctx.pageCount), 11, _hoisted_64)) : createCommentVNode("v-if", true)
-      ], 42, _hoisted_151);
+        }, toDisplayString(_ctx.pageCount), 11, _hoisted_63)) : createCommentVNode("v-if", true)
+      ], 42, _hoisted_150);
     };
   }
 });
@@ -43754,7 +42368,6 @@ var paginationProps = buildProps({
     default: true
   },
   small: Boolean,
-  size: useSizeProp,
   background: Boolean,
   disabled: Boolean,
   hideOnSinglePage: Boolean
@@ -43777,17 +42390,9 @@ var Pagination = defineComponent({
     const { t } = useLocale();
     const ns = useNamespace("pagination");
     const vnodeProps = getCurrentInstance().vnode.props || {};
-    const _size = computed(() => props.small ? "small" : props == null ? void 0 : props.size);
-    useDeprecated({
-      from: "small",
-      replacement: "size",
-      version: "3.0.0",
-      scope: "el-pagination",
-      ref: "https://element-plus.org/zh-CN/component/pagination.html"
-    }, computed(() => !!props.small));
     const hasCurrentPageListener = "onUpdate:currentPage" in vnodeProps || "onUpdate:current-page" in vnodeProps || "onCurrentChange" in vnodeProps;
     const hasPageSizeListener = "onUpdate:pageSize" in vnodeProps || "onUpdate:page-size" in vnodeProps || "onSizeChange" in vnodeProps;
-    const assertValidUsage = computed(() => {
+    const assertValidUsage = computed2(() => {
       if (isAbsent(props.total) && isAbsent(props.pageCount))
         return false;
       if (!isAbsent(props.currentPage) && !hasCurrentPageListener)
@@ -43809,7 +42414,7 @@ var Pagination = defineComponent({
     });
     const innerPageSize = ref(isAbsent(props.defaultPageSize) ? 10 : props.defaultPageSize);
     const innerCurrentPage = ref(isAbsent(props.defaultCurrentPage) ? 1 : props.defaultCurrentPage);
-    const pageSizeBridge = computed({
+    const pageSizeBridge = computed2({
       get() {
         return isAbsent(props.pageSize) ? innerPageSize.value : props.pageSize;
       },
@@ -43823,7 +42428,7 @@ var Pagination = defineComponent({
         }
       }
     });
-    const pageCountBridge = computed(() => {
+    const pageCountBridge = computed2(() => {
       let pageCount = 0;
       if (!isAbsent(props.pageCount)) {
         pageCount = props.pageCount;
@@ -43832,7 +42437,7 @@ var Pagination = defineComponent({
       }
       return pageCount;
     });
-    const currentPageBridge = computed({
+    const currentPageBridge = computed2({
       get() {
         return isAbsent(props.currentPage) ? innerCurrentPage.value : props.currentPage;
       },
@@ -43891,7 +42496,7 @@ var Pagination = defineComponent({
     }
     provide(elPaginationKey, {
       pageCount: pageCountBridge,
-      disabled: computed(() => props.disabled),
+      disabled: computed2(() => props.disabled),
       currentPage: currentPageBridge,
       changeEvent: handleCurrentChange2,
       handleSizeChange
@@ -43918,7 +42523,7 @@ var Pagination = defineComponent({
           onClick: prev
         }),
         jumper: h(Jumper, {
-          size: _size.value
+          size: props.small ? "small" : "default"
         }),
         pager: h(Pager, {
           currentPage: currentPageBridge.value,
@@ -43941,7 +42546,7 @@ var Pagination = defineComponent({
           popperClass: props.popperClass,
           disabled: props.disabled,
           teleported: props.teleported,
-          size: _size.value
+          size: props.small ? "small" : "default"
         }),
         slot: (_b = (_a2 = slots == null ? void 0 : slots.default) == null ? void 0 : _a2.call(slots)) != null ? _b : null,
         total: h(Total, { total: isAbsent(props.total) ? 0 : props.total })
@@ -43970,7 +42575,9 @@ var Pagination = defineComponent({
         class: [
           ns.b(),
           ns.is("background", props.background),
-          ns.m(_size.value)
+          {
+            [ns.m("small")]: props.small
+          }
         ]
       }, rootChildren);
     };
@@ -44040,7 +42647,7 @@ var _sfc_main103 = defineComponent({
       var _a2, _b;
       (_b = (_a2 = tooltipRef.value) == null ? void 0 : _a2.onClose) == null ? void 0 : _b.call(_a2);
     };
-    const style = computed(() => {
+    const style = computed2(() => {
       return {
         width: addUnit(props.width)
       };
@@ -44053,8 +42660,8 @@ var _sfc_main103 = defineComponent({
       emit("cancel", e);
       hidePopper();
     };
-    const finalConfirmButtonText = computed(() => props.confirmButtonText || t("el.popconfirm.confirmButtonText"));
-    const finalCancelButtonText = computed(() => props.cancelButtonText || t("el.popconfirm.cancelButtonText"));
+    const finalConfirmButtonText = computed2(() => props.confirmButtonText || t("el.popconfirm.confirmButtonText"));
+    const finalCancelButtonText = computed2(() => props.cancelButtonText || t("el.popconfirm.cancelButtonText"));
     return (_ctx, _cache) => {
       return openBlock(), createBlock(unref(ElTooltip), mergeProps({
         ref_key: "tooltipRef",
@@ -44202,16 +42809,16 @@ var _sfc_main104 = defineComponent({
   emits: popoverEmits,
   setup(__props, { expose, emit }) {
     const props = __props;
-    const onUpdateVisible = computed(() => {
+    const onUpdateVisible = computed2(() => {
       return props[updateEventKeyRaw];
     });
     const ns = useNamespace("popover");
     const tooltipRef = ref();
-    const popperRef = computed(() => {
+    const popperRef = computed2(() => {
       var _a2;
       return (_a2 = unref(tooltipRef)) == null ? void 0 : _a2.popperRef;
     });
-    const style = computed(() => {
+    const style = computed2(() => {
       return [
         {
           width: addUnit(props.width)
@@ -44219,13 +42826,13 @@ var _sfc_main104 = defineComponent({
         props.popperStyle
       ];
     });
-    const kls = computed(() => {
+    const kls = computed2(() => {
       return [ns.b(), props.popperClass, { [ns.m("plain")]: !!props.content }];
     });
-    const gpuAcceleration = computed(() => {
+    const gpuAcceleration = computed2(() => {
       return props.transition === `${ns.namespace.value}-fade-in-linear`;
     });
-    const hide3 = () => {
+    const hide2 = () => {
       var _a2;
       (_a2 = tooltipRef.value) == null ? void 0 : _a2.hide();
     };
@@ -44244,7 +42851,7 @@ var _sfc_main104 = defineComponent({
     };
     expose({
       popperRef,
-      hide: hide3
+      hide: hide2
     });
     return (_ctx, _cache) => {
       return openBlock(), createBlock(unref(ElTooltip), mergeProps({
@@ -44384,11 +42991,11 @@ var progressProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/progress/src/progress2.mjs
-var _hoisted_153 = ["aria-valuenow"];
+var _hoisted_151 = ["aria-valuenow"];
 var _hoisted_233 = { viewBox: "0 0 100 100" };
-var _hoisted_316 = ["d", "stroke", "stroke-linecap", "stroke-width"];
-var _hoisted_49 = ["d", "stroke", "opacity", "stroke-linecap", "stroke-width"];
-var _hoisted_56 = { key: 0 };
+var _hoisted_314 = ["d", "stroke", "stroke-linecap", "stroke-width"];
+var _hoisted_48 = ["d", "stroke", "opacity", "stroke-linecap", "stroke-width"];
+var _hoisted_55 = { key: 0 };
 var __default__72 = defineComponent({
   name: "ElProgress"
 });
@@ -44404,27 +43011,19 @@ var _sfc_main105 = defineComponent({
       default: "#20a0ff"
     };
     const ns = useNamespace("progress");
-    const barStyle = computed(() => {
-      const barStyle2 = {
-        width: `${props.percentage}%`,
-        animationDuration: `${props.duration}s`
-      };
-      const color = getCurrentColor(props.percentage);
-      if (color.includes("gradient")) {
-        barStyle2.background = color;
-      } else {
-        barStyle2.backgroundColor = color;
-      }
-      return barStyle2;
-    });
-    const relativeStrokeWidth = computed(() => (props.strokeWidth / props.width * 100).toFixed(1));
-    const radius = computed(() => {
+    const barStyle = computed2(() => ({
+      width: `${props.percentage}%`,
+      animationDuration: `${props.duration}s`,
+      backgroundColor: getCurrentColor(props.percentage)
+    }));
+    const relativeStrokeWidth = computed2(() => (props.strokeWidth / props.width * 100).toFixed(1));
+    const radius = computed2(() => {
       if (["circle", "dashboard"].includes(props.type)) {
         return Number.parseInt(`${50 - Number.parseFloat(relativeStrokeWidth.value) / 2}`, 10);
       }
       return 0;
     });
-    const trackPath = computed(() => {
+    const trackPath = computed2(() => {
       const r = radius.value;
       const isDashboard = props.type === "dashboard";
       return `
@@ -44434,22 +43033,22 @@ var _sfc_main105 = defineComponent({
           a ${r} ${r} 0 1 1 0 ${isDashboard ? "" : "-"}${r * 2}
           `;
     });
-    const perimeter = computed(() => 2 * Math.PI * radius.value);
-    const rate = computed(() => props.type === "dashboard" ? 0.75 : 1);
-    const strokeDashoffset = computed(() => {
-      const offset4 = -1 * perimeter.value * (1 - rate.value) / 2;
-      return `${offset4}px`;
+    const perimeter = computed2(() => 2 * Math.PI * radius.value);
+    const rate = computed2(() => props.type === "dashboard" ? 0.75 : 1);
+    const strokeDashoffset = computed2(() => {
+      const offset3 = -1 * perimeter.value * (1 - rate.value) / 2;
+      return `${offset3}px`;
     });
-    const trailPathStyle = computed(() => ({
+    const trailPathStyle = computed2(() => ({
       strokeDasharray: `${perimeter.value * rate.value}px, ${perimeter.value}px`,
       strokeDashoffset: strokeDashoffset.value
     }));
-    const circlePathStyle = computed(() => ({
+    const circlePathStyle = computed2(() => ({
       strokeDasharray: `${perimeter.value * rate.value * (props.percentage / 100)}px, ${perimeter.value}px`,
       strokeDashoffset: strokeDashoffset.value,
       transition: "stroke-dasharray 0.6s ease 0s, stroke 0.6s ease, opacity ease 0.6s"
     }));
-    const stroke = computed(() => {
+    const stroke = computed2(() => {
       let ret;
       if (props.color) {
         ret = getCurrentColor(props.percentage);
@@ -44458,7 +43057,7 @@ var _sfc_main105 = defineComponent({
       }
       return ret;
     });
-    const statusIcon = computed(() => {
+    const statusIcon = computed2(() => {
       if (props.status === "warning") {
         return warning_filled_default;
       }
@@ -44468,10 +43067,10 @@ var _sfc_main105 = defineComponent({
         return props.status === "success" ? check_default : close_default;
       }
     });
-    const progressTextSize = computed(() => {
+    const progressTextSize = computed2(() => {
       return props.type === "line" ? 12 + props.strokeWidth * 0.4 : props.width * 0.111111 + 2;
     });
-    const content = computed(() => props.format(props.percentage));
+    const content = computed2(() => props.format(props.percentage));
     function getColors(color) {
       const span = 100 / color.length;
       const seriesColors = color.map((seriesColor, index) => {
@@ -44558,7 +43157,7 @@ var _sfc_main105 = defineComponent({
               "stroke-width": unref(relativeStrokeWidth),
               fill: "none",
               style: normalizeStyle(unref(trailPathStyle))
-            }, null, 14, _hoisted_316),
+            }, null, 14, _hoisted_314),
             createBaseVNode("path", {
               class: normalizeClass(unref(ns).be("circle", "path")),
               d: unref(trackPath),
@@ -44568,7 +43167,7 @@ var _sfc_main105 = defineComponent({
               "stroke-linecap": _ctx.strokeLinecap,
               "stroke-width": unref(relativeStrokeWidth),
               style: normalizeStyle(unref(circlePathStyle))
-            }, null, 14, _hoisted_49)
+            }, null, 14, _hoisted_48)
           ]))
         ], 6)),
         (_ctx.showText || _ctx.$slots.default) && !_ctx.textInside ? (openBlock(), createElementBlock("div", {
@@ -44577,7 +43176,7 @@ var _sfc_main105 = defineComponent({
           style: normalizeStyle({ fontSize: `${unref(progressTextSize)}px` })
         }, [
           renderSlot(_ctx.$slots, "default", { percentage: _ctx.percentage }, () => [
-            !_ctx.status ? (openBlock(), createElementBlock("span", _hoisted_56, toDisplayString(unref(content)), 1)) : (openBlock(), createBlock(unref(ElIcon), { key: 1 }, {
+            !_ctx.status ? (openBlock(), createElementBlock("span", _hoisted_55, toDisplayString(unref(content)), 1)) : (openBlock(), createBlock(unref(ElIcon), { key: 1 }, {
               default: withCtx(() => [
                 (openBlock(), createBlock(resolveDynamicComponent(unref(statusIcon))))
               ]),
@@ -44585,7 +43184,7 @@ var _sfc_main105 = defineComponent({
             }))
           ])
         ], 6)) : createCommentVNode("v-if", true)
-      ], 10, _hoisted_153);
+      ], 10, _hoisted_151);
     };
   }
 });
@@ -44670,8 +43269,7 @@ var rateProps = buildProps({
   clearable: {
     type: Boolean,
     default: false
-  },
-  ...useAriaProps(["ariaLabel"])
+  }
 });
 var rateEmits = {
   [CHANGE_EVENT]: (value) => isNumber3(value),
@@ -44679,7 +43277,7 @@ var rateEmits = {
 };
 
 // node_modules/element-plus/es/components/rate/src/rate2.mjs
-var _hoisted_154 = ["id", "aria-label", "aria-labelledby", "aria-valuenow", "aria-valuetext", "aria-valuemax"];
+var _hoisted_153 = ["id", "aria-label", "aria-labelledby", "aria-valuenow", "aria-valuetext", "aria-valuemax"];
 var _hoisted_234 = ["onMousemove", "onClick"];
 var __default__73 = defineComponent({
   name: "ElRate"
@@ -44710,16 +43308,16 @@ var _sfc_main106 = defineComponent({
     const currentValue = ref(props.modelValue);
     const hoverIndex = ref(-1);
     const pointerAtLeftHalf = ref(true);
-    const rateClasses = computed(() => [ns.b(), ns.m(rateSize.value)]);
-    const rateDisabled = computed(() => props.disabled || (formContext == null ? void 0 : formContext.disabled));
-    const rateStyles = computed(() => {
+    const rateClasses = computed2(() => [ns.b(), ns.m(rateSize.value)]);
+    const rateDisabled = computed2(() => props.disabled || (formContext == null ? void 0 : formContext.disabled));
+    const rateStyles = computed2(() => {
       return ns.cssVarBlock({
         "void-color": props.voidColor,
         "disabled-void-color": props.disabledVoidColor,
         "fill-color": activeColor.value
       });
     });
-    const text = computed(() => {
+    const text = computed2(() => {
       let result2 = "";
       if (props.showScore) {
         result2 = props.scoreTemplate.replace(/\{\s*value\s*\}/, rateDisabled.value ? `${props.modelValue}` : `${currentValue.value}`);
@@ -44728,17 +43326,17 @@ var _sfc_main106 = defineComponent({
       }
       return result2;
     });
-    const valueDecimal = computed(() => props.modelValue * 100 - Math.floor(props.modelValue) * 100);
-    const colorMap = computed(() => isArray(props.colors) ? {
+    const valueDecimal = computed2(() => props.modelValue * 100 - Math.floor(props.modelValue) * 100);
+    const colorMap = computed2(() => isArray(props.colors) ? {
       [props.lowThreshold]: props.colors[0],
       [props.highThreshold]: { value: props.colors[1], excluded: true },
       [props.max]: props.colors[2]
     } : props.colors);
-    const activeColor = computed(() => {
+    const activeColor = computed2(() => {
       const color = getValueFromMap(currentValue.value, colorMap.value);
       return isObject(color) ? "" : color;
     });
-    const decimalStyle = computed(() => {
+    const decimalStyle = computed2(() => {
       let width = "";
       if (rateDisabled.value) {
         width = `${valueDecimal.value}%`;
@@ -44750,7 +43348,7 @@ var _sfc_main106 = defineComponent({
         width
       };
     });
-    const componentMap = computed(() => {
+    const componentMap = computed2(() => {
       let icons = isArray(props.icons) ? [...props.icons] : { ...props.icons };
       icons = markRaw(icons);
       return isArray(icons) ? {
@@ -44762,9 +43360,9 @@ var _sfc_main106 = defineComponent({
         [props.max]: icons[2]
       } : icons;
     });
-    const decimalIconComponent = computed(() => getValueFromMap(props.modelValue, componentMap.value));
-    const voidComponent = computed(() => rateDisabled.value ? isString(props.disabledVoidIcon) ? props.disabledVoidIcon : markRaw(props.disabledVoidIcon) : isString(props.voidIcon) ? props.voidIcon : markRaw(props.voidIcon));
-    const activeComponent = computed(() => getValueFromMap(currentValue.value, componentMap.value));
+    const decimalIconComponent = computed2(() => getValueFromMap(props.modelValue, componentMap.value));
+    const voidComponent = computed2(() => rateDisabled.value ? isString(props.disabledVoidIcon) ? props.disabledVoidIcon : markRaw(props.disabledVoidIcon) : isString(props.voidIcon) ? props.voidIcon : markRaw(props.voidIcon));
+    const activeComponent = computed2(() => getValueFromMap(currentValue.value, componentMap.value));
     function showDecimalIcon(item) {
       const showWhenDisabled = rateDisabled.value && valueDecimal.value > 0 && item - 1 < props.modelValue && item > props.modelValue;
       const showWhenAllowHalf = props.allowHalf && pointerAtLeftHalf.value && item - 0.5 <= currentValue.value && item > currentValue.value;
@@ -44854,13 +43452,6 @@ var _sfc_main106 = defineComponent({
     if (!props.modelValue) {
       emit(UPDATE_MODEL_EVENT, 0);
     }
-    useDeprecated({
-      from: "label",
-      replacement: "aria-label",
-      version: "2.8.0",
-      scope: "el-rate",
-      ref: "https://element-plus.org/en-US/component/rate.html"
-    }, computed(() => !!props.label));
     expose({
       setCurrentValue,
       resetCurrentValue
@@ -44871,7 +43462,7 @@ var _sfc_main106 = defineComponent({
         id: unref(inputId),
         class: normalizeClass([unref(rateClasses), unref(ns).is("disabled", unref(rateDisabled))]),
         role: "slider",
-        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || _ctx.ariaLabel || "rating" : void 0,
+        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || "rating" : void 0,
         "aria-labelledby": unref(isLabeledByFormItem) ? (_a2 = unref(formItemContext)) == null ? void 0 : _a2.labelId : void 0,
         "aria-valuenow": currentValue.value,
         "aria-valuetext": unref(text) || void 0,
@@ -44929,7 +43520,7 @@ var _sfc_main106 = defineComponent({
           class: normalizeClass(unref(ns).e("text")),
           style: normalizeStyle({ color: _ctx.textColor })
         }, toDisplayString(unref(text)), 7)) : createCommentVNode("v-if", true)
-      ], 46, _hoisted_154);
+      ], 46, _hoisted_153);
     };
   }
 });
@@ -44977,7 +43568,7 @@ var _sfc_main107 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("result");
-    const resultIcon = computed(() => {
+    const resultIcon = computed2(() => {
       const icon = props.icon;
       const iconClass = icon && IconMap[icon] ? IconMap[icon] : "icon-info";
       const iconComponent = IconComponentMap[iconClass] || IconComponentMap["icon-info"];
@@ -45086,7 +43677,7 @@ function memoizeOne(resultFn, isEqual3) {
 var useCache = () => {
   const vm = getCurrentInstance();
   const props = vm.proxy.$props;
-  return computed(() => {
+  return computed2(() => {
     const _getItemStyleCache = (_2, __, ___) => ({});
     return props.perfMode ? memoize_default(_getItemStyleCache) : memoizeOne(_getItemStyleCache);
   });
@@ -45131,7 +43722,7 @@ var LayoutKeys = {
 };
 var useWheel = ({ atEndEdge, atStartEdge, layout: layout2 }, onWheelDelta) => {
   let frameHandle;
-  let offset4 = 0;
+  let offset3 = 0;
   const hasReachedEdge = (offset22) => {
     const edgeReached = offset22 < 0 && atStartEdge.value || offset22 > 0 && atEndEdge.value;
     return edgeReached;
@@ -45139,15 +43730,15 @@ var useWheel = ({ atEndEdge, atStartEdge, layout: layout2 }, onWheelDelta) => {
   const onWheel = (e) => {
     cAF(frameHandle);
     const newOffset = e[LayoutKeys[layout2.value]];
-    if (hasReachedEdge(offset4) && hasReachedEdge(offset4 + newOffset))
+    if (hasReachedEdge(offset3) && hasReachedEdge(offset3 + newOffset))
       return;
-    offset4 += newOffset;
+    offset3 += newOffset;
     if (!isFirefox()) {
       e.preventDefault();
     }
     frameHandle = rAF(() => {
-      onWheelDelta(offset4);
-      offset4 = 0;
+      onWheelDelta(offset3);
+      offset3 = 0;
     });
   };
   return {
@@ -45346,7 +43937,7 @@ var ScrollBar = defineComponent({
   props: virtualizedScrollbarProps,
   emits: ["scroll", "start-move", "stop-move"],
   setup(props, { emit }) {
-    const GAP2 = computed(() => props.startGap + props.endGap);
+    const GAP2 = computed2(() => props.startGap + props.endGap);
     const nsVirtualScrollbar = useNamespace("virtual-scrollbar");
     const nsScrollbar = useNamespace("scrollbar");
     const trackRef = ref();
@@ -45357,9 +43948,9 @@ var ScrollBar = defineComponent({
       isDragging: false,
       traveled: 0
     });
-    const bar = computed(() => BAR_MAP[props.layout]);
-    const trackSize = computed(() => props.clientSize - unref(GAP2));
-    const trackStyle = computed(() => ({
+    const bar = computed2(() => BAR_MAP[props.layout]);
+    const trackSize = computed2(() => props.clientSize - unref(GAP2));
+    const trackStyle = computed2(() => ({
       position: "absolute",
       width: `${HORIZONTAL === props.layout ? trackSize.value : props.scrollbarSize}px`,
       height: `${HORIZONTAL === props.layout ? props.scrollbarSize : trackSize.value}px`,
@@ -45368,7 +43959,7 @@ var ScrollBar = defineComponent({
       bottom: "2px",
       borderRadius: "4px"
     }));
-    const thumbSize = computed(() => {
+    const thumbSize = computed2(() => {
       const ratio = props.ratio;
       const clientSize = props.clientSize;
       if (ratio >= 100) {
@@ -45380,7 +43971,7 @@ var ScrollBar = defineComponent({
       const SCROLLBAR_MAX_SIZE = clientSize / 3;
       return Math.floor(Math.min(Math.max(ratio * clientSize, SCROLLBAR_MIN_SIZE), SCROLLBAR_MAX_SIZE));
     });
-    const thumbStyle = computed(() => {
+    const thumbStyle = computed2(() => {
       if (!Number.isFinite(thumbSize.value)) {
         return {
           display: "none"
@@ -45394,7 +43985,7 @@ var ScrollBar = defineComponent({
       }, props.layout);
       return style;
     });
-    const totalSteps = computed(() => Math.floor(props.clientSize - thumbSize.value - unref(GAP2)));
+    const totalSteps = computed2(() => Math.floor(props.clientSize - thumbSize.value - unref(GAP2)));
     const attachEvents2 = () => {
       window.addEventListener("mousemove", onMouseMove);
       window.addEventListener("mouseup", onMouseUp);
@@ -45443,18 +44034,18 @@ var ScrollBar = defineComponent({
       if (!prevPage)
         return;
       cAF(frameHandle);
-      const offset4 = (trackRef.value.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]) * -1;
+      const offset3 = (trackRef.value.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]) * -1;
       const thumbClickPosition = thumbRef.value[bar.value.offset] - prevPage;
-      const distance = offset4 - thumbClickPosition;
+      const distance = offset3 - thumbClickPosition;
       frameHandle = rAF(() => {
         state.traveled = Math.max(props.startGap, Math.min(distance, totalSteps.value));
         emit("scroll", distance, totalSteps.value);
       });
     };
     const clickTrackHandler = (e) => {
-      const offset4 = Math.abs(e.target.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]);
+      const offset3 = Math.abs(e.target.getBoundingClientRect()[bar.value.direction] - e[bar.value.client]);
       const thumbHalf = thumbRef.value[bar.value.offset] / 2;
-      const distance = offset4 - thumbHalf;
+      const distance = offset3 - thumbHalf;
       state.traveled = Math.max(0, Math.min(distance, totalSteps.value));
       emit("scroll", distance, totalSteps.value);
     };
@@ -45522,7 +44113,7 @@ var createList = ({
         isScrollbarDragging: false,
         scrollbarAlwaysOn: props.scrollbarAlwaysOn
       });
-      const itemsToRender = computed(() => {
+      const itemsToRender = computed2(() => {
         const { total: total2, cache: cache2 } = props;
         const { isScrolling, scrollDir, scrollOffset } = unref(states);
         if (total2 === 0) {
@@ -45539,9 +44130,9 @@ var createList = ({
           stopIndex
         ];
       });
-      const estimatedTotalSize = computed(() => getEstimatedTotalSize2(props, unref(dynamicSizeCache)));
-      const _isHorizontal = computed(() => isHorizontal(props.layout));
-      const windowStyle = computed(() => [
+      const estimatedTotalSize = computed2(() => getEstimatedTotalSize2(props, unref(dynamicSizeCache)));
+      const _isHorizontal = computed2(() => isHorizontal(props.layout));
+      const windowStyle = computed2(() => [
         {
           position: "relative",
           [`overflow-${_isHorizontal.value ? "x" : "y"}`]: "scroll",
@@ -45555,7 +44146,7 @@ var createList = ({
         },
         props.style
       ]);
-      const innerStyle = computed(() => {
+      const innerStyle = computed2(() => {
         const size3 = unref(estimatedTotalSize);
         const horizontal = unref(_isHorizontal);
         return {
@@ -45564,16 +44155,16 @@ var createList = ({
           width: horizontal ? `${size3}px` : "100%"
         };
       });
-      const clientSize = computed(() => _isHorizontal.value ? props.width : props.height);
+      const clientSize = computed2(() => _isHorizontal.value ? props.width : props.height);
       const { onWheel } = useWheel({
-        atStartEdge: computed(() => states.value.scrollOffset <= 0),
-        atEndEdge: computed(() => states.value.scrollOffset >= estimatedTotalSize.value),
-        layout: computed(() => props.layout)
-      }, (offset4) => {
+        atStartEdge: computed2(() => states.value.scrollOffset <= 0),
+        atEndEdge: computed2(() => states.value.scrollOffset >= estimatedTotalSize.value),
+        layout: computed2(() => props.layout)
+      }, (offset3) => {
         var _a2, _b;
         ;
         (_b = (_a2 = scrollbarRef.value).onMouseUp) == null ? void 0 : _b.call(_a2);
-        scrollTo(Math.min(states.value.scrollOffset + offset4, estimatedTotalSize.value - clientSize.value));
+        scrollTo(Math.min(states.value.scrollOffset + offset3, estimatedTotalSize.value - clientSize.value));
       });
       const emitEvents = () => {
         const { total: total2 } = props;
@@ -45635,18 +44226,18 @@ var createList = ({
         emitEvents();
       };
       const onScrollbarScroll = (distanceToGo, totalSteps) => {
-        const offset4 = (estimatedTotalSize.value - clientSize.value) / totalSteps * distanceToGo;
-        scrollTo(Math.min(estimatedTotalSize.value - clientSize.value, offset4));
+        const offset3 = (estimatedTotalSize.value - clientSize.value) / totalSteps * distanceToGo;
+        scrollTo(Math.min(estimatedTotalSize.value - clientSize.value, offset3));
       };
-      const scrollTo = (offset4) => {
-        offset4 = Math.max(offset4, 0);
-        if (offset4 === unref(states).scrollOffset) {
+      const scrollTo = (offset3) => {
+        offset3 = Math.max(offset3, 0);
+        if (offset3 === unref(states).scrollOffset) {
           return;
         }
         states.value = {
           ...unref(states),
-          scrollOffset: offset4,
-          scrollDir: getScrollDir(unref(states).scrollOffset, offset4),
+          scrollOffset: offset3,
+          scrollDir: getScrollDir(unref(states).scrollOffset, offset3),
           updateRequested: true
         };
         nextTick(resetIsScrolling);
@@ -45663,16 +44254,16 @@ var createList = ({
         if (hasOwn(itemStyleCache, String(idx))) {
           style = itemStyleCache[idx];
         } else {
-          const offset4 = getItemOffset(props, idx, unref(dynamicSizeCache));
+          const offset3 = getItemOffset(props, idx, unref(dynamicSizeCache));
           const size3 = getItemSize(props, idx, unref(dynamicSizeCache));
           const horizontal = unref(_isHorizontal);
           const isRtl = direction2 === RTL;
-          const offsetHorizontal = horizontal ? offset4 : 0;
+          const offsetHorizontal = horizontal ? offset3 : 0;
           itemStyleCache[idx] = style = {
             position: "absolute",
             left: isRtl ? void 0 : `${offsetHorizontal}px`,
             right: isRtl ? `${offsetHorizontal}px` : void 0,
-            top: !horizontal ? `${offset4}px` : 0,
+            top: !horizontal ? `${offset3}px` : 0,
             height: !horizontal ? `${size3}px` : "100%",
             width: horizontal ? `${size3}px` : "100%"
           };
@@ -45787,12 +44378,12 @@ var createList = ({
         windowStyle,
         ns
       } = ctx;
-      const [start2, end3] = itemsToRender;
+      const [start, end2] = itemsToRender;
       const Container2 = resolveDynamicComponent(containerElement);
       const Inner = resolveDynamicComponent(innerElement);
       const children = [];
       if (total2 > 0) {
-        for (let i = start2; i <= end3; i++) {
+        for (let i = start; i <= end2; i++) {
           children.push((_a2 = $slots.default) == null ? void 0 : _a2.call($slots, {
             data,
             key: i,
@@ -45890,11 +44481,11 @@ var FixedSizeList = createList({
       }
     }
   },
-  getStartIndexForOffset: ({ total: total2, itemSize: itemSize3 }, offset4) => Math.max(0, Math.min(total2 - 1, Math.floor(offset4 / itemSize3))),
+  getStartIndexForOffset: ({ total: total2, itemSize: itemSize3 }, offset3) => Math.max(0, Math.min(total2 - 1, Math.floor(offset3 / itemSize3))),
   getStopIndexForStartIndex: ({ height, total: total2, itemSize: itemSize3, layout: layout2, width }, startIndex, scrollOffset) => {
-    const offset4 = startIndex * itemSize3;
+    const offset3 = startIndex * itemSize3;
     const size3 = isHorizontal(layout2) ? width : height;
-    const numVisibleItems = Math.ceil((size3 + scrollOffset - offset4) / itemSize3);
+    const numVisibleItems = Math.ceil((size3 + scrollOffset - offset3) / itemSize3);
     return Math.max(0, Math.min(total2 - 1, startIndex + numVisibleItems - 1));
   },
   initCache() {
@@ -45906,58 +44497,58 @@ var FixedSizeList = createList({
 });
 
 // node_modules/element-plus/es/components/virtual-list/src/components/dynamic-size-list.mjs
-var SCOPE5 = "ElDynamicSizeList";
+var SCOPE4 = "ElDynamicSizeList";
 var getItemFromCache = (props, index, listCache) => {
   const { itemSize: itemSize3 } = props;
   const { items, lastVisitedIndex } = listCache;
   if (index > lastVisitedIndex) {
-    let offset4 = 0;
+    let offset3 = 0;
     if (lastVisitedIndex >= 0) {
       const item = items[lastVisitedIndex];
-      offset4 = item.offset + item.size;
+      offset3 = item.offset + item.size;
     }
     for (let i = lastVisitedIndex + 1; i <= index; i++) {
       const size3 = itemSize3(i);
       items[i] = {
-        offset: offset4,
+        offset: offset3,
         size: size3
       };
-      offset4 += size3;
+      offset3 += size3;
     }
     listCache.lastVisitedIndex = index;
   }
   return items[index];
 };
-var findItem = (props, listCache, offset4) => {
+var findItem = (props, listCache, offset3) => {
   const { items, lastVisitedIndex } = listCache;
   const lastVisitedOffset = lastVisitedIndex > 0 ? items[lastVisitedIndex].offset : 0;
-  if (lastVisitedOffset >= offset4) {
-    return bs(props, listCache, 0, lastVisitedIndex, offset4);
+  if (lastVisitedOffset >= offset3) {
+    return bs(props, listCache, 0, lastVisitedIndex, offset3);
   }
-  return es(props, listCache, Math.max(0, lastVisitedIndex), offset4);
+  return es(props, listCache, Math.max(0, lastVisitedIndex), offset3);
 };
-var bs = (props, listCache, low, high, offset4) => {
+var bs = (props, listCache, low, high, offset3) => {
   while (low <= high) {
     const mid = low + Math.floor((high - low) / 2);
     const currentOffset = getItemFromCache(props, mid, listCache).offset;
-    if (currentOffset === offset4) {
+    if (currentOffset === offset3) {
       return mid;
-    } else if (currentOffset < offset4) {
+    } else if (currentOffset < offset3) {
       low = mid + 1;
-    } else if (currentOffset > offset4) {
+    } else if (currentOffset > offset3) {
       high = mid - 1;
     }
   }
   return Math.max(0, low - 1);
 };
-var es = (props, listCache, index, offset4) => {
+var es = (props, listCache, index, offset3) => {
   const { total: total2 } = props;
   let exponent = 1;
-  while (index < total2 && getItemFromCache(props, index, listCache).offset < offset4) {
+  while (index < total2 && getItemFromCache(props, index, listCache).offset < offset3) {
     index += exponent;
     exponent *= 2;
   }
-  return bs(props, listCache, Math.floor(index / 2), Math.min(index, total2 - 1), offset4);
+  return bs(props, listCache, Math.floor(index / 2), Math.min(index, total2 - 1), offset3);
 };
 var getEstimatedTotalSize = ({ total: total2 }, { items, estimatedItemSize: estimatedItemSize2, lastVisitedIndex }) => {
   let totalSizeOfMeasuredItems = 0;
@@ -46013,17 +44604,17 @@ var DynamicSizeList = createList({
       }
     }
   },
-  getStartIndexForOffset: (props, offset4, listCache) => findItem(props, listCache, offset4),
+  getStartIndexForOffset: (props, offset3, listCache) => findItem(props, listCache, offset3),
   getStopIndexForStartIndex: (props, startIndex, scrollOffset, listCache) => {
     const { height, total: total2, layout: layout2, width } = props;
     const size3 = isHorizontal(layout2) ? width : height;
     const item = getItemFromCache(props, startIndex, listCache);
     const maxOffset = scrollOffset + size3;
-    let offset4 = item.offset + item.size;
+    let offset3 = item.offset + item.size;
     let stopIndex = startIndex;
-    while (stopIndex < total2 - 1 && offset4 < maxOffset) {
+    while (stopIndex < total2 - 1 && offset3 < maxOffset) {
       stopIndex++;
-      offset4 += getItemFromCache(props, stopIndex, listCache).size;
+      offset3 += getItemFromCache(props, stopIndex, listCache).size;
     }
     return stopIndex;
   },
@@ -46047,7 +44638,7 @@ var DynamicSizeList = createList({
   validateProps: ({ itemSize: itemSize3 }) => {
     if (true) {
       if (typeof itemSize3 !== "function") {
-        throwError(SCOPE5, `
+        throwError(SCOPE4, `
           itemSize is required as function, but the given value was ${typeof itemSize3}
         `);
       }
@@ -46136,9 +44727,9 @@ var createGrid = ({
         yAxisScrollDir: FORWARD
       });
       const getItemStyleCache = useCache();
-      const parsedHeight = computed(() => Number.parseInt(`${props.height}`, 10));
-      const parsedWidth = computed(() => Number.parseInt(`${props.width}`, 10));
-      const columnsToRender = computed(() => {
+      const parsedHeight = computed2(() => Number.parseInt(`${props.height}`, 10));
+      const parsedWidth = computed2(() => Number.parseInt(`${props.width}`, 10));
+      const columnsToRender = computed2(() => {
         const { totalColumn, totalRow, columnCache } = props;
         const { isScrolling, xAxisScrollDir, scrollLeft } = unref(states);
         if (totalColumn === 0 || totalRow === 0) {
@@ -46155,7 +44746,7 @@ var createGrid = ({
           stopIndex
         ];
       });
-      const rowsToRender = computed(() => {
+      const rowsToRender = computed2(() => {
         const { totalColumn, totalRow, rowCache } = props;
         const { isScrolling, yAxisScrollDir, scrollTop } = unref(states);
         if (totalColumn === 0 || totalRow === 0) {
@@ -46172,9 +44763,9 @@ var createGrid = ({
           stopIndex
         ];
       });
-      const estimatedTotalHeight = computed(() => getEstimatedTotalHeight2(props, unref(cache2)));
-      const estimatedTotalWidth = computed(() => getEstimatedTotalWidth2(props, unref(cache2)));
-      const windowStyle = computed(() => {
+      const estimatedTotalHeight = computed2(() => getEstimatedTotalHeight2(props, unref(cache2)));
+      const estimatedTotalWidth = computed2(() => getEstimatedTotalWidth2(props, unref(cache2)));
+      const windowStyle = computed2(() => {
         var _a2;
         return [
           {
@@ -46191,7 +44782,7 @@ var createGrid = ({
           (_a2 = props.style) != null ? _a2 : {}
         ];
       });
-      const innerStyle = computed(() => {
+      const innerStyle = computed2(() => {
         const width = `${unref(estimatedTotalWidth)}px`;
         const height = `${unref(estimatedTotalHeight)}px`;
         return {
@@ -46275,23 +44866,23 @@ var createGrid = ({
       };
       const onVerticalScroll = (distance, totalSteps) => {
         const height = unref(parsedHeight);
-        const offset4 = (estimatedTotalHeight.value - height) / totalSteps * distance;
+        const offset3 = (estimatedTotalHeight.value - height) / totalSteps * distance;
         scrollTo({
-          scrollTop: Math.min(estimatedTotalHeight.value - height, offset4)
+          scrollTop: Math.min(estimatedTotalHeight.value - height, offset3)
         });
       };
       const onHorizontalScroll = (distance, totalSteps) => {
         const width = unref(parsedWidth);
-        const offset4 = (estimatedTotalWidth.value - width) / totalSteps * distance;
+        const offset3 = (estimatedTotalWidth.value - width) / totalSteps * distance;
         scrollTo({
-          scrollLeft: Math.min(estimatedTotalWidth.value - width, offset4)
+          scrollLeft: Math.min(estimatedTotalWidth.value - width, offset3)
         });
       };
       const { onWheel } = useGridWheel({
-        atXStartEdge: computed(() => states.value.scrollLeft <= 0),
-        atXEndEdge: computed(() => states.value.scrollLeft >= estimatedTotalWidth.value - unref(parsedWidth)),
-        atYStartEdge: computed(() => states.value.scrollTop <= 0),
-        atYEndEdge: computed(() => states.value.scrollTop >= estimatedTotalHeight.value - unref(parsedHeight))
+        atXStartEdge: computed2(() => states.value.scrollLeft <= 0),
+        atXEndEdge: computed2(() => states.value.scrollLeft >= estimatedTotalWidth.value - unref(parsedWidth)),
+        atYStartEdge: computed2(() => states.value.scrollTop <= 0),
+        atYEndEdge: computed2(() => states.value.scrollTop >= estimatedTotalHeight.value - unref(parsedHeight))
       }, (x2, y) => {
         var _a2, _b, _c, _d;
         (_b = (_a2 = hScrollbar.value) == null ? void 0 : _a2.onMouseUp) == null ? void 0 : _b.call(_a2);
@@ -46345,16 +44936,16 @@ var createGrid = ({
         if (hasOwn(itemStyleCache, key)) {
           return itemStyleCache[key];
         } else {
-          const [, left3] = getColumnPosition(props, columnIndex, unref(cache2));
+          const [, left2] = getColumnPosition(props, columnIndex, unref(cache2));
           const _cache = unref(cache2);
           const rtl = isRTL2(direction2);
-          const [height, top2] = getRowPosition(props, rowIndex, _cache);
+          const [height, top] = getRowPosition(props, rowIndex, _cache);
           const [width] = getColumnPosition(props, columnIndex, _cache);
           itemStyleCache[key] = {
             position: "absolute",
-            left: rtl ? void 0 : `${left3}px`,
-            right: rtl ? `${left3}px` : void 0,
-            top: `${top2}px`,
+            left: rtl ? void 0 : `${left2}px`,
+            right: rtl ? `${left2}px` : void 0,
+            top: `${top}px`,
             height: `${height}px`,
             width: `${width}px`
           };
@@ -46527,7 +45118,7 @@ var createGrid = ({
 };
 
 // node_modules/element-plus/es/components/virtual-list/src/components/fixed-size-grid.mjs
-var SCOPE6 = "ElFixedSizeGrid";
+var SCOPE5 = "ElFixedSizeGrid";
 var FixedSizeGrid = createGrid({
   name: "ElFixedSizeGrid",
   getColumnPosition: ({ columnWidth }, index) => [
@@ -46622,14 +45213,14 @@ var FixedSizeGrid = createGrid({
   },
   getColumnStartIndexForOffset: ({ columnWidth, totalColumn }, scrollLeft) => Math.max(0, Math.min(totalColumn - 1, Math.floor(scrollLeft / columnWidth))),
   getColumnStopIndexForStartIndex: ({ columnWidth, totalColumn, width }, startIndex, scrollLeft) => {
-    const left3 = startIndex * columnWidth;
-    const visibleColumnsCount = Math.ceil((width + scrollLeft - left3) / columnWidth);
+    const left2 = startIndex * columnWidth;
+    const visibleColumnsCount = Math.ceil((width + scrollLeft - left2) / columnWidth);
     return Math.max(0, Math.min(totalColumn - 1, startIndex + visibleColumnsCount - 1));
   },
   getRowStartIndexForOffset: ({ rowHeight, totalRow }, scrollTop) => Math.max(0, Math.min(totalRow - 1, Math.floor(scrollTop / rowHeight))),
   getRowStopIndexForStartIndex: ({ rowHeight, totalRow, height }, startIndex, scrollTop) => {
-    const top2 = startIndex * rowHeight;
-    const numVisibleRows = Math.ceil((height + scrollTop - top2) / rowHeight);
+    const top = startIndex * rowHeight;
+    const numVisibleRows = Math.ceil((height + scrollTop - top) / rowHeight);
     return Math.max(0, Math.min(totalRow - 1, startIndex + numVisibleRows - 1));
   },
   initCache: () => void 0,
@@ -46637,13 +45228,13 @@ var FixedSizeGrid = createGrid({
   validateProps: ({ columnWidth, rowHeight }) => {
     if (true) {
       if (!isNumber3(columnWidth)) {
-        throwError(SCOPE6, `
+        throwError(SCOPE5, `
           "columnWidth" must be passed as number,
             instead ${typeof columnWidth} was given.
         `);
       }
       if (!isNumber3(rowHeight)) {
-        throwError(SCOPE6, `
+        throwError(SCOPE5, `
           "columnWidth" must be passed as number,
             instead ${typeof rowHeight} was given.
         `);
@@ -46653,8 +45244,8 @@ var FixedSizeGrid = createGrid({
 });
 
 // node_modules/element-plus/es/components/virtual-list/src/components/dynamic-size-grid.mjs
-var { max: max4, min: min4, floor: floor3 } = Math;
-var SCOPE7 = "ElDynamicSizeGrid";
+var { max: max3, min: min3, floor: floor3 } = Math;
+var SCOPE6 = "ElDynamicSizeGrid";
 var ACCESS_SIZER_KEY_MAP = {
   column: "columnWidth",
   row: "rowHeight"
@@ -46670,56 +45261,56 @@ var getItemFromCache2 = (props, index, gridCache, type4) => {
     gridCache[ACCESS_LAST_VISITED_KEY_MAP[type4]]
   ];
   if (index > lastVisited) {
-    let offset4 = 0;
+    let offset3 = 0;
     if (lastVisited >= 0) {
       const item = cachedItems[lastVisited];
-      offset4 = item.offset + item.size;
+      offset3 = item.offset + item.size;
     }
     for (let i = lastVisited + 1; i <= index; i++) {
       const size3 = sizer(i);
       cachedItems[i] = {
-        offset: offset4,
+        offset: offset3,
         size: size3
       };
-      offset4 += size3;
+      offset3 += size3;
     }
     gridCache[ACCESS_LAST_VISITED_KEY_MAP[type4]] = index;
   }
   return cachedItems[index];
 };
-var bs2 = (props, gridCache, low, high, offset4, type4) => {
+var bs2 = (props, gridCache, low, high, offset3, type4) => {
   while (low <= high) {
     const mid = low + floor3((high - low) / 2);
     const currentOffset = getItemFromCache2(props, mid, gridCache, type4).offset;
-    if (currentOffset === offset4) {
+    if (currentOffset === offset3) {
       return mid;
-    } else if (currentOffset < offset4) {
+    } else if (currentOffset < offset3) {
       low = mid + 1;
     } else {
       high = mid - 1;
     }
   }
-  return max4(0, low - 1);
+  return max3(0, low - 1);
 };
-var es2 = (props, gridCache, idx, offset4, type4) => {
+var es2 = (props, gridCache, idx, offset3, type4) => {
   const total2 = type4 === "column" ? props.totalColumn : props.totalRow;
   let exponent = 1;
-  while (idx < total2 && getItemFromCache2(props, idx, gridCache, type4).offset < offset4) {
+  while (idx < total2 && getItemFromCache2(props, idx, gridCache, type4).offset < offset3) {
     idx += exponent;
     exponent *= 2;
   }
-  return bs2(props, gridCache, floor3(idx / 2), min4(idx, total2 - 1), offset4, type4);
+  return bs2(props, gridCache, floor3(idx / 2), min3(idx, total2 - 1), offset3, type4);
 };
-var findItem2 = (props, gridCache, offset4, type4) => {
+var findItem2 = (props, gridCache, offset3, type4) => {
   const [cache2, lastVisitedIndex] = [
     gridCache[type4],
     gridCache[ACCESS_LAST_VISITED_KEY_MAP[type4]]
   ];
   const lastVisitedItemOffset = lastVisitedIndex > 0 ? cache2[lastVisitedIndex].offset : 0;
-  if (lastVisitedItemOffset >= offset4) {
-    return bs2(props, gridCache, 0, lastVisitedIndex, offset4, type4);
+  if (lastVisitedItemOffset >= offset3) {
+    return bs2(props, gridCache, 0, lastVisitedIndex, offset3, type4);
   }
-  return es2(props, gridCache, max4(0, lastVisitedIndex), offset4, type4);
+  return es2(props, gridCache, max3(0, lastVisitedIndex), offset3, type4);
 };
 var getEstimatedTotalHeight = ({ totalRow }, { estimatedRowHeight, lastVisitedRowIndex, row }) => {
   let sizeOfVisitedRows = 0;
@@ -46758,8 +45349,8 @@ var getOffset = (props, index, alignment, scrollOffset, cache2, type4, scrollBar
   ];
   const item = getItemFromCache2(props, index, cache2, type4);
   const estimatedSize = estimatedSizeAssociates(props, cache2);
-  const maxOffset = max4(0, min4(estimatedSize - size3, item.offset));
-  const minOffset = max4(0, item.offset - size3 + scrollBarWidth2 + item.size);
+  const maxOffset = max3(0, min3(estimatedSize - size3, item.offset));
+  const minOffset = max3(0, item.offset - size3 + scrollBarWidth2 + item.size);
   if (alignment === SMART_ALIGNMENT) {
     if (scrollOffset >= minOffset - size3 && scrollOffset <= maxOffset + size3) {
       alignment = AUTO_ALIGNMENT;
@@ -46807,11 +45398,11 @@ var DynamicSizeGrid = createGrid({
   getColumnStopIndexForStartIndex: (props, startIndex, scrollLeft, cache2) => {
     const item = getItemFromCache2(props, startIndex, cache2, "column");
     const maxOffset = scrollLeft + props.width;
-    let offset4 = item.offset + item.size;
+    let offset3 = item.offset + item.size;
     let stopIndex = startIndex;
-    while (stopIndex < props.totalColumn - 1 && offset4 < maxOffset) {
+    while (stopIndex < props.totalColumn - 1 && offset3 < maxOffset) {
       stopIndex++;
-      offset4 += getItemFromCache2(props, startIndex, cache2, "column").size;
+      offset3 += getItemFromCache2(props, startIndex, cache2, "column").size;
     }
     return stopIndex;
   },
@@ -46822,11 +45413,11 @@ var DynamicSizeGrid = createGrid({
     const { totalRow, height } = props;
     const item = getItemFromCache2(props, startIndex, cache2, "row");
     const maxOffset = scrollTop + height;
-    let offset4 = item.size + item.offset;
+    let offset3 = item.size + item.offset;
     let stopIndex = startIndex;
-    while (stopIndex < totalRow - 1 && offset4 < maxOffset) {
+    while (stopIndex < totalRow - 1 && offset3 < maxOffset) {
       stopIndex++;
-      offset4 += getItemFromCache2(props, stopIndex, cache2, "row").size;
+      offset3 += getItemFromCache2(props, stopIndex, cache2, "row").size;
     }
     return stopIndex;
   },
@@ -46878,13 +45469,13 @@ var DynamicSizeGrid = createGrid({
   validateProps: ({ columnWidth, rowHeight }) => {
     if (true) {
       if (!isFunction(columnWidth)) {
-        throwError(SCOPE7, `
+        throwError(SCOPE6, `
           "columnWidth" must be passed as function,
             instead ${typeof columnWidth} was given.
         `);
       }
       if (!isFunction(rowHeight)) {
-        throwError(SCOPE7, `
+        throwError(SCOPE6, `
           "rowHeight" must be passed as function,
             instead ${typeof rowHeight} was given.
         `);
@@ -46911,10 +45502,20 @@ var _sfc_main108 = defineComponent({
   }
 });
 function _sfc_render24(_ctx, _cache, $props, $setup, $data, $options) {
-  return openBlock(), createElementBlock("div", {
+  return _ctx.item.isTitle ? (openBlock(), createElementBlock("div", {
+    key: 0,
     class: normalizeClass(_ctx.ns.be("group", "title")),
     style: normalizeStyle([_ctx.style, { lineHeight: `${_ctx.height}px` }])
-  }, toDisplayString(_ctx.item.label), 7);
+  }, toDisplayString(_ctx.item.label), 7)) : (openBlock(), createElementBlock("div", {
+    key: 1,
+    class: normalizeClass(_ctx.ns.be("group", "split")),
+    style: normalizeStyle(_ctx.style)
+  }, [
+    createBaseVNode("span", {
+      class: normalizeClass(_ctx.ns.be("group", "split-dash")),
+      style: normalizeStyle({ top: `${_ctx.height / 2}px` })
+    }, null, 6)
+  ], 6));
 }
 var GroupItem = _export_sfc(_sfc_main108, [["render", _sfc_render24], ["__file", "group-item.vue"]]);
 
@@ -46942,7 +45543,7 @@ var defaultProps = {
   options: "options"
 };
 function useProps(props) {
-  const aliasProps = computed(() => ({ ...defaultProps, ...props.props }));
+  const aliasProps = computed2(() => ({ ...defaultProps, ...props.props }));
   const getLabel = (option) => get_default(option, aliasProps.value.label);
   const getValue3 = (option) => get_default(option, aliasProps.value.value);
   const getDisabled = (option) => get_default(option, aliasProps.value.disabled);
@@ -47051,16 +45652,14 @@ var SelectProps2 = buildProps({
   },
   placement: {
     type: definePropType(String),
-    values: placements,
+    values: Ee,
     default: "bottom-start"
   },
-  fallbackPlacements: {
-    type: definePropType(Array),
-    default: ["bottom-start", "top-start", "right", "left"]
-  },
   tagType: { ...tagProps.type, default: "info" },
-  ...useEmptyValuesProps,
-  ...useAriaProps(["ariaLabel"])
+  ariaLabel: {
+    type: String,
+    default: void 0
+  }
 });
 var OptionProps = buildProps({
   data: Array,
@@ -47096,7 +45695,7 @@ var _sfc_main109 = defineComponent({
     };
   }
 });
-var _hoisted_155 = ["aria-selected"];
+var _hoisted_154 = ["aria-selected"];
 function _sfc_render25(_ctx, _cache, $props, $setup, $data, $options) {
   return openBlock(), createElementBlock("li", {
     "aria-selected": _ctx.selected,
@@ -47118,7 +45717,7 @@ function _sfc_render25(_ctx, _cache, $props, $setup, $data, $options) {
     }, () => [
       createBaseVNode("span", null, toDisplayString(_ctx.getLabel(_ctx.item)), 1)
     ])
-  ], 46, _hoisted_155);
+  ], 46, _hoisted_154);
 }
 var OptionItem = _export_sfc(_sfc_main109, [["render", _sfc_render25], ["__file", "option-item.vue"]]);
 
@@ -47147,13 +45746,13 @@ var ElSelectMenu2 = defineComponent({
     } = useProps(select.props);
     const cachedHeights = ref([]);
     const listRef = ref();
-    const size3 = computed(() => props.data.length);
+    const size3 = computed2(() => props.data.length);
     watch(() => size3.value, () => {
       var _a2, _b;
       (_b = (_a2 = select.tooltipRef.value).updatePopper) == null ? void 0 : _b.call(_a2);
     });
-    const isSized = computed(() => isUndefined2(select.props.estimatedOptionHeight));
-    const listProps = computed(() => {
+    const isSized = computed2(() => isUndefined2(select.props.estimatedOptionHeight));
+    const listProps = computed2(() => {
       if (isSized.value) {
         return {
           itemSize: select.props.itemHeight
@@ -47164,7 +45763,7 @@ var ElSelectMenu2 = defineComponent({
         itemSize: (idx) => cachedHeights.value[idx]
       };
     });
-    const contains2 = (arr = [], target2) => {
+    const contains = (arr = [], target2) => {
       const {
         props: {
           valueKey
@@ -47189,7 +45788,7 @@ var ElSelectMenu2 = defineComponent({
     };
     const isItemSelected = (modelValue, target2) => {
       if (select.props.multiple) {
-        return contains2(modelValue, getValue3(target2));
+        return contains(modelValue, getValue3(target2));
       }
       return isEqual3(modelValue, getValue3(target2));
     };
@@ -47326,13 +45925,18 @@ var ElSelectMenu2 = defineComponent({
         multiple,
         scrollbarAlwaysOn
       } = select.props;
+      if (slots.loading || slots.empty) {
+        return createVNode("div", {
+          "class": ns.b("dropdown"),
+          "style": {
+            width: `${width}px`
+          }
+        }, [((_a2 = slots.loading) == null ? void 0 : _a2.call(slots)) || ((_b = slots.empty) == null ? void 0 : _b.call(slots))]);
+      }
       const List = unref(isSized) ? FixedSizeList : DynamicSizeList;
       return createVNode("div", {
-        "class": [ns.b("dropdown"), ns.is("multiple", multiple)],
-        "style": {
-          width: `${width}px`
-        }
-      }, [(_a2 = slots.header) == null ? void 0 : _a2.call(slots), ((_b = slots.loading) == null ? void 0 : _b.call(slots)) || ((_c = slots.empty) == null ? void 0 : _c.call(slots)) || createVNode(List, mergeProps({
+        "class": [ns.b("dropdown"), ns.is("multiple", multiple)]
+      }, [(_c = slots.header) == null ? void 0 : _c.call(slots), createVNode(List, mergeProps({
         "ref": listRef
       }, unref(listProps), {
         "className": ns.be("dropdown", "list"),
@@ -47354,12 +45958,12 @@ function useAllowCreate(props, states) {
   const { aliasProps, getLabel, getValue: getValue3 } = useProps(props);
   const createOptionCount = ref(0);
   const cachedSelectedOption = ref(null);
-  const enableAllowCreateMode = computed(() => {
+  const enableAllowCreateMode = computed2(() => {
     return props.allowCreate && props.filterable;
   });
   function hasExistingOption(query) {
-    const hasOption = (option) => getLabel(option) === query;
-    return props.options && props.options.some(hasOption) || states.createdOptions.some(hasOption);
+    const hasValue = (option) => getValue3(option) === query;
+    return props.options && props.options.some(hasValue) || states.createdOptions.some(hasValue);
   }
   function selectNewOption(option) {
     if (!enableAllowCreateMode.value) {
@@ -47405,7 +46009,7 @@ function useAllowCreate(props, states) {
     if (!enableAllowCreateMode.value || !option || !option.created || option.created && props.reserveKeyword && states.inputValue === getLabel(option)) {
       return;
     }
-    const idx = states.createdOptions.findIndex((it) => getValue3(it) === getValue3(option));
+    const idx = states.createdOptions.findIndex((it2) => getValue3(it2) === getValue3(option));
     if (~idx) {
       states.createdOptions.splice(idx, 1);
       createOptionCount.value--;
@@ -47435,8 +46039,7 @@ var useSelect2 = (props, emit) => {
   const { inputId } = useFormItemInputId(props, {
     formItemContext: elFormItem
   });
-  const { aliasProps, getLabel, getValue: getValue3, getDisabled, getOptions } = useProps(props);
-  const { valueOnClear, isEmptyValue: isEmptyValue2 } = useEmptyValues(props);
+  const { getLabel, getValue: getValue3, getDisabled, getOptions } = useProps(props);
   const states = reactive({
     inputValue: "",
     cachedOptions: [],
@@ -47452,6 +46055,7 @@ var useSelect2 = (props, emit) => {
     menuVisibleOnFocus: false,
     isBeforeHide: false
   });
+  const selectedIndex = ref(-1);
   const popperSize = ref(-1);
   const selectRef = ref(null);
   const selectionRef = ref(null);
@@ -47483,23 +46087,24 @@ var useSelect2 = (props, emit) => {
   const allOptions = ref([]);
   const filteredOptions = ref([]);
   const expanded = ref(false);
-  const selectDisabled = computed(() => props.disabled || (elForm == null ? void 0 : elForm.disabled));
-  const popupHeight = computed(() => {
+  const selectDisabled = computed2(() => props.disabled || (elForm == null ? void 0 : elForm.disabled));
+  const popupHeight = computed2(() => {
     const totalHeight = filteredOptions.value.length * props.itemHeight;
     return totalHeight > props.height ? props.height : totalHeight;
   });
-  const hasModelValue = computed(() => {
-    return props.multiple ? isArray(props.modelValue) && props.modelValue.length > 0 : !isEmptyValue2(props.modelValue);
+  const hasModelValue = computed2(() => {
+    return props.multiple ? isArray(props.modelValue) && props.modelValue.length > 0 : props.modelValue !== void 0 && props.modelValue !== null && props.modelValue !== "";
   });
-  const showClearBtn = computed(() => {
-    return props.clearable && !selectDisabled.value && states.inputHovering && hasModelValue.value;
+  const showClearBtn = computed2(() => {
+    const criteria = props.clearable && !selectDisabled.value && states.inputHovering && hasModelValue.value;
+    return criteria;
   });
-  const iconComponent = computed(() => props.remote && props.filterable ? "" : arrow_down_default);
-  const iconReverse = computed(() => iconComponent.value && nsSelect.is("reverse", expanded.value));
-  const validateState = computed(() => (elFormItem == null ? void 0 : elFormItem.validateState) || "");
-  const validateIcon = computed(() => ValidateComponentsMap[validateState.value]);
-  const debounce$1 = computed(() => props.remote ? 300 : 0);
-  const emptyText = computed(() => {
+  const iconComponent = computed2(() => props.remote && props.filterable ? "" : arrow_down_default);
+  const iconReverse = computed2(() => iconComponent.value && nsSelect.is("reverse", expanded.value));
+  const validateState = computed2(() => (elFormItem == null ? void 0 : elFormItem.validateState) || "");
+  const validateIcon = computed2(() => ValidateComponentsMap[validateState.value]);
+  const debounce$1 = computed2(() => props.remote ? 300 : 0);
+  const emptyText = computed2(() => {
     if (props.loading) {
       return props.loadingText || t("el.select.loading");
     } else {
@@ -47533,8 +46138,9 @@ var useSelect2 = (props, emit) => {
         if (filtered.length > 0) {
           all.push({
             label: getLabel(item),
+            isTitle: true,
             type: "Group"
-          }, ...filtered);
+          }, ...filtered, { type: "Group" });
         }
       } else if (props.remote || isValidOption(item)) {
         all.push(item);
@@ -47546,23 +46152,16 @@ var useSelect2 = (props, emit) => {
     allOptions.value = filterOptions("");
     filteredOptions.value = filterOptions(states.inputValue);
   };
-  const allOptionsValueMap = computed(() => {
-    const valueMap = /* @__PURE__ */ new Map();
-    allOptions.value.forEach((option, index) => {
-      valueMap.set(getValueKey(getValue3(option)), { option, index });
-    });
-    return valueMap;
-  });
-  const filteredOptionsValueMap = computed(() => {
+  const filteredOptionsValueMap = computed2(() => {
     const valueMap = /* @__PURE__ */ new Map();
     filteredOptions.value.forEach((option, index) => {
       valueMap.set(getValueKey(getValue3(option)), { option, index });
     });
     return valueMap;
   });
-  const optionsAllDisabled = computed(() => filteredOptions.value.every((option) => getDisabled(option)));
+  const optionsAllDisabled = computed2(() => filteredOptions.value.every((option) => getDisabled(option)));
   const selectSize = useFormSize();
-  const collapseTagSize = computed(() => selectSize.value === "small" ? "small" : "default");
+  const collapseTagSize = computed2(() => selectSize.value === "small" ? "small" : "default");
   const calculatePopperSize = () => {
     var _a2;
     popperSize.value = ((_a2 = selectRef.value) == null ? void 0 : _a2.offsetWidth) || 200;
@@ -47573,33 +46172,33 @@ var useSelect2 = (props, emit) => {
     const style = window.getComputedStyle(selectionRef.value);
     return Number.parseFloat(style.gap || "6px");
   };
-  const tagStyle = computed(() => {
+  const tagStyle = computed2(() => {
     const gapWidth = getGapWidth();
     const maxWidth = collapseItemRef.value && props.maxCollapseTags === 1 ? states.selectionWidth - states.collapseItemWidth - gapWidth : states.selectionWidth;
     return { maxWidth: `${maxWidth}px` };
   });
-  const collapseTagStyle = computed(() => {
+  const collapseTagStyle = computed2(() => {
     return { maxWidth: `${states.selectionWidth}px` };
   });
-  const inputStyle = computed(() => ({
+  const inputStyle = computed2(() => ({
     width: `${Math.max(states.calculatorWidth, MINIMUM_INPUT_WIDTH2)}px`
   }));
-  const shouldShowPlaceholder = computed(() => {
+  const shouldShowPlaceholder = computed2(() => {
     if (isArray(props.modelValue)) {
       return props.modelValue.length === 0 && !states.inputValue;
     }
     return props.filterable ? !states.inputValue : true;
   });
-  const currentPlaceholder = computed(() => {
+  const currentPlaceholder = computed2(() => {
     var _a2;
     const _placeholder = (_a2 = props.placeholder) != null ? _a2 : t("el.select.placeholder");
     return props.multiple || !hasModelValue.value ? _placeholder : states.selectedLabel;
   });
-  const popperRef = computed(() => {
+  const popperRef = computed2(() => {
     var _a2, _b;
     return (_b = (_a2 = tooltipRef.value) == null ? void 0 : _a2.popperRef) == null ? void 0 : _b.contentRef;
   });
-  const indexRef = computed(() => {
+  const indexRef = computed2(() => {
     if (props.multiple) {
       const len = props.modelValue.length;
       if (props.modelValue.length > 0 && filteredOptionsValueMap.value.has(props.modelValue[len - 1])) {
@@ -47614,7 +46213,7 @@ var useSelect2 = (props, emit) => {
     }
     return -1;
   });
-  const dropdownMenuVisible = computed({
+  const dropdownMenuVisible = computed2({
     get() {
       return expanded.value && emptyText.value !== false;
     },
@@ -47622,13 +46221,13 @@ var useSelect2 = (props, emit) => {
       expanded.value = val;
     }
   });
-  const showTagList = computed(() => {
+  const showTagList = computed2(() => {
     if (!props.multiple) {
       return [];
     }
     return props.collapseTags ? states.cachedOptions.slice(0, props.maxCollapseTags) : states.cachedOptions;
   });
-  const collapseTagList = computed(() => {
+  const collapseTagList = computed2(() => {
     if (!props.multiple) {
       return [];
     }
@@ -47692,7 +46291,7 @@ var useSelect2 = (props, emit) => {
   const update2 = (val) => {
     emit(UPDATE_MODEL_EVENT, val);
     emitChange(val);
-    states.previousValue = props.multiple ? String(val) : val;
+    states.previousValue = String(val);
   };
   const getValueIndex = (arr = [], value) => {
     if (!isObject(value)) {
@@ -47732,7 +46331,7 @@ var useSelect2 = (props, emit) => {
     var _a2, _b;
     (_b = (_a2 = tagTooltipRef.value) == null ? void 0 : _a2.updatePopper) == null ? void 0 : _b.call(_a2);
   };
-  const onSelect = (option) => {
+  const onSelect = (option, idx) => {
     if (props.multiple) {
       let selectedOptions = props.modelValue.slice();
       const index = getValueIndex(selectedOptions, getValue3(option));
@@ -47756,6 +46355,7 @@ var useSelect2 = (props, emit) => {
         states.inputValue = "";
       }
     } else {
+      selectedIndex.value = idx;
       states.selectedLabel = getLabel(option);
       update2(getValue3(option));
       expanded.value = false;
@@ -47797,7 +46397,7 @@ var useSelect2 = (props, emit) => {
       expanded.value = false;
     }
   };
-  const getLastNotDisabledIndex = (value) => findLastIndex_default(value, (it) => !states.cachedOptions.some((option) => getValue3(option) === it && getDisabled(option)));
+  const getLastNotDisabledIndex = (value) => findLastIndex_default(value, (it2) => !states.cachedOptions.some((option) => getValue3(option) === it2 && getDisabled(option)));
   const handleDel = (e) => {
     if (!props.multiple)
       return;
@@ -47809,13 +46409,11 @@ var useSelect2 = (props, emit) => {
       const lastNotDisabledIndex = getLastNotDisabledIndex(selected);
       if (lastNotDisabledIndex < 0)
         return;
-      const removeTagValue = selected[lastNotDisabledIndex];
       selected.splice(lastNotDisabledIndex, 1);
       const option = states.cachedOptions[lastNotDisabledIndex];
       states.cachedOptions.splice(lastNotDisabledIndex, 1);
       removeNewOption(option);
       update2(selected);
-      emit("remove-tag", removeTagValue);
     }
   };
   const handleClear = () => {
@@ -47823,7 +46421,7 @@ var useSelect2 = (props, emit) => {
     if (isArray(props.modelValue)) {
       emptyValue = [];
     } else {
-      emptyValue = valueOnClear.value;
+      emptyValue = void 0;
     }
     if (props.multiple) {
       states.cachedOptions = [];
@@ -47871,7 +46469,7 @@ var useSelect2 = (props, emit) => {
     if (!expanded.value) {
       return toggleMenu();
     } else if (~states.hoveringIndex && filteredOptions.value[states.hoveringIndex]) {
-      onSelect(filteredOptions.value[states.hoveringIndex]);
+      onSelect(filteredOptions.value[states.hoveringIndex], states.hoveringIndex);
     }
   };
   const onHoverOption = (idx) => {
@@ -47883,7 +46481,15 @@ var useSelect2 = (props, emit) => {
         return getValueKey(item) === getValueKey(props.modelValue);
       });
     } else {
-      states.hoveringIndex = filteredOptions.value.findIndex((item) => props.modelValue.some((modelValue) => getValueKey(modelValue) === getValueKey(item)));
+      if (props.modelValue.length > 0) {
+        states.hoveringIndex = Math.min(...props.modelValue.map((selected) => {
+          return filteredOptions.value.findIndex((item) => {
+            return getValue3(item) === selected;
+          });
+        }));
+      } else {
+        states.hoveringIndex = -1;
+      }
     }
   };
   const onInput = (event) => {
@@ -47902,7 +46508,6 @@ var useSelect2 = (props, emit) => {
     }
   };
   const handleMenuEnter = () => {
-    states.isBeforeHide = false;
     return nextTick(() => {
       if (~indexRef.value) {
         scrollToItem(states.hoveringIndex);
@@ -47914,13 +46519,13 @@ var useSelect2 = (props, emit) => {
   };
   const getOption = (value) => {
     const selectValue = getValueKey(value);
-    if (allOptionsValueMap.value.has(selectValue)) {
-      const { option } = allOptionsValueMap.value.get(selectValue);
+    if (filteredOptionsValueMap.value.has(selectValue)) {
+      const { option } = filteredOptionsValueMap.value.get(selectValue);
       return option;
     }
     return {
-      [aliasProps.value.value]: value,
-      [aliasProps.value.label]: value
+      value,
+      label: value
     };
   };
   const initStates = () => {
@@ -47967,7 +46572,7 @@ var useSelect2 = (props, emit) => {
   });
   watch(() => props.modelValue, (val, oldVal) => {
     var _a2;
-    if (!val || props.multiple && val.toString() !== states.previousValue || !props.multiple && getValueKey(val) !== getValueKey(states.previousValue)) {
+    if (!val || val.toString() !== states.previousValue) {
       initStates();
     }
     if (!isEqual_default(val, oldVal) && props.validateEvent) {
@@ -47982,8 +46587,7 @@ var useSelect2 = (props, emit) => {
       initStates();
     }
   }, {
-    deep: true,
-    flush: "post"
+    deep: true
   });
   watch(() => filteredOptions.value, () => {
     return menuRef.value && nextTick(menuRef.value.resetScrollTop);
@@ -48118,7 +46722,7 @@ var _sfc_main110 = defineComponent({
     "blur"
   ],
   setup(props, { emit }) {
-    const modelValue = computed(() => {
+    const modelValue = computed2(() => {
       const { modelValue: rawModelValue, multiple } = props;
       const fallback = multiple ? [] : void 0;
       if (isArray(rawModelValue)) {
@@ -48148,9 +46752,8 @@ var _sfc_main110 = defineComponent({
     };
   }
 });
-var _hoisted_156 = ["id", "autocomplete", "aria-expanded", "aria-label", "disabled", "readonly", "name"];
+var _hoisted_155 = ["id", "autocomplete", "aria-expanded", "aria-label", "disabled", "readonly", "name"];
 var _hoisted_235 = ["textContent"];
-var _hoisted_317 = { key: 1 };
 function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_tag = resolveComponent("el-tag");
   const _component_el_tooltip = resolveComponent("el-tooltip");
@@ -48160,8 +46763,9 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
   return withDirectives((openBlock(), createElementBlock("div", {
     ref: "selectRef",
     class: normalizeClass([_ctx.nsSelect.b(), _ctx.nsSelect.m(_ctx.selectSize)]),
-    onMouseenter: _cache[15] || (_cache[15] = ($event) => _ctx.states.inputHovering = true),
-    onMouseleave: _cache[16] || (_cache[16] = ($event) => _ctx.states.inputHovering = false)
+    onMouseenter: _cache[14] || (_cache[14] = ($event) => _ctx.states.inputHovering = true),
+    onMouseleave: _cache[15] || (_cache[15] = ($event) => _ctx.states.inputHovering = false),
+    onClick: _cache[16] || (_cache[16] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["stop"]))
   }, [
     createVNode(_component_el_tooltip, {
       ref: "tooltipRef",
@@ -48171,7 +46775,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
       "gpu-acceleration": false,
       "stop-popper-mouse-event": false,
       "popper-options": _ctx.popperOptions,
-      "fallback-placements": _ctx.fallbackPlacements,
+      "fallback-placements": ["bottom-start", "top-start", "right", "left"],
       effect: _ctx.effect,
       placement: _ctx.placement,
       pure: "",
@@ -48179,7 +46783,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
       trigger: "click",
       persistent: _ctx.persistent,
       onBeforeShow: _ctx.handleMenuEnter,
-      onHide: _cache[14] || (_cache[14] = ($event) => _ctx.states.isBeforeHide = false)
+      onHide: _cache[13] || (_cache[13] = ($event) => _ctx.states.isBeforeHide = false)
     }, {
       default: withCtx(() => [
         createBaseVNode("div", {
@@ -48190,8 +46794,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
             _ctx.nsSelect.is("hovering", _ctx.states.inputHovering),
             _ctx.nsSelect.is("filterable", _ctx.filterable),
             _ctx.nsSelect.is("disabled", _ctx.selectDisabled)
-          ]),
-          onClick: _cache[13] || (_cache[13] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["prevent", "stop"]))
+          ])
         }, [
           _ctx.$slots.prefix ? (openBlock(), createElementBlock("div", {
             key: 0,
@@ -48224,14 +46827,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
                     default: withCtx(() => [
                       createBaseVNode("span", {
                         class: normalizeClass(_ctx.nsSelect.e("tags-text"))
-                      }, [
-                        renderSlot(_ctx.$slots, "label", {
-                          label: _ctx.getLabel(item),
-                          value: _ctx.getValue(item)
-                        }, () => [
-                          createTextVNode(toDisplayString(_ctx.getLabel(item)), 1)
-                        ])
-                      ], 2)
+                      }, toDisplayString(_ctx.getLabel(item)), 3)
                     ]),
                     _: 2
                   }, 1032, ["closable", "size", "type", "style", "onClose"])
@@ -48288,14 +46884,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
                           default: withCtx(() => [
                             createBaseVNode("span", {
                               class: normalizeClass(_ctx.nsSelect.e("tags-text"))
-                            }, [
-                              renderSlot(_ctx.$slots, "label", {
-                                label: _ctx.getLabel(selected),
-                                value: _ctx.getValue(selected)
-                              }, () => [
-                                createTextVNode(toDisplayString(_ctx.getLabel(selected)), 1)
-                              ])
-                            ], 2)
+                            }, toDisplayString(_ctx.getLabel(selected)), 3)
                           ]),
                           _: 2
                         }, 1032, ["closable", "size", "type", "onClose"])
@@ -48303,7 +46892,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
                     }), 128))
                   ], 2)
                 ]),
-                _: 3
+                _: 1
               }, 8, ["disabled", "effect", "teleported"])) : createCommentVNode("v-if", true)
             ]) : createCommentVNode("v-if", true),
             !_ctx.selectDisabled ? (openBlock(), createElementBlock("div", {
@@ -48346,7 +46935,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
                   _cache[11] || (_cache[11] = withKeys(withModifiers((...args) => _ctx.handleDel && _ctx.handleDel(...args), ["stop"]), ["delete"]))
                 ],
                 onClick: _cache[12] || (_cache[12] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["stop"]))
-              }, null, 46, _hoisted_156), [
+              }, null, 46, _hoisted_155), [
                 [vModelText, _ctx.states.inputValue]
               ]),
               _ctx.filterable ? (openBlock(), createElementBlock("span", {
@@ -48365,13 +46954,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
                 _ctx.nsSelect.is("transparent", !_ctx.hasModelValue || _ctx.expanded && !_ctx.states.inputValue)
               ])
             }, [
-              _ctx.hasModelValue ? renderSlot(_ctx.$slots, "label", {
-                key: 0,
-                label: _ctx.currentPlaceholder,
-                value: _ctx.modelValue
-              }, () => [
-                createBaseVNode("span", null, toDisplayString(_ctx.currentPlaceholder), 1)
-              ]) : (openBlock(), createElementBlock("span", _hoisted_317, toDisplayString(_ctx.currentPlaceholder), 1))
+              createBaseVNode("span", null, toDisplayString(_ctx.currentPlaceholder), 1)
             ], 2)) : createCommentVNode("v-if", true)
           ], 2),
           createBaseVNode("div", {
@@ -48468,7 +47051,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
         ]), 1032, ["data", "width", "hovering-index", "scrollbar-always-on"])
       ]),
       _: 3
-    }, 8, ["visible", "teleported", "popper-class", "popper-options", "fallback-placements", "effect", "placement", "transition", "persistent", "onBeforeShow"])
+    }, 8, ["visible", "teleported", "popper-class", "popper-options", "effect", "placement", "transition", "persistent", "onBeforeShow"])
   ], 34)), [
     [_directive_click_outside, _ctx.handleClickOutside, _ctx.popperRef]
   ]);
@@ -48666,7 +47249,7 @@ var sliderProps = buildProps({
   },
   placement: {
     type: String,
-    values: placements,
+    values: Ee,
     default: "top"
   },
   marks: {
@@ -48675,8 +47258,7 @@ var sliderProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  },
-  ...useAriaProps(["ariaLabel"])
+  }
 });
 var isValidValue = (value) => isNumber3(value) || isArray(value) && value.every(isNumber3);
 var sliderEmits = {
@@ -48717,7 +47299,7 @@ var useLifecycle = (props, initData, resetSize) => {
 
 // node_modules/element-plus/es/components/slider/src/composables/use-marks.mjs
 var useMarks = (props) => {
-  return computed(() => {
+  return computed2(() => {
     if (!props.marks) {
       return [];
     }
@@ -48740,25 +47322,25 @@ var useSlide = (props, initData, emit) => {
     firstButton,
     secondButton
   };
-  const sliderDisabled = computed(() => {
+  const sliderDisabled = computed2(() => {
     return props.disabled || (elForm == null ? void 0 : elForm.disabled) || false;
   });
-  const minValue = computed(() => {
+  const minValue = computed2(() => {
     return Math.min(initData.firstValue, initData.secondValue);
   });
-  const maxValue = computed(() => {
+  const maxValue = computed2(() => {
     return Math.max(initData.firstValue, initData.secondValue);
   });
-  const barSize = computed(() => {
+  const barSize = computed2(() => {
     return props.range ? `${100 * (maxValue.value - minValue.value) / (props.max - props.min)}%` : `${100 * (initData.firstValue - props.min) / (props.max - props.min)}%`;
   });
-  const barStart = computed(() => {
+  const barStart = computed2(() => {
     return props.range ? `${100 * (minValue.value - props.min) / (props.max - props.min)}%` : "0%";
   });
-  const runwayStyle = computed(() => {
+  const runwayStyle = computed2(() => {
     return props.vertical ? { height: props.height } : {};
   });
-  const barStyle = computed(() => {
+  const barStyle = computed2(() => {
     return props.vertical ? {
       height: barSize.value,
       bottom: barStart.value
@@ -48868,14 +47450,14 @@ var useSlide = (props, initData, emit) => {
 };
 
 // node_modules/element-plus/es/components/slider/src/composables/use-slider-button.mjs
-var { left: left2, down, right: right2, up, home, end: end2, pageUp, pageDown } = EVENT_CODE;
+var { left, down, right, up, home, end, pageUp, pageDown } = EVENT_CODE;
 var useTooltip = (props, formatTooltip, showTooltip) => {
   const tooltip = ref();
   const tooltipVisible = ref(false);
-  const enableFormat = computed(() => {
+  const enableFormat = computed2(() => {
     return formatTooltip.value instanceof Function;
   });
-  const formatValue = computed(() => {
+  const formatValue = computed2(() => {
     return enableFormat.value && formatTooltip.value(props.modelValue) || props.modelValue;
   });
   const displayTooltip = debounce_default(() => {
@@ -48895,8 +47477,8 @@ var useTooltip = (props, formatTooltip, showTooltip) => {
 var useSliderButton = (props, initData, emit) => {
   const {
     disabled,
-    min: min5,
-    max: max5,
+    min: min4,
+    max: max4,
     step,
     showTooltip,
     precision,
@@ -48908,10 +47490,10 @@ var useSliderButton = (props, initData, emit) => {
   } = inject(sliderContextKey);
   const { tooltip, tooltipVisible, formatValue, displayTooltip, hideTooltip } = useTooltip(props, formatTooltip, showTooltip);
   const button = ref();
-  const currentPosition = computed(() => {
-    return `${(props.modelValue - min5.value) / (max5.value - min5.value) * 100}%`;
+  const currentPosition = computed2(() => {
+    return `${(props.modelValue - min4.value) / (max4.value - min4.value) * 100}%`;
   });
-  const wrapperStyle = computed(() => {
+  const wrapperStyle = computed2(() => {
     return props.vertical ? { bottom: currentPosition.value } : { left: currentPosition.value };
   });
   const handleMouseEnter = () => {
@@ -48939,7 +47521,7 @@ var useSliderButton = (props, initData, emit) => {
   const incrementPosition = (amount) => {
     if (disabled.value)
       return;
-    initData.newPosition = Number.parseFloat(currentPosition.value) + amount / (max5.value - min5.value) * 100;
+    initData.newPosition = Number.parseFloat(currentPosition.value) + amount / (max4.value - min4.value) * 100;
     setPosition(initData.newPosition);
     emitChange();
   };
@@ -48969,13 +47551,13 @@ var useSliderButton = (props, initData, emit) => {
   };
   const onKeyDown = (event) => {
     let isPreventDefault = true;
-    if ([left2, down].includes(event.key)) {
+    if ([left, down].includes(event.key)) {
       onLeftKeyDown();
-    } else if ([right2, up].includes(event.key)) {
+    } else if ([right, up].includes(event.key)) {
       onRightKeyDown();
     } else if (event.key === home) {
       onHomeKeyDown();
-    } else if (event.key === end2) {
+    } else if (event.key === end) {
       onEndKeyDown();
     } else if (event.key === pageDown) {
       onPageDownKeyDown();
@@ -49058,9 +47640,9 @@ var useSliderButton = (props, initData, emit) => {
     } else if (newPosition > 100) {
       newPosition = 100;
     }
-    const lengthPerStep = 100 / ((max5.value - min5.value) / step.value);
+    const lengthPerStep = 100 / ((max4.value - min4.value) / step.value);
     const steps = Math.round(newPosition / lengthPerStep);
-    let value = steps * lengthPerStep * (max5.value - min5.value) * 0.01 + min5.value;
+    let value = steps * lengthPerStep * (max4.value - min4.value) * 0.01 + min4.value;
     value = Number.parseFloat(value.toFixed(precision.value));
     if (value !== props.modelValue) {
       emit(UPDATE_MODEL_EVENT, value);
@@ -49093,7 +47675,7 @@ var useSliderButton = (props, initData, emit) => {
 
 // node_modules/element-plus/es/components/slider/src/composables/use-stops.mjs
 var useStops = (props, initData, minValue, maxValue) => {
-  const stops = computed(() => {
+  const stops = computed2(() => {
     if (!props.showStops || props.min > props.max)
       return [];
     if (props.step === 0) {
@@ -49203,7 +47785,7 @@ var sliderButtonProps = buildProps({
   tooltipClass: String,
   placement: {
     type: String,
-    values: placements,
+    values: Ee,
     default: "top"
   }
 });
@@ -49212,7 +47794,7 @@ var sliderButtonEmits = {
 };
 
 // node_modules/element-plus/es/components/slider/src/button2.mjs
-var _hoisted_157 = ["tabindex"];
+var _hoisted_156 = ["tabindex"];
 var __default__77 = defineComponent({
   name: "ElSliderButton"
 });
@@ -49293,7 +47875,7 @@ var _sfc_main113 = defineComponent({
           ]),
           _: 1
         }, 8, ["visible", "placement", "popper-class", "disabled"])
-      ], 46, _hoisted_157);
+      ], 46, _hoisted_156);
     };
   }
 });
@@ -49311,10 +47893,10 @@ var SliderMarker = defineComponent({
   props: sliderMarkerProps,
   setup(props) {
     const ns = useNamespace("slider");
-    const label = computed(() => {
+    const label = computed2(() => {
       return isString(props.mark) ? props.mark : props.mark.label;
     });
-    const style = computed(() => isString(props.mark) ? void 0 : props.mark.style);
+    const style = computed2(() => isString(props.mark) ? void 0 : props.mark.style);
     return () => h("div", {
       class: ns.e("marks-text"),
       style: style.value
@@ -49323,7 +47905,7 @@ var SliderMarker = defineComponent({
 });
 
 // node_modules/element-plus/es/components/slider/src/slider2.mjs
-var _hoisted_158 = ["id", "role", "aria-label", "aria-labelledby"];
+var _hoisted_157 = ["id", "role", "aria-label", "aria-labelledby"];
 var _hoisted_236 = { key: 1 };
 var __default__78 = defineComponent({
   name: "ElSlider"
@@ -49366,30 +47948,30 @@ var _sfc_main114 = defineComponent({
       formItemContext: elFormItem
     });
     const sliderWrapperSize = useFormSize();
-    const sliderInputSize = computed(() => props.inputSize || sliderWrapperSize.value);
-    const groupLabel = computed(() => {
-      return props.label || props.ariaLabel || t("el.slider.defaultLabel", {
+    const sliderInputSize = computed2(() => props.inputSize || sliderWrapperSize.value);
+    const groupLabel = computed2(() => {
+      return props.label || t("el.slider.defaultLabel", {
         min: props.min,
         max: props.max
       });
     });
-    const firstButtonLabel = computed(() => {
+    const firstButtonLabel = computed2(() => {
       if (props.range) {
         return props.rangeStartLabel || t("el.slider.defaultRangeStartLabel");
       } else {
         return groupLabel.value;
       }
     });
-    const firstValueText = computed(() => {
+    const firstValueText = computed2(() => {
       return props.formatValueText ? props.formatValueText(firstValue.value) : `${firstValue.value}`;
     });
-    const secondButtonLabel = computed(() => {
+    const secondButtonLabel = computed2(() => {
       return props.rangeEndLabel || t("el.slider.defaultRangeEndLabel");
     });
-    const secondValueText = computed(() => {
+    const secondValueText = computed2(() => {
       return props.formatValueText ? props.formatValueText(secondValue.value) : `${secondValue.value}`;
     });
-    const sliderKls = computed(() => [
+    const sliderKls = computed2(() => [
       ns.b(),
       ns.m(sliderWrapperSize.value),
       ns.is("vertical", props.vertical),
@@ -49397,7 +47979,7 @@ var _sfc_main114 = defineComponent({
     ]);
     const markList = useMarks(props);
     useWatch(props, initData, minValue, maxValue, emit, elFormItem);
-    const precision = computed(() => {
+    const precision = computed2(() => {
       const precisions = [props.min, props.max, props.step].map((item) => {
         const decimal = `${item}`.split(".")[1];
         return decimal ? decimal.length : 0;
@@ -49418,13 +48000,6 @@ var _sfc_main114 = defineComponent({
       resetSize,
       updateDragging
     });
-    useDeprecated({
-      from: "label",
-      replacement: "aria-label",
-      version: "2.8.0",
-      scope: "el-slider",
-      ref: "https://element-plus.org/en-US/component/slider.html"
-    }, computed(() => !!props.label));
     expose({
       onSliderClick
     });
@@ -49541,7 +48116,7 @@ var _sfc_main114 = defineComponent({
           "onUpdate:modelValue": unref(setFirstValue),
           onChange: unref(emitChange)
         }, null, 8, ["model-value", "class", "step", "disabled", "controls", "min", "max", "debounce", "size", "onUpdate:modelValue", "onChange"])) : createCommentVNode("v-if", true)
-      ], 42, _hoisted_158);
+      ], 42, _hoisted_157);
     };
   }
 });
@@ -49561,7 +48136,7 @@ var SpaceItem = defineComponent({
   props: spaceItemProps,
   setup(props, { slots }) {
     const ns = useNamespace("space");
-    const classes = computed(() => `${props.prefixCls || ns.b()}__item`);
+    const classes = computed2(() => `${props.prefixCls || ns.b()}__item`);
     return () => h("div", { class: classes.value }, renderSlot(slots, "default"));
   }
 });
@@ -49574,10 +48149,10 @@ var SIZE_MAP = {
 };
 function useSpace(props) {
   const ns = useNamespace("space");
-  const classes = computed(() => [ns.b(), ns.m(props.direction), props.class]);
+  const classes = computed2(() => [ns.b(), ns.m(props.direction), props.class]);
   const horizontalSize = ref(0);
   const verticalSize = ref(0);
-  const containerStyle = computed(() => {
+  const containerStyle = computed2(() => {
     const wrapKls = props.wrap || props.fill ? { flexWrap: "wrap" } : {};
     const alignment = {
       alignItems: props.alignment
@@ -49588,7 +48163,7 @@ function useSpace(props) {
     };
     return [wrapKls, alignment, gap, props.style];
   });
-  const itemStyle = computed(() => {
+  const itemStyle = computed2(() => {
     return props.fill ? { flexGrow: 1, minWidth: `${props.fillRatio}%` } : {};
   });
   watchEffect(() => {
@@ -49781,7 +48356,7 @@ var _sfc_main115 = defineComponent({
   setup(__props, { expose }) {
     const props = __props;
     const ns = useNamespace("statistic");
-    const displayValue = computed(() => {
+    const displayValue = computed2(() => {
       const { value, formatter: formatter2, precision, decimalSeparator, groupSeparator } = props;
       if (isFunction(formatter2))
         return formatter2(value);
@@ -49902,7 +48477,7 @@ var _sfc_main116 = defineComponent({
     const props = __props;
     let timer;
     const rawValue = ref(getTime(props.value) - Date.now());
-    const displayValue = computed(() => formatTime(rawValue.value, props.format));
+    const displayValue = computed2(() => formatTime(rawValue.value, props.format));
     const formatter2 = (val) => formatTime(val, props.format);
     const stopTimer = () => {
       if (timer) {
@@ -50083,33 +48658,33 @@ var _sfc_main118 = defineComponent({
     onBeforeUnmount(() => {
       parent2.removeStep(stepItemState.uid);
     });
-    const currentStatus = computed(() => {
+    const currentStatus = computed2(() => {
       return props.status || internalStatus.value;
     });
-    const prevStatus = computed(() => {
+    const prevStatus = computed2(() => {
       const prevStep = parent2.steps.value[index.value - 1];
       return prevStep ? prevStep.currentStatus : "wait";
     });
-    const isCenter = computed(() => {
+    const isCenter = computed2(() => {
       return parent2.props.alignCenter;
     });
-    const isVertical = computed(() => {
+    const isVertical = computed2(() => {
       return parent2.props.direction === "vertical";
     });
-    const isSimple = computed(() => {
+    const isSimple = computed2(() => {
       return parent2.props.simple;
     });
-    const stepsCount = computed(() => {
+    const stepsCount = computed2(() => {
       return parent2.steps.value.length;
     });
-    const isLast = computed(() => {
+    const isLast = computed2(() => {
       var _a2;
       return ((_a2 = parent2.steps.value[stepsCount.value - 1]) == null ? void 0 : _a2.uid) === (currentInstance == null ? void 0 : currentInstance.uid);
     });
-    const space = computed(() => {
+    const space = computed2(() => {
       return isSimple.value ? "" : parent2.props.space;
     });
-    const containerKls = computed(() => {
+    const containerKls = computed2(() => {
       return [
         ns.b(),
         ns.is(isSimple.value ? "simple" : parent2.props.direction),
@@ -50117,7 +48692,7 @@ var _sfc_main118 = defineComponent({
         ns.is("center", isCenter.value && !isVertical.value && !isSimple.value)
       ];
     });
-    const style = computed(() => {
+    const style = computed2(() => {
       const style2 = {
         flexBasis: isNumber3(space.value) ? `${space.value}px` : space.value ? space.value : `${100 / (stepsCount.value - (isCenter.value ? 0 : 1))}%`
       };
@@ -50302,6 +48877,18 @@ var switchProps = buildProps({
     type: [Boolean, String, Number],
     default: false
   },
+  activeColor: {
+    type: String,
+    default: ""
+  },
+  inactiveColor: {
+    type: String,
+    default: ""
+  },
+  borderColor: {
+    type: String,
+    default: ""
+  },
   name: {
     type: String,
     default: ""
@@ -50317,11 +48904,14 @@ var switchProps = buildProps({
   tabindex: {
     type: [String, Number]
   },
+  value: {
+    type: [Boolean, String, Number],
+    default: false
+  },
   label: {
     type: String,
     default: void 0
-  },
-  ...useAriaProps(["ariaLabel"])
+  }
 });
 var switchEmits = {
   [UPDATE_MODEL_EVENT]: (val) => isBoolean2(val) || isString(val) || isNumber3(val),
@@ -50330,11 +48920,11 @@ var switchEmits = {
 };
 
 // node_modules/element-plus/es/components/switch/src/switch2.mjs
-var _hoisted_159 = ["onClick"];
+var _hoisted_158 = ["onClick"];
 var _hoisted_237 = ["id", "aria-checked", "aria-disabled", "aria-label", "name", "true-value", "false-value", "disabled", "tabindex", "onKeydown"];
-var _hoisted_318 = ["aria-hidden"];
-var _hoisted_410 = ["aria-hidden"];
-var _hoisted_57 = ["aria-hidden"];
+var _hoisted_315 = ["aria-hidden"];
+var _hoisted_49 = ["aria-hidden"];
+var _hoisted_56 = ["aria-hidden"];
 var COMPONENT_NAME17 = "ElSwitch";
 var __default__83 = defineComponent({
   name: COMPONENT_NAME17
@@ -50345,42 +48935,67 @@ var _sfc_main119 = defineComponent({
   emits: switchEmits,
   setup(__props, { expose, emit }) {
     const props = __props;
+    const vm = getCurrentInstance();
     const { formItem } = useFormItem();
     const switchSize = useFormSize();
     const ns = useNamespace("switch");
+    const useBatchDeprecated = (list) => {
+      list.forEach((param) => {
+        useDeprecated({
+          from: param[0],
+          replacement: param[1],
+          scope: COMPONENT_NAME17,
+          version: "2.3.0",
+          ref: "https://element-plus.org/en-US/component/switch.html#attributes",
+          type: "Attribute"
+        }, computed2(() => {
+          var _a2;
+          return !!((_a2 = vm.vnode.props) == null ? void 0 : _a2[param[2]]);
+        }));
+      });
+    };
+    useBatchDeprecated([
+      ['"value"', '"model-value" or "v-model"', "value"],
+      ['"active-color"', "CSS var `--el-switch-on-color`", "activeColor"],
+      ['"inactive-color"', "CSS var `--el-switch-off-color`", "inactiveColor"],
+      ['"border-color"', "CSS var `--el-switch-border-color`", "borderColor"]
+    ]);
     const { inputId } = useFormItemInputId(props, {
       formItemContext: formItem
     });
-    const switchDisabled = useFormDisabled(computed(() => props.loading));
+    const switchDisabled = useFormDisabled(computed2(() => props.loading));
     const isControlled = ref(props.modelValue !== false);
     const input = ref();
     const core = ref();
-    const switchKls = computed(() => [
+    const switchKls = computed2(() => [
       ns.b(),
       ns.m(switchSize.value),
       ns.is("disabled", switchDisabled.value),
       ns.is("checked", checked.value)
     ]);
-    const labelLeftKls = computed(() => [
+    const labelLeftKls = computed2(() => [
       ns.e("label"),
       ns.em("label", "left"),
       ns.is("active", !checked.value)
     ]);
-    const labelRightKls = computed(() => [
+    const labelRightKls = computed2(() => [
       ns.e("label"),
       ns.em("label", "right"),
       ns.is("active", checked.value)
     ]);
-    const coreStyle = computed(() => ({
+    const coreStyle = computed2(() => ({
       width: addUnit(props.width)
     }));
     watch(() => props.modelValue, () => {
       isControlled.value = true;
     });
-    const actualValue = computed(() => {
-      return isControlled.value ? props.modelValue : false;
+    watch(() => props.value, () => {
+      isControlled.value = false;
     });
-    const checked = computed(() => actualValue.value === props.activeValue);
+    const actualValue = computed2(() => {
+      return isControlled.value ? props.modelValue : props.value;
+    });
+    const checked = computed2(() => actualValue.value === props.activeValue);
     if (![props.activeValue, props.inactiveValue].includes(actualValue.value)) {
       emit(UPDATE_MODEL_EVENT, props.inactiveValue);
       emit(CHANGE_EVENT, props.inactiveValue);
@@ -50430,6 +49045,13 @@ var _sfc_main119 = defineComponent({
         handleChange();
       }
     };
+    const styles = computed2(() => {
+      return ns.cssVarBlock({
+        ...props.activeColor ? { "on-color": props.activeColor } : null,
+        ...props.inactiveColor ? { "off-color": props.inactiveColor } : null,
+        ...props.borderColor ? { "border-color": props.borderColor } : null
+      });
+    });
     const focus = () => {
       var _a2, _b;
       (_b = (_a2 = input.value) == null ? void 0 : _a2.focus) == null ? void 0 : _b.call(_a2);
@@ -50437,13 +49059,6 @@ var _sfc_main119 = defineComponent({
     onMounted(() => {
       input.value.checked = checked.value;
     });
-    useDeprecated({
-      from: "label",
-      replacement: "aria-label",
-      version: "2.8.0",
-      scope: "el-switch",
-      ref: "https://element-plus.org/en-US/component/switch.html"
-    }, computed(() => !!props.label));
     expose({
       focus,
       checked
@@ -50451,6 +49066,7 @@ var _sfc_main119 = defineComponent({
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(unref(switchKls)),
+        style: normalizeStyle(unref(styles)),
         onClick: withModifiers(switchValue, ["prevent"])
       }, [
         createBaseVNode("input", {
@@ -50462,7 +49078,7 @@ var _sfc_main119 = defineComponent({
           role: "switch",
           "aria-checked": unref(checked),
           "aria-disabled": unref(switchDisabled),
-          "aria-label": _ctx.label || _ctx.ariaLabel,
+          "aria-label": _ctx.label,
           name: _ctx.name,
           "true-value": _ctx.activeValue,
           "false-value": _ctx.inactiveValue,
@@ -50484,7 +49100,7 @@ var _sfc_main119 = defineComponent({
           !_ctx.inactiveIcon && _ctx.inactiveText ? (openBlock(), createElementBlock("span", {
             key: 1,
             "aria-hidden": unref(checked)
-          }, toDisplayString(_ctx.inactiveText), 9, _hoisted_318)) : createCommentVNode("v-if", true)
+          }, toDisplayString(_ctx.inactiveText), 9, _hoisted_315)) : createCommentVNode("v-if", true)
         ], 2)) : createCommentVNode("v-if", true),
         createBaseVNode("span", {
           ref_key: "core",
@@ -50508,7 +49124,7 @@ var _sfc_main119 = defineComponent({
               key: 1,
               class: normalizeClass(unref(ns).is("text")),
               "aria-hidden": !unref(checked)
-            }, toDisplayString(unref(checked) ? _ctx.activeText : _ctx.inactiveText), 11, _hoisted_410)) : createCommentVNode("v-if", true)
+            }, toDisplayString(unref(checked) ? _ctx.activeText : _ctx.inactiveText), 11, _hoisted_49)) : createCommentVNode("v-if", true)
           ], 2)) : createCommentVNode("v-if", true),
           createBaseVNode("div", {
             class: normalizeClass(unref(ns).e("action"))
@@ -50551,9 +49167,9 @@ var _sfc_main119 = defineComponent({
           !_ctx.activeIcon && _ctx.activeText ? (openBlock(), createElementBlock("span", {
             key: 1,
             "aria-hidden": !unref(checked)
-          }, toDisplayString(_ctx.activeText), 9, _hoisted_57)) : createCommentVNode("v-if", true)
+          }, toDisplayString(_ctx.activeText), 9, _hoisted_56)) : createCommentVNode("v-if", true)
         ], 2)) : createCommentVNode("v-if", true)
-      ], 10, _hoisted_159);
+      ], 14, _hoisted_158);
     };
   }
 });
@@ -50616,11 +49232,11 @@ var orderBy2 = function(array4, sortKey, reverse2, sortMethod, sortBy2) {
       key: getKey ? getKey(value, index) : null
     };
   }).sort((a2, b2) => {
-    let order2 = compare(a2, b2);
-    if (!order2) {
-      order2 = a2.index - b2.index;
+    let order = compare(a2, b2);
+    if (!order) {
+      order = a2.index - b2.index;
     }
-    return order2 * +reverse2;
+    return order * +reverse2;
   }).map((item) => item.value);
 };
 var getColumnById = function(table, columnId) {
@@ -50841,16 +49457,16 @@ function getColSpan(colSpan, column2) {
   return colSpan + column2.colSpan;
 }
 var isFixedColumn = (index, fixed, store, realColumns) => {
-  let start2 = 0;
+  let start = 0;
   let after2 = index;
   const columns2 = store.states.columns.value;
   if (realColumns) {
     const curColumns = getCurrentColumns(realColumns[index]);
     const preColumns = columns2.slice(0, columns2.indexOf(curColumns[0]));
-    start2 = preColumns.reduce(getColSpan, 0);
-    after2 = start2 + curColumns.reduce(getColSpan, 0) - 1;
+    start = preColumns.reduce(getColSpan, 0);
+    after2 = start + curColumns.reduce(getColSpan, 0) - 1;
   } else {
-    start2 = index;
+    start = index;
   }
   let fixedLayout;
   switch (fixed) {
@@ -50860,44 +49476,44 @@ var isFixedColumn = (index, fixed, store, realColumns) => {
       }
       break;
     case "right":
-      if (start2 >= columns2.length - store.states.rightFixedLeafColumnsLength.value) {
+      if (start >= columns2.length - store.states.rightFixedLeafColumnsLength.value) {
         fixedLayout = "right";
       }
       break;
     default:
       if (after2 < store.states.fixedLeafColumnsLength.value) {
         fixedLayout = "left";
-      } else if (start2 >= columns2.length - store.states.rightFixedLeafColumnsLength.value) {
+      } else if (start >= columns2.length - store.states.rightFixedLeafColumnsLength.value) {
         fixedLayout = "right";
       }
   }
   return fixedLayout ? {
     direction: fixedLayout,
-    start: start2,
+    start,
     after: after2
   } : {};
 };
-var getFixedColumnsClass = (namespace, index, fixed, store, realColumns, offset4 = 0) => {
+var getFixedColumnsClass = (namespace, index, fixed, store, realColumns, offset3 = 0) => {
   const classes = [];
-  const { direction: direction2, start: start2, after: after2 } = isFixedColumn(index, fixed, store, realColumns);
+  const { direction: direction2, start, after: after2 } = isFixedColumn(index, fixed, store, realColumns);
   if (direction2) {
     const isLeft = direction2 === "left";
     classes.push(`${namespace}-fixed-column--${direction2}`);
-    if (isLeft && after2 + offset4 === store.states.fixedLeafColumnsLength.value - 1) {
+    if (isLeft && after2 + offset3 === store.states.fixedLeafColumnsLength.value - 1) {
       classes.push("is-last-column");
-    } else if (!isLeft && start2 - offset4 === store.states.columns.value.length - store.states.rightFixedLeafColumnsLength.value) {
+    } else if (!isLeft && start - offset3 === store.states.columns.value.length - store.states.rightFixedLeafColumnsLength.value) {
       classes.push("is-first-column");
     }
   }
   return classes;
 };
-function getOffset2(offset4, column2) {
-  return offset4 + (column2.realWidth === null || Number.isNaN(column2.realWidth) ? Number(column2.width) : column2.realWidth);
+function getOffset2(offset3, column2) {
+  return offset3 + (column2.realWidth === null || Number.isNaN(column2.realWidth) ? Number(column2.width) : column2.realWidth);
 }
 var getFixedColumnOffset = (index, fixed, store, realColumns) => {
   const {
     direction: direction2,
-    start: start2 = 0,
+    start = 0,
     after: after2 = 0
   } = isFixedColumn(index, fixed, store, realColumns);
   if (!direction2) {
@@ -50907,7 +49523,7 @@ var getFixedColumnOffset = (index, fixed, store, realColumns) => {
   const isLeft = direction2 === "left";
   const columns2 = store.states.columns.value;
   if (isLeft) {
-    styles.left = columns2.slice(0, start2).reduce(getOffset2, 0);
+    styles.left = columns2.slice(0, start).reduce(getOffset2, 0);
   } else {
     styles.right = columns2.slice(after2 + 1).reverse().reduce(getOffset2, 0);
   }
@@ -51060,13 +49676,13 @@ function useTree(watcherData) {
   const lazyColumnIdentifier = ref("hasChildren");
   const childrenColumnName = ref("children");
   const instance = getCurrentInstance();
-  const normalizedData = computed(() => {
+  const normalizedData = computed2(() => {
     if (!watcherData.rowKey.value)
       return {};
     const data = watcherData.data.value || [];
     return normalize(data);
   });
-  const normalizedLazyNode = computed(() => {
+  const normalizedLazyNode = computed2(() => {
     const rowKey2 = watcherData.rowKey.value;
     const keys3 = Object.keys(lazyTreeNodeMap.value);
     const res = {};
@@ -51344,8 +49960,8 @@ function useWatcher() {
   const clearSelection = () => {
     isAllSelected.value = false;
     const oldSelection = selection.value;
-    selection.value = [];
     if (oldSelection.length) {
+      selection.value = [];
       instance.emit("selection-change", []);
     }
   };
@@ -51405,7 +50021,7 @@ function useWatcher() {
     if (selectionChanged) {
       instance.emit("selection-change", selection.value ? selection.value.slice() : []);
     }
-    instance.emit("select-all", (selection.value || []).slice());
+    instance.emit("select-all", selection.value);
   };
   const updateSelectionByRowKey = () => {
     const selectedMap = getKeysMap(selection.value, rowKey2.value);
@@ -51482,13 +50098,13 @@ function useWatcher() {
     });
     return filters_;
   };
-  const updateSort = (column2, prop, order2) => {
+  const updateSort = (column2, prop, order) => {
     if (sortingColumn.value && sortingColumn.value !== column2) {
       sortingColumn.value.order = null;
     }
     sortingColumn.value = column2;
     sortProp.value = prop;
-    sortOrder.value = order2;
+    sortOrder.value = order;
   };
   const execFilter = () => {
     let sourceData = unref(_data);
@@ -51788,12 +50404,12 @@ function useStore() {
       }
     },
     sort(states, options) {
-      const { prop, order: order2, init } = options;
+      const { prop, order, init } = options;
       if (prop) {
         const column2 = unref(states.columns).find((column22) => column22.property === prop);
         if (column2) {
-          column2.order = order2;
-          instance.store.updateSort(column2, prop, order2);
+          column2.order = order;
+          instance.store.updateSort(column2, prop, order);
           instance.store.commit("changeSortCondition", { init });
         }
       }
@@ -52148,16 +50764,16 @@ var _sfc_main120 = defineComponent({
     }
     const tooltipVisible = ref(false);
     const tooltip = ref(null);
-    const filters = computed(() => {
+    const filters = computed2(() => {
       return props.column && props.column.filters;
     });
-    const filterClassName = computed(() => {
+    const filterClassName = computed2(() => {
       if (props.column.filterClassName) {
         return `${ns.b()} ${props.column.filterClassName}`;
       }
       return ns.b();
     });
-    const filterValue = computed({
+    const filterValue = computed2({
       get: () => {
         var _a2;
         return (((_a2 = props.column) == null ? void 0 : _a2.filteredValue) || [])[0];
@@ -52172,7 +50788,7 @@ var _sfc_main120 = defineComponent({
         }
       }
     });
-    const filteredValue = computed({
+    const filteredValue = computed2({
       get() {
         if (props.column) {
           return props.column.filteredValue || [];
@@ -52185,7 +50801,7 @@ var _sfc_main120 = defineComponent({
         }
       }
     });
-    const multiple = computed(() => {
+    const multiple = computed2(() => {
       if (props.column) {
         return props.column.filterMultiple;
       }
@@ -52236,7 +50852,7 @@ var _sfc_main120 = defineComponent({
     }, {
       immediate: true
     });
-    const popperPaneRef = computed(() => {
+    const popperPaneRef = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = tooltip.value) == null ? void 0 : _a2.popperRef) == null ? void 0 : _b.contentRef;
     });
@@ -52260,9 +50876,9 @@ var _sfc_main120 = defineComponent({
     };
   }
 });
-var _hoisted_160 = { key: 0 };
+var _hoisted_159 = { key: 0 };
 var _hoisted_238 = ["disabled"];
-var _hoisted_319 = ["label", "onClick"];
+var _hoisted_316 = ["label", "onClick"];
 function _sfc_render27(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_checkbox = resolveComponent("el-checkbox");
   const _component_el_checkbox_group = resolveComponent("el-checkbox-group");
@@ -52286,7 +50902,7 @@ function _sfc_render27(_ctx, _cache, $props, $setup, $data, $options) {
     persistent: ""
   }, {
     content: withCtx(() => [
-      _ctx.multiple ? (openBlock(), createElementBlock("div", _hoisted_160, [
+      _ctx.multiple ? (openBlock(), createElementBlock("div", _hoisted_159, [
         createBaseVNode("div", {
           class: normalizeClass(_ctx.ns.e("content"))
         }, [
@@ -52303,13 +50919,13 @@ function _sfc_render27(_ctx, _cache, $props, $setup, $data, $options) {
                   (openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.filters, (filter2) => {
                     return openBlock(), createBlock(_component_el_checkbox, {
                       key: filter2.value,
-                      value: filter2.value
+                      label: filter2.value
                     }, {
                       default: withCtx(() => [
                         createTextVNode(toDisplayString(filter2.text), 1)
                       ]),
                       _: 2
-                    }, 1032, ["value"]);
+                    }, 1032, ["label"]);
                   }), 128))
                 ]),
                 _: 1
@@ -52351,7 +50967,7 @@ function _sfc_render27(_ctx, _cache, $props, $setup, $data, $options) {
             class: normalizeClass([_ctx.ns.e("list-item"), _ctx.ns.is("active", _ctx.isActive(filter2))]),
             label: filter2.value,
             onClick: ($event) => _ctx.handleSelect(filter2.value)
-          }, toDisplayString(filter2.text), 11, _hoisted_319);
+          }, toDisplayString(filter2.text), 11, _hoisted_316);
         }), 128))
       ], 2))
     ]),
@@ -52395,7 +51011,7 @@ function useLayoutObserver(root2) {
   onUnmounted(() => {
     tableLayout.value.removeObserver(instance);
   });
-  const tableLayout = computed(() => {
+  const tableLayout = computed2(() => {
     const layout2 = root2.layout;
     if (!layout2) {
       throw new Error("Can not find table layout.");
@@ -52562,16 +51178,16 @@ function useEvent(props, emit) {
       return;
     document.body.style.cursor = "";
   };
-  const toggleOrder = ({ order: order2, sortOrders }) => {
-    if (order2 === "")
+  const toggleOrder = ({ order, sortOrders }) => {
+    if (order === "")
       return sortOrders[0];
-    const index = sortOrders.indexOf(order2 || null);
+    const index = sortOrders.indexOf(order || null);
     return sortOrders[index > sortOrders.length - 2 ? 0 : index + 1];
   };
   const handleSortClick = (event, column2, givenOrder) => {
     var _a2;
     event.stopPropagation();
-    const order2 = column2.order === givenOrder ? null : givenOrder || toggleOrder(column2);
+    const order = column2.order === givenOrder ? null : givenOrder || toggleOrder(column2);
     const target2 = (_a2 = event.target) == null ? void 0 : _a2.closest("th");
     if (target2) {
       if (hasClass(target2, "noclick")) {
@@ -52592,10 +51208,10 @@ function useEvent(props, emit) {
       states.sortingColumn.value = column2;
       sortProp = column2.property;
     }
-    if (!order2) {
+    if (!order) {
       sortOrder = column2.order = null;
     } else {
-      sortOrder = column2.order = order2;
+      sortOrder = column2.order = order;
     }
     states.sortProp.value = sortProp;
     states.sortOrder.value = sortOrder;
@@ -52742,10 +51358,10 @@ var convertToRows = (originColumns) => {
 };
 function useUtils(props) {
   const parent2 = inject(TABLE_INJECTION_KEY);
-  const columnRows = computed(() => {
+  const columnRows = computed2(() => {
     return convertToRows(props.store.states.originColumns.value);
   });
-  const isGroup = computed(() => {
+  const isGroup = computed2(() => {
     const result2 = columnRows.value.length > 1;
     if (result2 && parent2) {
       parent2.state.isGroup.value = true;
@@ -52798,8 +51414,8 @@ var TableHeader = defineComponent({
     onMounted(async () => {
       await nextTick();
       await nextTick();
-      const { prop, order: order2 } = props.defaultSort;
-      parent2 == null ? void 0 : parent2.store.commit("sort", { prop, order: order2, init: true });
+      const { prop, order } = props.defaultSort;
+      parent2 == null ? void 0 : parent2.store.commit("sort", { prop, order, init: true });
     });
     const {
       handleHeaderClick,
@@ -52878,12 +51494,7 @@ var TableHeader = defineComponent({
         key: `${column2.id}-thead`,
         rowspan: column2.rowSpan,
         style: getHeaderCellStyle(rowIndex, cellIndex, subColumns, column2),
-        onClick: ($event) => {
-          if ($event.currentTarget.classList.contains("noclick")) {
-            return;
-          }
-          handleHeaderClick($event, column2);
-        },
+        onClick: ($event) => handleHeaderClick($event, column2),
         onContextmenu: ($event) => handleHeaderContextMenu($event, column2),
         onMousedown: ($event) => handleMouseDown($event, column2),
         onMousemove: ($event) => handleMouseMove($event, column2),
@@ -52929,9 +51540,6 @@ var TableHeader = defineComponent({
 });
 
 // node_modules/element-plus/es/components/table/src/table-body/events-helper.mjs
-function isGreaterThan(a2, b2, epsilon = 0.01) {
-  return a2 - b2 > epsilon;
-}
 function useEvents(props) {
   const parent2 = inject(TABLE_INJECTION_KEY);
   const tooltipContent = ref("");
@@ -52981,16 +51589,6 @@ function useEvents(props) {
       bottom: paddingBottom
     };
   };
-  const toggleRowClassByCell = (rowSpan, event, toggle) => {
-    let node = event.target.parentNode;
-    while (rowSpan > 1) {
-      node = node == null ? void 0 : node.nextSibling;
-      if (!node || node.nodeName !== "TR")
-        break;
-      toggle(node, "hover-row hover-fixed-row");
-      rowSpan--;
-    }
-  };
   const handleCellMouseEnter = (event, row, tooltipOptions) => {
     var _a2;
     const table = parent2;
@@ -53000,9 +51598,6 @@ function useEvents(props) {
       const column2 = getColumnByCell({
         columns: props.store.states.columns.value
       }, cell, namespace);
-      if (cell.rowSpan > 1) {
-        toggleRowClassByCell(cell.rowSpan, event, addClass);
-      }
       const hoverState = table.hoverState = { cell, column: column2, row };
       table == null ? void 0 : table.emit("cell-mouse-enter", hoverState.row, hoverState.column, hoverState.cell, event);
     }
@@ -53016,9 +51611,9 @@ function useEvents(props) {
     const range4 = document.createRange();
     range4.setStart(cellChild, 0);
     range4.setEnd(cellChild, cellChild.childNodes.length);
-    let { width: rangeWidth, height: rangeHeight } = range4.getBoundingClientRect();
+    let rangeWidth = range4.getBoundingClientRect().width;
+    let rangeHeight = range4.getBoundingClientRect().height;
     const offsetWidth = rangeWidth - Math.floor(rangeWidth);
-    const { width: cellChildWidth, height: cellChildHeight } = cellChild.getBoundingClientRect();
     if (offsetWidth < 1e-3) {
       rangeWidth = Math.floor(rangeWidth);
     }
@@ -53026,10 +51621,10 @@ function useEvents(props) {
     if (offsetHeight < 1e-3) {
       rangeHeight = Math.floor(rangeHeight);
     }
-    const { top: top2, left: left3, right: right3, bottom: bottom2 } = getPadding(cellChild);
-    const horizontalPadding = left3 + right3;
-    const verticalPadding = top2 + bottom2;
-    if (isGreaterThan(rangeWidth + horizontalPadding, cellChildWidth) || isGreaterThan(rangeHeight + verticalPadding, cellChildHeight) || isGreaterThan(cellChild.scrollWidth, cellChildWidth)) {
+    const { top, left: left2, right: right2, bottom } = getPadding(cellChild);
+    const horizontalPadding = left2 + right2;
+    const verticalPadding = top + bottom;
+    if (rangeWidth + horizontalPadding > cellChild.offsetWidth || rangeHeight + verticalPadding > cellChild.offsetHeight || cellChild.scrollWidth > cellChild.offsetWidth) {
       createTablePopper(tooltipOptions, cell.innerText || cell.textContent, cell, table);
     }
   };
@@ -53037,9 +51632,6 @@ function useEvents(props) {
     const cell = getCell(event);
     if (!cell)
       return;
-    if (cell.rowSpan > 1) {
-      toggleRowClassByCell(cell.rowSpan, event, removeClass);
-    }
     const oldHoverState = parent2 == null ? void 0 : parent2.hoverState;
     parent2 == null ? void 0 : parent2.emit("cell-mouse-leave", oldHoverState == null ? void 0 : oldHoverState.row, oldHoverState == null ? void 0 : oldHoverState.column, oldHoverState == null ? void 0 : oldHoverState.cell, event);
   };
@@ -53105,8 +51697,8 @@ function useStyles(props) {
     ensurePosition(fixedStyle, "right");
     return Object.assign({}, cellStyles, fixedStyle);
   };
-  const getCellClass = (rowIndex, columnIndex, row, column2, offset4) => {
-    const fixedClasses = getFixedColumnsClass(ns.b(), columnIndex, props == null ? void 0 : props.fixed, props.store, void 0, offset4);
+  const getCellClass = (rowIndex, columnIndex, row, column2, offset3) => {
+    const fixedClasses = getFixedColumnsClass(ns.b(), columnIndex, props == null ? void 0 : props.fixed, props.store, void 0, offset3);
     const classes = [column2.id, column2.align, column2.className, ...fixedClasses];
     const cellClassName = parent2 == null ? void 0 : parent2.props.cellClassName;
     if (typeof cellClassName === "string") {
@@ -53183,7 +51775,7 @@ function useRender(props) {
     getSpan,
     getColspanRealWidth
   } = useStyles(props);
-  const firstDefaultColumnIndex = computed(() => {
+  const firstDefaultColumnIndex = computed2(() => {
     return props.store.states.columns.value.findIndex(({ type: type4 }) => type4 === "default");
   });
   const getKeyOfRow = (row, index) => {
@@ -53245,7 +51837,7 @@ function useRender(props) {
           }
         }
       }
-      const baseKey = `${getKeyOfRow(row, $index)},${cellIndex}`;
+      const baseKey = `${$index},${cellIndex}`;
       const patchKey = columnData.columnKey || columnData.rawColumnKey || "";
       const tdChildren = cellChildren(cellIndex, column2, data);
       const mergedTooltipOptions = column2.showOverflowTooltip && merge_default({
@@ -53402,49 +51994,15 @@ var TableBody = defineComponent({
     const ns = useNamespace("table");
     const { wrappedRowRender, tooltipContent, tooltipTrigger } = useRender(props);
     const { onColumnsChange, onScrollableChange } = useLayoutObserver(parent2);
-    const hoveredCellList = [];
     watch(props.store.states.hoverRow, (newVal, oldVal) => {
-      var _a2;
-      const el = instance == null ? void 0 : instance.vnode.el;
-      const rows = Array.from((el == null ? void 0 : el.children) || []).filter((e) => e == null ? void 0 : e.classList.contains(`${ns.e("row")}`));
-      let rowNum = newVal;
-      const childNodes = (_a2 = rows[rowNum]) == null ? void 0 : _a2.childNodes;
-      if (childNodes == null ? void 0 : childNodes.length) {
-        let control = 0;
-        const indexes = Array.from(childNodes).reduce((acc, item, index) => {
-          var _a22, _b;
-          if (((_a22 = childNodes[index]) == null ? void 0 : _a22.colSpan) > 1) {
-            control = (_b = childNodes[index]) == null ? void 0 : _b.colSpan;
-          }
-          if (item.nodeName !== "TD" && control === 0) {
-            acc.push(index);
-          }
-          control > 0 && control--;
-          return acc;
-        }, []);
-        indexes.forEach((rowIndex) => {
-          var _a22;
-          rowNum = newVal;
-          while (rowNum > 0) {
-            const preChildNodes = (_a22 = rows[rowNum - 1]) == null ? void 0 : _a22.childNodes;
-            if (preChildNodes[rowIndex] && preChildNodes[rowIndex].nodeName === "TD" && preChildNodes[rowIndex].rowSpan > 1) {
-              addClass(preChildNodes[rowIndex], "hover-cell");
-              hoveredCellList.push(preChildNodes[rowIndex]);
-              break;
-            }
-            rowNum--;
-          }
-        });
-      } else {
-        hoveredCellList.forEach((item) => removeClass(item, "hover-cell"));
-        hoveredCellList.length = 0;
-      }
       if (!props.store.states.isComplex.value || !isClient)
         return;
       rAF(() => {
+        const el = instance == null ? void 0 : instance.vnode.el;
+        const rows = Array.from((el == null ? void 0 : el.children) || []).filter((e) => e == null ? void 0 : e.classList.contains(`${ns.e("row")}`));
         const oldRow = rows[oldVal];
         const newRow = rows[newVal];
-        if (oldRow && !oldRow.classList.contains("hover-fixed-row")) {
+        if (oldRow) {
           removeClass(oldRow, "hover-row");
         }
         if (newRow) {
@@ -53480,19 +52038,19 @@ var TableBody = defineComponent({
 function useMapState() {
   const table = inject(TABLE_INJECTION_KEY);
   const store = table == null ? void 0 : table.store;
-  const leftFixedLeafCount = computed(() => {
+  const leftFixedLeafCount = computed2(() => {
     return store.states.fixedLeafColumnsLength.value;
   });
-  const rightFixedLeafCount = computed(() => {
+  const rightFixedLeafCount = computed2(() => {
     return store.states.rightFixedColumns.value.length;
   });
-  const columnsCount = computed(() => {
+  const columnsCount = computed2(() => {
     return store.states.columns.value.length;
   });
-  const leftFixedCount = computed(() => {
+  const leftFixedCount = computed2(() => {
     return store.states.fixedColumns.value.length;
   });
-  const rightFixedCount = computed(() => {
+  const rightFixedCount = computed2(() => {
     return store.states.rightFixedColumns.value.length;
   });
   return {
@@ -53659,8 +52217,8 @@ function useUtils2(store) {
   const clearSort = () => {
     store.clearSort();
   };
-  const sort = (prop, order2) => {
-    store.commit("sort", { prop, order: order2 });
+  const sort = (prop, order) => {
+    store.commit("sort", { prop, order });
   };
   return {
     setCurrentRow,
@@ -53734,10 +52292,10 @@ function useStyle3(props, layout2, store, table) {
       table.refs.bodyWrapper.scrollLeft += data.pixelX / 5;
     }
   };
-  const shouldUpdateHeight = computed(() => {
+  const shouldUpdateHeight = computed2(() => {
     return props.height || props.maxHeight || store.states.fixedColumns.value.length > 0 || store.states.rightFixedColumns.value.length > 0;
   });
-  const tableBodyStyles = computed(() => {
+  const tableBodyStyles = computed2(() => {
     return {
       width: layout2.bodyWidth.value ? `${layout2.bodyWidth.value}px` : ""
     };
@@ -53875,16 +52433,16 @@ function useStyle3(props, layout2, store, table) {
     }
   };
   const tableSize = useFormSize();
-  const bodyWidth = computed(() => {
+  const bodyWidth = computed2(() => {
     const { bodyWidth: bodyWidth_, scrollY, gutterWidth } = layout2;
     return bodyWidth_.value ? `${bodyWidth_.value - (scrollY.value ? gutterWidth : 0)}px` : "";
   });
-  const tableLayout = computed(() => {
+  const tableLayout = computed2(() => {
     if (props.maxHeight)
       return "fixed";
     return props.tableLayout;
   });
-  const emptyBlockStyle = computed(() => {
+  const emptyBlockStyle = computed2(() => {
     if (props.data && props.data.length)
       return null;
     let height = "100%";
@@ -53897,7 +52455,7 @@ function useStyle3(props, layout2, store, table) {
       height
     };
   });
-  const tableInnerStyle = computed(() => {
+  const tableInnerStyle = computed2(() => {
     if (props.height) {
       return {
         height: !Number.isNaN(Number(props.height)) ? `${props.height}px` : props.height
@@ -53910,7 +52468,7 @@ function useStyle3(props, layout2, store, table) {
     }
     return {};
   });
-  const scrollbarStyle = computed(() => {
+  const scrollbarStyle = computed2(() => {
     if (props.height) {
       return {
         height: "100%"
@@ -54060,7 +52618,10 @@ var defaultProps3 = {
     type: String,
     default: "fixed"
   },
-  scrollbarAlwaysOn: Boolean,
+  scrollbarAlwaysOn: {
+    type: Boolean,
+    default: false
+  },
   flexible: Boolean,
   showOverflowTooltip: [Boolean, Object]
 };
@@ -54102,14 +52663,14 @@ var useScrollbar = () => {
       scrollbar.scrollTo(options, yCoord);
     }
   };
-  const setScrollPosition = (position, offset4) => {
+  const setScrollPosition = (position, offset3) => {
     const scrollbar = scrollBarRef.value;
-    if (scrollbar && isNumber3(offset4) && ["Top", "Left"].includes(position)) {
-      scrollbar[`setScroll${position}`](offset4);
+    if (scrollbar && isNumber3(offset3) && ["Top", "Left"].includes(position)) {
+      scrollbar[`setScroll${position}`](offset3);
     }
   };
-  const setScrollTop = (top2) => setScrollPosition("Top", top2);
-  const setScrollLeft = (left3) => setScrollPosition("Left", left3);
+  const setScrollTop = (top) => setScrollPosition("Top", top);
+  const setScrollLeft = (left2) => setScrollPosition("Left", left2);
   return {
     scrollBarRef,
     scrollTo,
@@ -54167,7 +52728,7 @@ var _sfc_main121 = defineComponent({
       showHeader: props.showHeader
     });
     table.layout = layout2;
-    const isEmpty3 = computed(() => (store.states.data.value || []).length === 0);
+    const isEmpty3 = computed2(() => (store.states.data.value || []).length === 0);
     const {
       setCurrentRow,
       getSelectionRows,
@@ -54209,19 +52770,15 @@ var _sfc_main121 = defineComponent({
       doLayout,
       debouncedUpdateLayout
     };
-    const computedSumText = computed(() => props.sumText || t("el.table.sumText"));
-    const computedEmptyText = computed(() => {
+    const computedSumText = computed2(() => props.sumText || t("el.table.sumText"));
+    const computedEmptyText = computed2(() => {
       return props.emptyText || t("el.table.emptyText");
-    });
-    const columns2 = computed(() => {
-      return convertToRows(store.states.originColumns.value)[0];
     });
     useKeyRender(table);
     return {
       ns,
       layout: layout2,
       store,
-      columns: columns2,
       handleHeaderFooterMousewheel,
       handleMouseLeave,
       tableId,
@@ -54263,7 +52820,7 @@ var _sfc_main121 = defineComponent({
     };
   }
 });
-var _hoisted_161 = ["data-prefix"];
+var _hoisted_160 = ["data-prefix"];
 var _hoisted_239 = {
   ref: "hiddenColumns",
   class: "hidden-columns"
@@ -54454,7 +53011,7 @@ function _sfc_render28(_ctx, _cache, $props, $setup, $data, $options) {
     }, null, 2), [
       [vShow, _ctx.resizeProxyVisible]
     ])
-  ], 46, _hoisted_161);
+  ], 46, _hoisted_160);
 }
 var Table = _export_sfc(_sfc_main121, [["render", _sfc_render28], ["__file", "table.vue"]]);
 
@@ -54738,14 +53295,14 @@ function useRender2(props, slots, owner) {
     realHeaderAlign.value = props.headerAlign ? `is-${props.headerAlign}` : realAlign.value;
     realHeaderAlign.value;
   });
-  const columnOrTableParent = computed(() => {
+  const columnOrTableParent = computed2(() => {
     let parent2 = instance.vnode.vParent || instance.parent;
     while (parent2 && !parent2.tableId && !parent2.columnId) {
       parent2 = parent2.vnode.vParent || parent2.parent;
     }
     return parent2;
   });
-  const hasTreeColumn = computed(() => {
+  const hasTreeColumn = computed2(() => {
     const { store } = instance.parent;
     if (!store)
       return false;
@@ -54934,7 +53491,7 @@ var defaultProps4 = {
       return ["ascending", "descending", null];
     },
     validator: (val) => {
-      return val.every((order2) => ["ascending", "descending", null].includes(order2));
+      return val.every((order) => ["ascending", "descending", null].includes(order));
     }
   }
 };
@@ -54950,7 +53507,7 @@ var ElTableColumn = defineComponent({
   setup(props, { slots }) {
     const instance = getCurrentInstance();
     const columnConfig = ref({});
-    const owner = computed(() => {
+    const owner = computed2(() => {
       let parent22 = instance.parent;
       while (parent22 && !parent22.tableId) {
         parent22 = parent22.parent;
@@ -55037,8 +53594,7 @@ var ElTableColumn = defineComponent({
       columnIndex > -1 && owner.value.store.commit("insertColumn", columnConfig.value, isSubColumn.value ? parent22.columnConfig.value : null, updateColumnOrder);
     });
     onBeforeUnmount(() => {
-      const columnIndex = columnConfig.value.getColumnIndex();
-      columnIndex > -1 && owner.value.store.commit("removeColumn", columnConfig.value, isSubColumn.value ? parent2.columnConfig.value : null, updateColumnOrder);
+      owner.value.store.commit("removeColumn", columnConfig.value, isSubColumn.value ? parent2.columnConfig.value : null, updateColumnOrder);
     });
     instance.columnId = columnId.value;
     instance.columnConfig = columnConfig;
@@ -55142,13 +53698,13 @@ var calcColumnStyle = (column2, fixedColumn, fixed) => {
 
 // node_modules/element-plus/es/components/table-v2/src/composables/use-columns.mjs
 function useColumns(props, columns2, fixed) {
-  const visibleColumns = computed(() => {
+  const visibleColumns = computed2(() => {
     return unref(columns2).filter((column2) => !column2.hidden);
   });
-  const fixedColumnsOnLeft = computed(() => unref(visibleColumns).filter((column2) => column2.fixed === "left" || column2.fixed === true));
-  const fixedColumnsOnRight = computed(() => unref(visibleColumns).filter((column2) => column2.fixed === "right"));
-  const normalColumns = computed(() => unref(visibleColumns).filter((column2) => !column2.fixed));
-  const mainColumns = computed(() => {
+  const fixedColumnsOnLeft = computed2(() => unref(visibleColumns).filter((column2) => column2.fixed === "left" || column2.fixed === true));
+  const fixedColumnsOnRight = computed2(() => unref(visibleColumns).filter((column2) => column2.fixed === "right"));
+  const normalColumns = computed2(() => unref(visibleColumns).filter((column2) => !column2.fixed));
+  const mainColumns = computed2(() => {
     const ret = [];
     unref(fixedColumnsOnLeft).forEach((column2) => {
       ret.push({
@@ -55167,17 +53723,17 @@ function useColumns(props, columns2, fixed) {
     });
     return ret;
   });
-  const hasFixedColumns = computed(() => {
+  const hasFixedColumns = computed2(() => {
     return unref(fixedColumnsOnLeft).length || unref(fixedColumnsOnRight).length;
   });
-  const columnsStyles = computed(() => {
+  const columnsStyles = computed2(() => {
     const _columns = unref(columns2);
     return _columns.reduce((style, column2) => {
       style[column2.key] = calcColumnStyle(column2, unref(fixed), props.fixed);
       return style;
     }, {});
   });
-  const columnsTotalWidth = computed(() => {
+  const columnsTotalWidth = computed2(() => {
     return unref(visibleColumns).reduce((width, column2) => width + column2.width, 0);
   });
   const getColumn = (key) => {
@@ -55195,13 +53751,13 @@ function useColumns(props, columns2, fixed) {
     if (!key)
       return;
     const { sortState, sortBy: sortBy2 } = props;
-    let order2 = SortOrder.ASC;
+    let order = SortOrder.ASC;
     if (isObject(sortState)) {
-      order2 = oppositeOrderMap[sortState[key]];
+      order = oppositeOrderMap[sortState[key]];
     } else {
-      order2 = oppositeOrderMap[sortBy2.order];
+      order = oppositeOrderMap[sortBy2.order];
     }
-    (_a2 = props.onColumnSort) == null ? void 0 : _a2.call(props, { column: getColumn(key), key, order: order2 });
+    (_a2 = props.onColumnSort) == null ? void 0 : _a2.call(props, { column: getColumn(key), key, order });
   }
   return {
     columns: columns2,
@@ -55278,17 +53834,11 @@ var useScrollbar2 = (props, {
 };
 
 // node_modules/element-plus/es/components/table-v2/src/composables/use-row.mjs
-var useRow = (props, {
-  mainTableRef,
-  leftTableRef,
-  rightTableRef,
-  tableInstance,
-  ns,
-  isScrolling
-}) => {
+var useRow = (props, { mainTableRef, leftTableRef, rightTableRef }) => {
   const vm = getCurrentInstance();
   const { emit } = vm;
   const isResetting = shallowRef(false);
+  const hoveringRowKey = shallowRef(null);
   const expandedRowKeys = ref(props.defaultExpandedRowKeys || []);
   const lastRenderedRowIndex = ref(-1);
   const resetIndex = shallowRef(null);
@@ -55297,7 +53847,7 @@ var useRow = (props, {
   const leftTableHeights = shallowRef({});
   const mainTableHeights = shallowRef({});
   const rightTableHeights = shallowRef({});
-  const isDynamic = computed(() => isNumber3(props.estimatedRowHeight));
+  const isDynamic = computed2(() => isNumber3(props.estimatedRowHeight));
   function onRowsRendered(params) {
     var _a2;
     (_a2 = props.onRowsRendered) == null ? void 0 : _a2.call(props, params);
@@ -55306,18 +53856,7 @@ var useRow = (props, {
     }
   }
   function onRowHovered({ hovered, rowKey: rowKey2 }) {
-    if (isScrolling.value) {
-      return;
-    }
-    const tableRoot = tableInstance.vnode.el;
-    const rows = tableRoot.querySelectorAll(`[rowkey="${String(rowKey2)}"]`);
-    rows.forEach((row) => {
-      if (hovered) {
-        row.classList.add(ns.is("hovered"));
-      } else {
-        row.classList.remove(ns.is("hovered"));
-      }
-    });
+    hoveringRowKey.value = hovered ? rowKey2 : null;
   }
   function onRowExpanded({
     expanded,
@@ -55395,6 +53934,7 @@ var useRow = (props, {
     }
   }
   return {
+    hoveringRowKey,
     expandedRowKeys,
     lastRenderedRowIndex,
     isDynamic,
@@ -55411,7 +53951,7 @@ var useRow = (props, {
 // node_modules/element-plus/es/components/table-v2/src/composables/use-data.mjs
 var useData = (props, { expandedRowKeys, lastRenderedRowIndex, resetAfterIndex }) => {
   const depthMap = ref({});
-  const flattenedData = computed(() => {
+  const flattenedData = computed2(() => {
     const depths = {};
     const { data: data2, rowKey: rowKey2 } = props;
     const _expandedRowKeys = unref(expandedRowKeys);
@@ -55433,7 +53973,7 @@ var useData = (props, { expandedRowKeys, lastRenderedRowIndex, resetAfterIndex }
     depthMap.value = depths;
     return array4;
   });
-  const data = computed(() => {
+  const data = computed2(() => {
     const { data: data2, expandColumnKey: expandColumnKey2 } = props;
     return expandColumnKey2 ? unref(flattenedData) : data2;
   });
@@ -55473,13 +54013,13 @@ var useStyles2 = (props, {
   fixedColumnsOnLeft,
   fixedColumnsOnRight
 }) => {
-  const bodyWidth = computed(() => {
+  const bodyWidth = computed2(() => {
     const { fixed, width, vScrollbarSize } = props;
     const ret = width - vScrollbarSize;
     return fixed ? Math.max(Math.round(unref(columnsTotalWidth)), ret) : ret;
   });
-  const headerWidth = computed(() => unref(bodyWidth) + props.vScrollbarSize);
-  const mainTableHeight = computed(() => {
+  const headerWidth = computed2(() => unref(bodyWidth) + (props.fixed ? props.vScrollbarSize : 0));
+  const mainTableHeight = computed2(() => {
     const { height = 0, maxHeight = 0, footerHeight: footerHeight2, hScrollbarSize } = props;
     if (maxHeight > 0) {
       const _fixedRowsHeight = unref(fixedRowsHeight);
@@ -55490,7 +54030,7 @@ var useStyles2 = (props, {
     }
     return height - footerHeight2;
   });
-  const rowsHeight = computed(() => {
+  const rowsHeight = computed2(() => {
     const { rowHeight, estimatedRowHeight } = props;
     const _data = unref(data);
     if (isNumber3(estimatedRowHeight)) {
@@ -55498,7 +54038,7 @@ var useStyles2 = (props, {
     }
     return _data.length * rowHeight;
   });
-  const fixedTableHeight = computed(() => {
+  const fixedTableHeight = computed2(() => {
     const { maxHeight } = props;
     const tableHeight = unref(mainTableHeight);
     if (isNumber3(maxHeight) && maxHeight > 0)
@@ -55507,17 +54047,17 @@ var useStyles2 = (props, {
     return Math.min(tableHeight, totalHeight);
   });
   const mapColumn = (column2) => column2.width;
-  const leftTableWidth = computed(() => sum2(unref(fixedColumnsOnLeft).map(mapColumn)));
-  const rightTableWidth = computed(() => sum2(unref(fixedColumnsOnRight).map(mapColumn)));
-  const headerHeight = computed(() => sum2(props.headerHeight));
-  const fixedRowsHeight = computed(() => {
+  const leftTableWidth = computed2(() => sum2(unref(fixedColumnsOnLeft).map(mapColumn)));
+  const rightTableWidth = computed2(() => sum2(unref(fixedColumnsOnRight).map(mapColumn)));
+  const headerHeight = computed2(() => sum2(props.headerHeight));
+  const fixedRowsHeight = computed2(() => {
     var _a2;
     return (((_a2 = props.fixedData) == null ? void 0 : _a2.length) || 0) * props.rowHeight;
   });
-  const windowHeight = computed(() => {
+  const windowHeight = computed2(() => {
     return unref(mainTableHeight) - unref(headerHeight) - unref(fixedRowsHeight);
   });
-  const rootStyle = computed(() => {
+  const rootStyle = computed2(() => {
     const { style = {}, height, width } = props;
     return enforceUnit({
       ...style,
@@ -55525,8 +54065,8 @@ var useStyles2 = (props, {
       width
     });
   });
-  const footerHeight = computed(() => enforceUnit({ height: props.footerHeight }));
-  const emptyStyle = computed(() => ({
+  const footerHeight = computed2(() => enforceUnit({ height: props.footerHeight }));
+  const emptyStyle = computed2(() => ({
     top: addUnit(unref(headerHeight)),
     bottom: addUnit(props.footerHeight),
     width: addUnit(props.width)
@@ -55557,12 +54097,12 @@ var useAutoResize = (props) => {
     resizerStopper = useResizeObserver(sizer, ([entry]) => {
       const { width, height } = entry.contentRect;
       const { paddingLeft, paddingRight, paddingTop, paddingBottom } = getComputedStyle(entry.target);
-      const left3 = Number.parseInt(paddingLeft) || 0;
-      const right3 = Number.parseInt(paddingRight) || 0;
-      const top2 = Number.parseInt(paddingTop) || 0;
-      const bottom2 = Number.parseInt(paddingBottom) || 0;
-      width$.value = width - left3 - right3;
-      height$.value = height - top2 - bottom2;
+      const left2 = Number.parseInt(paddingLeft) || 0;
+      const right2 = Number.parseInt(paddingRight) || 0;
+      const top = Number.parseInt(paddingTop) || 0;
+      const bottom = Number.parseInt(paddingBottom) || 0;
+      width$.value = width - left2 - right2;
+      height$.value = height - top - bottom;
     }).stop;
   });
   onBeforeUnmount(() => {
@@ -55611,11 +54151,9 @@ function useTable(props) {
     rightTableRef,
     onMaybeEndReached
   });
-  const ns = useNamespace("table-v2");
-  const instance = getCurrentInstance();
-  const isScrolling = shallowRef(false);
   const {
     expandedRowKeys,
+    hoveringRowKey,
     lastRenderedRowIndex,
     isDynamic,
     isResetting,
@@ -55628,10 +54166,7 @@ function useTable(props) {
   } = useRow(props, {
     mainTableRef,
     leftTableRef,
-    rightTableRef,
-    tableInstance: instance,
-    ns,
-    isScrolling
+    rightTableRef
   });
   const { data, depthMap } = useData(props, {
     expandedRowKeys,
@@ -55657,8 +54192,9 @@ function useTable(props) {
     fixedColumnsOnLeft,
     fixedColumnsOnRight
   });
+  const isScrolling = shallowRef(false);
   const containerRef = ref();
-  const showEmpty = computed(() => {
+  const showEmpty = computed2(() => {
     const noData = unref(data).length === 0;
     return isArray(props.fixedData) ? props.fixedData.length === 0 && noData : noData;
   });
@@ -55692,6 +54228,7 @@ function useTable(props) {
     isDynamic,
     isResetting,
     isScrolling,
+    hoveringRowKey,
     hasFixedColumns,
     columnsStyles,
     columnsTotalWidth,
@@ -56060,20 +54597,20 @@ var TableV2Header = defineComponent({
   }) {
     const ns = useNamespace("table-v2");
     const headerRef = ref();
-    const headerStyle = computed(() => enforceUnit({
+    const headerStyle = computed2(() => enforceUnit({
       width: props.width,
       height: props.height
     }));
-    const rowStyle = computed(() => enforceUnit({
+    const rowStyle = computed2(() => enforceUnit({
       width: props.rowWidth,
       height: props.height
     }));
-    const headerHeights = computed(() => castArray_default(unref(props.headerHeight)));
-    const scrollToLeft = (left3) => {
+    const headerHeights = computed2(() => castArray_default(unref(props.headerHeight)));
+    const scrollToLeft = (left2) => {
       const headerEl = unref(headerRef);
       nextTick(() => {
         (headerEl == null ? void 0 : headerEl.scroll) && headerEl.scroll({
-          left: left3
+          left: left2
         });
       });
     };
@@ -56144,7 +54681,7 @@ var useTableRow = (props) => {
   } = inject(TableV2InjectionKey);
   const measured = ref(false);
   const rowRef = ref();
-  const measurable = computed(() => {
+  const measurable = computed2(() => {
     return isNumber3(props.estimatedRowHeight) && props.rowIndex >= 0;
   });
   const doMeasure = (isInit = false) => {
@@ -56174,7 +54711,7 @@ var useTableRow = (props) => {
       }
     });
   };
-  const eventHandlers = computed(() => {
+  const eventHandlers = computed2(() => {
     const {
       rowData,
       rowIndex,
@@ -56376,7 +54913,7 @@ var COMPONENT_NAME20 = "ElTableV2Grid";
 var useTableGrid = (props) => {
   const headerRef = ref();
   const bodyRef = ref();
-  const totalHeight = computed(() => {
+  const totalHeight = computed2(() => {
     const {
       data,
       rowHeight,
@@ -56387,21 +54924,21 @@ var useTableGrid = (props) => {
     }
     return data.length * rowHeight;
   });
-  const fixedRowHeight = computed(() => {
+  const fixedRowHeight = computed2(() => {
     const {
       fixedData,
       rowHeight
     } = props;
     return ((fixedData == null ? void 0 : fixedData.length) || 0) * rowHeight;
   });
-  const headerHeight = computed(() => sum2(props.headerHeight));
-  const gridHeight = computed(() => {
+  const headerHeight = computed2(() => sum2(props.headerHeight));
+  const gridHeight = computed2(() => {
     const {
       height
     } = props;
     return Math.max(0, height - unref(headerHeight) - unref(fixedRowHeight));
   });
-  const hasHeader = computed(() => {
+  const hasHeader = computed2(() => {
     return unref(headerHeight) + unref(fixedRowHeight) > 0;
   });
   const itemKey = ({
@@ -56426,17 +54963,19 @@ var useTableGrid = (props) => {
     var _a2;
     (_a2 = bodyRef.value) == null ? void 0 : _a2.resetAfterRowIndex(index, forceUpdate2);
   }
-  function scrollTo(leftOrOptions, top2) {
+  function scrollTo(leftOrOptions, top) {
     const header$ = unref(headerRef);
     const body$ = unref(bodyRef);
+    if (!header$ || !body$)
+      return;
     if (isObject(leftOrOptions)) {
-      header$ == null ? void 0 : header$.scrollToLeft(leftOrOptions.scrollLeft);
-      body$ == null ? void 0 : body$.scrollTo(leftOrOptions);
+      header$.scrollToLeft(leftOrOptions.scrollLeft);
+      body$.scrollTo(leftOrOptions);
     } else {
-      header$ == null ? void 0 : header$.scrollToLeft(leftOrOptions);
-      body$ == null ? void 0 : body$.scrollTo({
+      header$.scrollToLeft(leftOrOptions);
+      body$.scrollTo({
         scrollLeft: leftOrOptions,
-        scrollTop: top2
+        scrollTop: top
       });
     }
   }
@@ -56657,6 +55196,7 @@ var RowRenderer = (props, {
     expandedRowKeys,
     estimatedRowHeight,
     hasFixedColumns,
+    hoveringRowKey,
     rowData,
     rowIndex,
     style,
@@ -56686,6 +55226,7 @@ var RowRenderer = (props, {
   const kls = [ns.e("row"), rowKls, {
     [ns.e(`row-depth-${depth}`)]: canExpand && rowIndex >= 0,
     [ns.is("expanded")]: canExpand && expandedRowKeys.includes(_rowKey),
+    [ns.is("hovered")]: !isScrolling && _rowKey === hoveringRowKey,
     [ns.is("fixed")]: !depth && isFixedRow,
     [ns.is("customized")]: Boolean(slots.row)
   }];
@@ -56705,29 +55246,9 @@ var RowRenderer = (props, {
     rowEventHandlers,
     style
   };
-  const handlerMosueEnter = (e) => {
-    onRowHover == null ? void 0 : onRowHover({
-      hovered: true,
-      rowKey: _rowKey,
-      event: e,
-      rowData,
-      rowIndex
-    });
-  };
-  const handlerMouseLeave = (e) => {
-    onRowHover == null ? void 0 : onRowHover({
-      hovered: false,
-      rowKey: _rowKey,
-      event: e,
-      rowData,
-      rowIndex
-    });
-  };
   return createVNode(TableV2Row, mergeProps(_rowProps, {
-    "onRowExpand": onRowExpanded,
-    "onMouseenter": handlerMosueEnter,
-    "onMouseleave": handlerMouseLeave,
-    "rowkey": _rowKey
+    "onRowHover": onRowHover,
+    "onRowExpand": onRowExpanded
   }), _isSlot4(slots) ? slots : {
     default: () => [slots]
   });
@@ -56892,9 +55413,9 @@ var HeaderCellRenderer = (props, {
   } = props;
   let sorting, sortOrder;
   if (sortState) {
-    const order2 = sortState[column2.key];
-    sorting = Boolean(oppositeOrderMap[order2]);
-    sortOrder = sorting ? order2 : SortOrder.ASC;
+    const order = sortState[column2.key];
+    sorting = Boolean(oppositeOrderMap[order]);
+    sortOrder = sorting ? order : SortOrder.ASC;
   } else {
     sorting = column2.key === sortBy2.key;
     sortOrder = sorting ? sortBy2.order : SortOrder.ASC;
@@ -56977,6 +55498,7 @@ var TableV2 = defineComponent({
       depthMap,
       expandedRowKeys,
       hasFixedColumns,
+      hoveringRowKey,
       mainTableRef,
       leftTableRef,
       rightTableRef,
@@ -57011,6 +55533,7 @@ var TableV2 = defineComponent({
     provide(TableV2InjectionKey, {
       ns,
       isResetting,
+      hoveringRowKey,
       isScrolling
     });
     return () => {
@@ -57118,6 +55641,7 @@ var TableV2 = defineComponent({
         expandedRowKeys: unref(expandedRowKeys),
         estimatedRowHeight,
         hasFixedColumns: unref(hasFixedColumns),
+        hoveringRowKey: unref(hoveringRowKey),
         rowProps: rowProps2,
         rowClass,
         rowKey: rowKey2,
@@ -57281,7 +55805,7 @@ var _sfc_main122 = defineComponent({
     const barRef = ref();
     const barStyle = ref();
     const getBarStyle = () => {
-      let offset4 = 0;
+      let offset3 = 0;
       let tabSize = 0;
       const sizeName = ["top", "bottom"].includes(rootTabs.props.tabPosition) ? "width" : "height";
       const sizeDir = sizeName === "width" ? "x" : "y";
@@ -57294,20 +55818,20 @@ var _sfc_main122 = defineComponent({
         if (!tab.active) {
           return true;
         }
-        offset4 = $el[`offset${capitalize3(position)}`];
+        offset3 = $el[`offset${capitalize3(position)}`];
         tabSize = $el[`client${capitalize3(sizeName)}`];
         const tabStyles = window.getComputedStyle($el);
         if (sizeName === "width") {
           if (props.tabs.length > 1) {
             tabSize -= Number.parseFloat(tabStyles.paddingLeft) + Number.parseFloat(tabStyles.paddingRight);
           }
-          offset4 += Number.parseFloat(tabStyles.paddingLeft);
+          offset3 += Number.parseFloat(tabStyles.paddingLeft);
         }
         return false;
       });
       return {
         [sizeName]: `${tabSize}px`,
-        transform: `translate${capitalize3(sizeDir)}(${offset4}px)`
+        transform: `translate${capitalize3(sizeDir)}(${offset3}px)`
       };
     };
     const update2 = () => barStyle.value = getBarStyle();
@@ -57378,8 +55902,8 @@ var TabNav = defineComponent({
     const navOffset = ref(0);
     const isFocus = ref(false);
     const focusable = ref(true);
-    const sizeName = computed(() => ["top", "bottom"].includes(rootTabs.props.tabPosition) ? "width" : "height");
-    const navStyle = computed(() => {
+    const sizeName = computed2(() => ["top", "bottom"].includes(rootTabs.props.tabPosition) ? "width" : "height");
+    const navStyle = computed2(() => {
       const dir = sizeName.value === "width" ? "X" : "Y";
       return {
         transform: `translate${dir}(-${navOffset.value}px)`
@@ -57466,15 +55990,15 @@ var TabNav = defineComponent({
       const {
         up: up2,
         down: down2,
-        left: left3,
-        right: right3
+        left: left2,
+        right: right2
       } = EVENT_CODE;
-      if (![up2, down2, left3, right3].includes(code))
+      if (![up2, down2, left2, right2].includes(code))
         return;
       const tabList = Array.from(e.currentTarget.querySelectorAll("[role=tab]:not(.is-disabled)"));
       const currentIndex = tabList.indexOf(e.target);
       let nextIndex;
-      if (code === left3 || code === up2) {
+      if (code === left2 || code === up2) {
         if (currentIndex === 0) {
           nextIndex = tabList.length - 1;
         } else {
@@ -57599,6 +56123,9 @@ var tabsProps = buildProps({
     values: ["card", "border-card", ""],
     default: ""
   },
+  activeName: {
+    type: [String, Number]
+  },
   closable: Boolean,
   addable: Boolean,
   modelValue: {
@@ -57634,7 +56161,7 @@ var Tabs = defineComponent({
     slots,
     expose
   }) {
-    var _a2;
+    var _a2, _b;
     const ns = useNamespace("tabs");
     const {
       children: panes,
@@ -57642,9 +56169,9 @@ var Tabs = defineComponent({
       removeChild: unregisterPane
     } = useOrderedChildren(getCurrentInstance(), "ElTabPane");
     const nav$ = ref();
-    const currentName = ref((_a2 = props.modelValue) != null ? _a2 : "0");
+    const currentName = ref((_b = (_a2 = props.modelValue) != null ? _a2 : props.activeName) != null ? _b : "0");
     const setCurrentName = async (value, trigger = false) => {
-      var _a22, _b, _c;
+      var _a22, _b2, _c;
       if (currentName.value === value || isUndefined2(value))
         return;
       try {
@@ -57655,7 +56182,7 @@ var Tabs = defineComponent({
             emit(UPDATE_MODEL_EVENT, value);
             emit("tabChange", value);
           }
-          (_c = (_b = nav$.value) == null ? void 0 : _b.removeFocus) == null ? void 0 : _c.call(_b);
+          (_c = (_b2 = nav$.value) == null ? void 0 : _b2.removeFocus) == null ? void 0 : _c.call(_b2);
         }
       } catch (e) {
       }
@@ -57677,6 +56204,23 @@ var Tabs = defineComponent({
       emit("edit", void 0, "add");
       emit("tabAdd");
     };
+    useDeprecated({
+      from: '"activeName"',
+      replacement: '"model-value" or "v-model"',
+      scope: "ElTabs",
+      version: "2.3.0",
+      ref: "https://element-plus.org/en-US/component/tabs.html#attributes",
+      type: "Attribute"
+    }, computed2(() => !!props.activeName));
+    useDeprecated({
+      from: '"addIcon"',
+      replacement: '"add-icon"',
+      scope: "ElTabs",
+      version: "2.6.0",
+      ref: "https://element-plus.org/en-US/component/tabs.html#slots",
+      type: "Slot"
+    }, computed2(() => !!slots.addIcon));
+    watch(() => props.activeName, (modelValue) => setCurrentName(modelValue));
     watch(() => props.modelValue, (modelValue) => setCurrentName(modelValue));
     watch(currentName, async () => {
       var _a22;
@@ -57693,7 +56237,8 @@ var Tabs = defineComponent({
       currentName
     });
     return () => {
-      const addSlot = slots["add-icon"];
+      const addSlot = slots["add-icon"] || slots["addIcon"];
+      const isCamelCase = addSlot && slots["addIcon"];
       const newButton = props.editable || props.addable ? createVNode("span", {
         "class": ns.e("new-tab"),
         "tabindex": "0",
@@ -57702,7 +56247,7 @@ var Tabs = defineComponent({
           if (ev.code === EVENT_CODE.enter)
             handleTabAdd();
         }
-      }, [addSlot ? renderSlot(slots, "add-icon") : createVNode(ElIcon, {
+      }, [addSlot ? renderSlot(slots, isCamelCase ? "addIcon" : "add-icon") : createVNode(ElIcon, {
         "class": ns.is("icon-plus")
       }, {
         default: () => [createVNode(plus_default, null, null)]
@@ -57747,7 +56292,7 @@ var tabPaneProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/tabs/src/tab-pane2.mjs
-var _hoisted_163 = ["id", "aria-hidden", "aria-labelledby"];
+var _hoisted_161 = ["id", "aria-hidden", "aria-labelledby"];
 var COMPONENT_NAME24 = "ElTabPane";
 var __default__85 = defineComponent({
   name: COMPONENT_NAME24
@@ -57764,13 +56309,13 @@ var _sfc_main123 = defineComponent({
       throwError(COMPONENT_NAME24, "usage: <el-tabs><el-tab-pane /></el-tabs/>");
     const ns = useNamespace("tab-pane");
     const index = ref();
-    const isClosable = computed(() => props.closable || tabsRoot.props.closable);
+    const isClosable = computed2(() => props.closable || tabsRoot.props.closable);
     const active = computedEager(() => {
       var _a2;
       return tabsRoot.currentName.value === ((_a2 = props.name) != null ? _a2 : index.value);
     });
     const loaded = ref(active.value);
-    const paneName = computed(() => {
+    const paneName = computed2(() => {
       var _a2;
       return (_a2 = props.name) != null ? _a2 : index.value;
     });
@@ -57804,7 +56349,7 @@ var _sfc_main123 = defineComponent({
         "aria-labelledby": `tab-${unref(paneName)}`
       }, [
         renderSlot(_ctx.$slots, "default")
-      ], 10, _hoisted_163)), [
+      ], 10, _hoisted_161)), [
         [vShow, unref(active)]
       ]) : createCommentVNode("v-if", true);
     };
@@ -57853,7 +56398,7 @@ var _sfc_main124 = defineComponent({
     const props = __props;
     const textSize = useFormSize();
     const ns = useNamespace("text");
-    const textKls = computed(() => [
+    const textKls = computed2(() => [
       ns.b(),
       ns.m(props.type),
       ns.m(textSize.value),
@@ -57926,8 +56471,7 @@ var timeSelectProps = buildProps({
   clearIcon: {
     type: definePropType([String, Object]),
     default: () => circle_close_default
-  },
-  ...useEmptyValuesProps
+  }
 });
 
 // node_modules/element-plus/es/components/time-select/src/utils.mjs
@@ -58003,33 +56547,33 @@ var _sfc_main125 = defineComponent({
     const select = ref();
     const _disabled = useFormDisabled();
     const { lang } = useLocale();
-    const value = computed(() => props.modelValue);
-    const start2 = computed(() => {
+    const value = computed2(() => props.modelValue);
+    const start = computed2(() => {
       const time = parseTime(props.start);
       return time ? formatTime2(time) : null;
     });
-    const end3 = computed(() => {
+    const end2 = computed2(() => {
       const time = parseTime(props.end);
       return time ? formatTime2(time) : null;
     });
-    const step = computed(() => {
+    const step = computed2(() => {
       const time = parseTime(props.step);
       return time ? formatTime2(time) : null;
     });
-    const minTime = computed(() => {
+    const minTime = computed2(() => {
       const time = parseTime(props.minTime || "");
       return time ? formatTime2(time) : null;
     });
-    const maxTime = computed(() => {
+    const maxTime = computed2(() => {
       const time = parseTime(props.maxTime || "");
       return time ? formatTime2(time) : null;
     });
-    const items = computed(() => {
+    const items = computed2(() => {
       const result2 = [];
       if (props.start && props.end && props.step) {
-        let current = start2.value;
+        let current = start.value;
         let currentTime;
-        while (current && end3.value && compareTime(current, end3.value) <= 0) {
+        while (current && end2.value && compareTime(current, end2.value) <= 0) {
           currentTime = (0, import_dayjs16.default)(current, "HH:mm").locale(lang.value).format(props.format);
           result2.push({
             value: currentTime,
@@ -58065,8 +56609,6 @@ var _sfc_main125 = defineComponent({
         placeholder: _ctx.placeholder,
         "default-first-option": "",
         filterable: _ctx.editable,
-        "empty-values": _ctx.emptyValues,
-        "value-on-clear": _ctx.valueOnClear,
         "onUpdate:modelValue": _cache[0] || (_cache[0] = (event) => _ctx.$emit("update:modelValue", event)),
         onChange: _cache[1] || (_cache[1] = (event) => _ctx.$emit("change", event)),
         onBlur: _cache[2] || (_cache[2] = (event) => _ctx.$emit("blur", event)),
@@ -58094,7 +56636,7 @@ var _sfc_main125 = defineComponent({
           }), 128))
         ]),
         _: 1
-      }, 8, ["model-value", "disabled", "clearable", "clear-icon", "size", "effect", "placeholder", "filterable", "empty-values", "value-on-clear"]);
+      }, 8, ["model-value", "disabled", "clearable", "clear-icon", "size", "effect", "placeholder", "filterable"]);
     };
   }
 });
@@ -58171,7 +56713,7 @@ var _sfc_main126 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("timeline-item");
-    const defaultNodeKls = computed(() => [
+    const defaultNodeKls = computed2(() => [
       ns.e("node"),
       ns.em("node", props.size || ""),
       ns.em("node", props.type || ""),
@@ -58289,6 +56831,7 @@ var tooltipV2Placements = [
   "right"
 ];
 var tooltipV2ContentProps = buildProps({
+  ariaLabel: String,
   arrowPadding: {
     type: definePropType(Number),
     default: 5
@@ -58319,8 +56862,7 @@ var tooltipV2ContentProps = buildProps({
   showArrow: {
     type: Boolean,
     default: false
-  },
-  ...useAriaProps(["ariaLabel"])
+  }
 });
 
 // node_modules/element-plus/es/components/tooltip-v2/src/root.mjs
@@ -58390,7 +56932,7 @@ var _sfc_main127 = defineComponent({
     const props = __props;
     const _open = ref(props.defaultOpen);
     const triggerRef = ref(null);
-    const open = computed({
+    const open = computed2({
       get: () => isPropAbsent(props.open) ? _open.value : props.open,
       set: (open2) => {
         var _a2;
@@ -58398,10 +56940,10 @@ var _sfc_main127 = defineComponent({
         (_a2 = props["onUpdate:open"]) == null ? void 0 : _a2.call(props, open2);
       }
     });
-    const isOpenDelayed = computed(() => isNumber3(props.delayDuration) && props.delayDuration > 0);
+    const isOpenDelayed = computed2(() => isNumber3(props.delayDuration) && props.delayDuration > 0);
     const { start: onDelayedOpen, stop: clearTimer } = useTimeoutFn(() => {
       open.value = true;
-    }, computed(() => props.delayDuration), {
+    }, computed2(() => props.delayDuration), {
       immediate: false
     });
     const ns = useNamespace("tooltip-v2");
@@ -58467,7 +57009,7 @@ var _sfc_main128 = defineComponent({
     const props = __props;
     const { ns } = inject(tooltipV2RootKey);
     const { arrowRef } = inject(tooltipV2ContentKey);
-    const arrowStyle = computed(() => {
+    const arrowStyle = computed2(() => {
       const { style, width, height } = props;
       const namespace = ns.namespace.value;
       return {
@@ -58490,7 +57032,7 @@ var _sfc_main128 = defineComponent({
 });
 var TooltipV2Arrow = _export_sfc(_sfc_main128, [["__file", "arrow.vue"]]);
 
-// node_modules/element-plus/es/components/visual-hidden/src/visual-hidden2.mjs
+// node_modules/element-plus/es/components/visual-hidden/src/visual-hidden.mjs
 var visualHiddenProps = buildProps({
   style: {
     type: definePropType([String, Object, Array]),
@@ -58498,7 +57040,7 @@ var visualHiddenProps = buildProps({
   }
 });
 
-// node_modules/element-plus/es/components/visual-hidden/src/visual-hidden.mjs
+// node_modules/element-plus/es/components/visual-hidden/src/visual-hidden2.mjs
 var __default__91 = defineComponent({
   name: "ElVisuallyHidden"
 });
@@ -58507,7 +57049,7 @@ var _sfc_main129 = defineComponent({
   props: visualHiddenProps,
   setup(__props) {
     const props = __props;
-    const computedStyle = computed(() => {
+    const computedStyle = computed2(() => {
       return [
         props.style,
         {
@@ -58534,7 +57076,7 @@ var _sfc_main129 = defineComponent({
 var ElVisuallyHidden = _export_sfc(_sfc_main129, [["__file", "visual-hidden.vue"]]);
 
 // node_modules/element-plus/es/components/tooltip-v2/src/content2.mjs
-var _hoisted_164 = ["data-side"];
+var _hoisted_163 = ["data-side"];
 var __default__92 = defineComponent({
   name: "ElTooltipV2Content"
 });
@@ -58550,8 +57092,8 @@ var _sfc_main130 = defineComponent({
     const { referenceRef, contentRef, middlewareData, x: x2, y, update: update2 } = useFloating({
       placement,
       strategy,
-      middleware: computed(() => {
-        const middleware = [offset3(props.offset)];
+      middleware: computed2(() => {
+        const middleware = [offset2(props.offset)];
         if (props.showArrow) {
           middleware.push(arrowMiddleware({
             arrowRef
@@ -58562,10 +57104,10 @@ var _sfc_main130 = defineComponent({
     });
     const zIndex2 = useZIndex().nextZIndex();
     const ns = useNamespace("tooltip-v2");
-    const side = computed(() => {
+    const side = computed2(() => {
       return placement.value.split("-")[0];
     });
-    const contentStyle = computed(() => {
+    const contentStyle = computed2(() => {
       return {
         position: unref(strategy),
         top: `${unref(y) || 0}px`,
@@ -58573,16 +57115,16 @@ var _sfc_main130 = defineComponent({
         zIndex: zIndex2
       };
     });
-    const arrowStyle = computed(() => {
+    const arrowStyle = computed2(() => {
       if (!props.showArrow)
         return {};
-      const { arrow: arrow4 } = unref(middlewareData);
+      const { arrow: arrow3 } = unref(middlewareData);
       return {
-        [`--${ns.namespace.value}-tooltip-v2-arrow-x`]: `${arrow4 == null ? void 0 : arrow4.x}px` || "",
-        [`--${ns.namespace.value}-tooltip-v2-arrow-y`]: `${arrow4 == null ? void 0 : arrow4.y}px` || ""
+        [`--${ns.namespace.value}-tooltip-v2-arrow-x`]: `${arrow3 == null ? void 0 : arrow3.x}px` || "",
+        [`--${ns.namespace.value}-tooltip-v2-arrow-y`]: `${arrow3 == null ? void 0 : arrow3.y}px` || ""
       };
     });
-    const contentClass = computed(() => [
+    const contentClass = computed2(() => [
       ns.e("content"),
       ns.is("dark", props.effect === "dark"),
       ns.is(unref(strategy)),
@@ -58629,7 +57171,7 @@ var _sfc_main130 = defineComponent({
             style: normalizeStyle(unref(arrowStyle)),
             side: unref(side)
           })
-        ], 10, _hoisted_164)) : createCommentVNode("v-if", true)
+        ], 10, _hoisted_163)) : createCommentVNode("v-if", true)
       ], 4);
     };
   }
@@ -58913,7 +57455,7 @@ var usePropsAlias = (props) => {
     key: "key",
     disabled: "disabled"
   };
-  return computed(() => ({
+  return computed2(() => ({
     ...initProps,
     ...props.props
   }));
@@ -58922,7 +57464,7 @@ var usePropsAlias = (props) => {
 // node_modules/element-plus/es/components/transfer/src/composables/use-check.mjs
 var useCheck = (props, panelState, emit) => {
   const propsAlias = usePropsAlias(props);
-  const filteredData = computed(() => {
+  const filteredData = computed2(() => {
     return props.data.filter((item) => {
       if (isFunction(props.filterMethod)) {
         return props.filterMethod(panelState.query, item);
@@ -58932,8 +57474,8 @@ var useCheck = (props, panelState, emit) => {
       }
     });
   });
-  const checkableData = computed(() => filteredData.value.filter((item) => !item[propsAlias.value.disabled]));
-  const checkedSummary = computed(() => {
+  const checkableData = computed2(() => filteredData.value.filter((item) => !item[propsAlias.value.disabled]));
+  const checkedSummary = computed2(() => {
     const checkedLength = panelState.checked.length;
     const dataLength = props.data.length;
     const { noChecked, hasChecked } = props.format;
@@ -58943,7 +57485,7 @@ var useCheck = (props, panelState, emit) => {
       return `${checkedLength}/${dataLength}`;
     }
   });
-  const isIndeterminate = computed(() => {
+  const isIndeterminate = computed2(() => {
     const checkedLength = panelState.checked.length;
     return checkedLength > 0 && checkedLength < checkableData.value.length;
   });
@@ -59026,9 +57568,9 @@ var useCheckedChange = (checkedState, emit) => {
 // node_modules/element-plus/es/components/transfer/src/composables/use-computed-data.mjs
 var useComputedData = (props) => {
   const propsAlias = usePropsAlias(props);
-  const dataObj = computed(() => props.data.reduce((o2, cur) => (o2[cur[propsAlias.value.key]] = cur) && o2, {}));
-  const sourceData = computed(() => props.data.filter((item) => !props.modelValue.includes(item[propsAlias.value.key])));
-  const targetData = computed(() => {
+  const dataObj = computed2(() => props.data.reduce((o2, cur) => (o2[cur[propsAlias.value.key]] = cur) && o2, {}));
+  const sourceData = computed2(() => props.data.filter((item) => !props.modelValue.includes(item[propsAlias.value.key])));
+  const targetData = computed2(() => {
     if (props.targetOrder === "original") {
       return props.data.filter((item) => props.modelValue.includes(item[propsAlias.value.key]));
     } else {
@@ -59109,8 +57651,8 @@ var _sfc_main133 = defineComponent({
       isIndeterminate,
       handleAllCheckedChange
     } = useCheck(props, panelState, emit);
-    const hasNoMatch = computed(() => !isEmpty2(panelState.query) && isEmpty2(filteredData.value));
-    const hasFooter = computed(() => !isEmpty2(slots.default()[0].children));
+    const hasNoMatch = computed2(() => !isEmpty2(panelState.query) && isEmpty2(filteredData.value));
+    const hasFooter = computed2(() => !isEmpty2(slots.default()[0].children));
     const { checked, allChecked, query } = toRefs(panelState);
     expose({
       query
@@ -59161,7 +57703,7 @@ var _sfc_main133 = defineComponent({
                 return openBlock(), createBlock(unref(ElCheckbox), {
                   key: item[unref(propsAlias).key],
                   class: normalizeClass(unref(ns).be("panel", "item")),
-                  value: item[unref(propsAlias).key],
+                  label: item[unref(propsAlias).key],
                   disabled: item[unref(propsAlias).disabled],
                   "validate-event": false
                 }, {
@@ -59174,7 +57716,7 @@ var _sfc_main133 = defineComponent({
                     ];
                   }),
                   _: 2
-                }, 1032, ["class", "value", "disabled"]);
+                }, 1032, ["class", "label", "disabled"]);
               }), 128))
             ]),
             _: 1
@@ -59200,7 +57742,7 @@ var _sfc_main133 = defineComponent({
 var TransferPanel = _export_sfc(_sfc_main133, [["__file", "transfer-panel.vue"]]);
 
 // node_modules/element-plus/es/components/transfer/src/transfer2.mjs
-var _hoisted_165 = { key: 0 };
+var _hoisted_164 = { key: 0 };
 var _hoisted_240 = { key: 0 };
 var __default__96 = defineComponent({
   name: "ElTransfer"
@@ -59235,17 +57777,17 @@ var _sfc_main134 = defineComponent({
           break;
       }
     };
-    const hasButtonTexts = computed(() => props.buttonTexts.length === 2);
-    const leftPanelTitle = computed(() => props.titles[0] || t("el.transfer.titles.0"));
-    const rightPanelTitle = computed(() => props.titles[1] || t("el.transfer.titles.1"));
-    const panelFilterPlaceholder = computed(() => props.filterPlaceholder || t("el.transfer.filterPlaceholder"));
+    const hasButtonTexts = computed2(() => props.buttonTexts.length === 2);
+    const leftPanelTitle = computed2(() => props.titles[0] || t("el.transfer.titles.0"));
+    const rightPanelTitle = computed2(() => props.titles[1] || t("el.transfer.titles.1"));
+    const panelFilterPlaceholder = computed2(() => props.filterPlaceholder || t("el.transfer.filterPlaceholder"));
     watch(() => props.modelValue, () => {
       var _a2;
       if (props.validateEvent) {
         (_a2 = formItem == null ? void 0 : formItem.validate) == null ? void 0 : _a2.call(formItem, "change").catch((err) => debugWarn(err));
       }
     });
-    const optionRender = computed(() => (option) => {
+    const optionRender = computed2(() => (option) => {
       if (props.renderContent)
         return props.renderContent(h, option);
       if (slots.default)
@@ -59296,7 +57838,7 @@ var _sfc_main134 = defineComponent({
                 ]),
                 _: 1
               }),
-              !unref(isUndefined2)(_ctx.buttonTexts[0]) ? (openBlock(), createElementBlock("span", _hoisted_165, toDisplayString(_ctx.buttonTexts[0]), 1)) : createCommentVNode("v-if", true)
+              !unref(isUndefined2)(_ctx.buttonTexts[0]) ? (openBlock(), createElementBlock("span", _hoisted_164, toDisplayString(_ctx.buttonTexts[0]), 1)) : createCommentVNode("v-if", true)
             ]),
             _: 1
           }, 8, ["class", "disabled", "onClick"]),
@@ -59785,28 +58327,12 @@ var Node3 = class _Node {
           callback.call(this, children);
         }
       };
-      const reject2 = () => {
-        this.loading = false;
-      };
-      this.store.load(this, resolve, reject2);
+      this.store.load(this, resolve);
     } else {
       if (callback) {
         callback.call(this);
       }
     }
-  }
-  eachNode(callback) {
-    const arr = [this];
-    while (arr.length) {
-      const node = arr.shift();
-      arr.unshift(...node.childNodes);
-      callback(node);
-    }
-  }
-  reInitChecked() {
-    if (this.store.checkStrictly)
-      return;
-    reInitChecked(this);
   }
 };
 
@@ -59902,7 +58428,7 @@ var TreeStore = class {
     }
   }
   append(data, parentData) {
-    const parentNode = !isPropAbsent(parentData) ? this.getNode(parentData) : this.root;
+    const parentNode = parentData ? this.getNode(parentData) : this.root;
     if (parentNode) {
       parentNode.insertChild({ data });
     }
@@ -60294,12 +58820,6 @@ function useDragNodeHandler({ props, ctx, el$, dropIndicator$, store }) {
       }
       if (dropType !== "none") {
         store.value.registerNode(draggingNodeCopy);
-        if (store.value.key) {
-          draggingNode.node.eachNode((node) => {
-            var _a2;
-            (_a2 = store.value.nodesMap[node.data[store.value.key]]) == null ? void 0 : _a2.setChecked(node.checked, !store.value.checkStrictly);
-          });
-        }
       }
       removeClass(dropNode.$el, ns.is("drop-inner"));
       ctx.emit("node-drag-end", draggingNode.node, dropNode.node, dropType, event);
@@ -60385,7 +58905,6 @@ var _sfc_main136 = defineComponent({
     watch(() => props.node.checked, (val) => {
       handleSelectChange(val, props.node.indeterminate);
     });
-    watch(() => props.node.childNodes.length, () => props.node.reInitChecked());
     watch(() => props.node.expanded, (val) => {
       nextTick(() => expanded.value = val);
       if (val) {
@@ -60513,7 +59032,7 @@ var _sfc_main136 = defineComponent({
     };
   }
 });
-var _hoisted_166 = ["aria-expanded", "aria-disabled", "aria-checked", "draggable", "data-key"];
+var _hoisted_165 = ["aria-expanded", "aria-disabled", "aria-checked", "draggable", "data-key"];
 var _hoisted_241 = ["aria-expanded"];
 function _sfc_render29(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_icon = resolveComponent("el-icon");
@@ -60616,7 +59135,7 @@ function _sfc_render29(_ctx, _cache, $props, $setup, $data, $options) {
       ]),
       _: 1
     })
-  ], 42, _hoisted_166)), [
+  ], 42, _hoisted_165)), [
     [vShow, _ctx.node.visible]
   ]);
 }
@@ -60794,7 +59313,6 @@ var _sfc_main137 = defineComponent({
   setup(props, ctx) {
     const { t } = useLocale();
     const ns = useNamespace("tree");
-    const selectInfo = inject(selectKey, null);
     const store = ref(new TreeStore({
       key: props.nodeKey,
       data: props.data,
@@ -60824,10 +59342,9 @@ var _sfc_main137 = defineComponent({
       store
     });
     useKeydown({ el$ }, store);
-    const isEmpty3 = computed(() => {
+    const isEmpty3 = computed2(() => {
       const { childNodes } = root2.value;
-      const hasFilteredOptions = selectInfo ? selectInfo.hasFilteredOptions !== 0 : false;
-      return (!childNodes || childNodes.length === 0 || childNodes.every(({ visible }) => !visible)) && !hasFilteredOptions;
+      return !childNodes || childNodes.length === 0 || childNodes.every(({ visible }) => !visible);
     });
     watch(() => props.currentNodeKey, (newVal) => {
       store.value.setCurrentNodeKey(newVal);
@@ -61035,38 +59552,34 @@ var ElTree = _Tree;
 
 // node_modules/element-plus/es/components/tree-select/src/select.mjs
 var useSelect3 = (props, { attrs, emit }, {
-  select,
   tree,
   key
 }) => {
   const ns = useNamespace("tree-select");
-  watch(() => props.data, () => {
-    if (props.filterable) {
-      nextTick(() => {
-        var _a2, _b;
-        (_b = tree.value) == null ? void 0 : _b.filter((_a2 = select.value) == null ? void 0 : _a2.states.inputValue);
-      });
-    }
-  }, { flush: "post" });
   const result2 = {
     ...pick_default(toRefs(props), Object.keys(ElSelect.props)),
     ...attrs,
     "onUpdate:modelValue": (value) => emit(UPDATE_MODEL_EVENT, value),
     valueKey: key,
-    popperClass: computed(() => {
+    popperClass: computed2(() => {
       const classes = [ns.e("popper")];
       if (props.popperClass)
         classes.push(props.popperClass);
       return classes.join(" ");
     }),
     filterMethod: (keyword = "") => {
-      var _a2;
-      if (props.filterMethod) {
+      if (props.filterMethod)
         props.filterMethod(keyword);
-      } else if (props.remoteMethod) {
-        props.remoteMethod(keyword);
-      } else {
+      nextTick(() => {
+        var _a2;
         (_a2 = tree.value) == null ? void 0 : _a2.filter(keyword);
+      });
+    },
+    onVisibleChange: (visible) => {
+      var _a2;
+      (_a2 = attrs.onVisibleChange) == null ? void 0 : _a2.call(attrs, visible);
+      if (props.filterable && visible) {
+        result2.filterMethod();
       }
     }
   };
@@ -61149,7 +59662,7 @@ var useTree2 = (props, { attrs, slots, emit }, {
     immediate: true,
     deep: true
   });
-  const propsMap = computed(() => ({
+  const propsMap = computed2(() => ({
     value: key.value,
     label: "label",
     children: "children",
@@ -61169,7 +59682,7 @@ var useTree2 = (props, { attrs, slots, emit }, {
   const defaultExpandedParentKeys = toValidArray(props.modelValue).map((value) => {
     return treeFind(props.data || [], (data) => getNodeValByProp("value", data) === value, (data) => getNodeValByProp("children", data), (data, index, array4, parent2) => parent2 && getNodeValByProp("value", parent2));
   }).filter((item) => isValidValue2(item));
-  const cacheOptions = computed(() => {
+  const cacheOptions = computed2(() => {
     if (!props.renderAfterExpand && !props.lazy)
       return [];
     const options = [];
@@ -61183,14 +59696,17 @@ var useTree2 = (props, { attrs, slots, emit }, {
     }, (data) => getNodeValByProp("children", data));
     return options;
   });
+  const cacheOptionsMap = computed2(() => {
+    return cacheOptions.value.reduce((prev, next) => ({ ...prev, [next.value]: next }), {});
+  });
   return {
     ...pick_default(toRefs(props), Object.keys(_Tree.props)),
     ...attrs,
     nodeKey: key,
-    expandOnClickNode: computed(() => {
+    expandOnClickNode: computed2(() => {
       return !props.checkStrictly && props.expandOnClickNode;
     }),
-    defaultExpandedKeys: computed(() => {
+    defaultExpandedKeys: computed2(() => {
       return props.defaultExpandedKeys ? props.defaultExpandedKeys.concat(defaultExpandedParentKeys) : defaultExpandedParentKeys;
     }),
     renderContent: (h3, { node, data, store }) => {
@@ -61209,7 +59725,7 @@ var useTree2 = (props, { attrs, slots, emit }, {
       return regexp4.test(getNodeValByProp("label", data) || "");
     },
     onNodeClick: (data, node, e) => {
-      var _a2, _b, _c, _d;
+      var _a2, _b, _c;
       (_a2 = attrs.onNodeClick) == null ? void 0 : _a2.call(attrs, data, node, e);
       if (props.showCheckbox && props.checkOnClickNode)
         return;
@@ -61221,23 +59737,19 @@ var useTree2 = (props, { attrs, slots, emit }, {
       } else if (props.expandOnClickNode) {
         e.proxy.handleExpandIconClick();
       }
-      (_d = select.value) == null ? void 0 : _d.focus();
     },
     onCheck: (data, params) => {
-      var _a2;
       if (!props.showCheckbox)
         return;
       const dataValue = getNodeValByProp("value", data);
-      const dataMap = {};
-      treeEach([tree.value.store.root], (node) => dataMap[node.key] = node, (node) => node.childNodes);
       const uncachedCheckedKeys = params.checkedKeys;
-      const cachedKeys = props.multiple ? toValidArray(props.modelValue).filter((item) => !(item in dataMap) && !uncachedCheckedKeys.includes(item)) : [];
-      const checkedKeys = cachedKeys.concat(uncachedCheckedKeys);
+      const cachedKeys = props.multiple ? toValidArray(props.modelValue).filter((item) => item in cacheOptionsMap.value && !tree.value.getNode(item) && !uncachedCheckedKeys.includes(item)) : [];
+      const checkedKeys = uncachedCheckedKeys.concat(cachedKeys);
       if (props.checkStrictly) {
         emit(UPDATE_MODEL_EVENT, props.multiple ? checkedKeys : checkedKeys.includes(dataValue) ? dataValue : void 0);
       } else {
         if (props.multiple) {
-          emit(UPDATE_MODEL_EVENT, cachedKeys.concat(tree.value.getCheckedKeys(true)));
+          emit(UPDATE_MODEL_EVENT, tree.value.getCheckedKeys(true));
         } else {
           const firstLeaf = treeFind([data], (data2) => !isValidArray(getNodeValByProp("children", data2)) && !getNodeValByProp("disabled", data2), (data2) => getNodeValByProp("children", data2));
           const firstLeafKey = firstLeaf ? getNodeValByProp("value", firstLeaf) : void 0;
@@ -61246,17 +59758,16 @@ var useTree2 = (props, { attrs, slots, emit }, {
         }
       }
       nextTick(() => {
-        var _a22;
+        var _a2;
         const checkedKeys2 = toValidArray(props.modelValue);
         tree.value.setCheckedKeys(checkedKeys2);
-        (_a22 = attrs.onCheck) == null ? void 0 : _a22.call(attrs, data, {
+        (_a2 = attrs.onCheck) == null ? void 0 : _a2.call(attrs, data, {
           checkedKeys: tree.value.getCheckedKeys(),
           checkedNodes: tree.value.getCheckedNodes(),
           halfCheckedKeys: tree.value.getHalfCheckedKeys(),
           halfCheckedNodes: tree.value.getHalfCheckedNodes()
         });
       });
-      (_a2 = select.value) == null ? void 0 : _a2.focus();
     },
     cacheOptions
   };
@@ -61304,7 +59815,7 @@ var _sfc_main138 = defineComponent({
     const { slots, expose } = context;
     const select = ref();
     const tree = ref();
-    const key = computed(() => props.nodeKey || props.valueKey || "value");
+    const key = computed2(() => props.nodeKey || props.valueKey || "value");
     const selectProps = useSelect3(props, context, { select, tree, key });
     const { cacheOptions, ...treeProps2 } = useTree2(props, context, {
       select,
@@ -61658,9 +60169,7 @@ function useCheck2(props, tree) {
   function setCheckedKeys(keys3) {
     checkedKeys.value.clear();
     indeterminateKeys.value.clear();
-    nextTick(() => {
-      _setCheckedKeys(keys3);
-    });
+    _setCheckedKeys(keys3);
   }
   function setChecked(key, isChecked2) {
     if ((tree == null ? void 0 : tree.value) && props.showCheckbox) {
@@ -61701,7 +60210,7 @@ function useCheck2(props, tree) {
 function useFilter(props, tree) {
   const hiddenNodeKeySet = ref(/* @__PURE__ */ new Set([]));
   const hiddenExpandIconKeySet = ref(/* @__PURE__ */ new Set([]));
-  const filterable = computed(() => {
+  const filterable = computed2(() => {
     return isFunction(props.filterMethod);
   });
   function doFilter(query) {
@@ -61792,23 +60301,23 @@ function useTree3(props, emit) {
     setCheckedKeys
   } = useCheck2(props, tree);
   const { doFilter, hiddenNodeKeySet, isForceHiddenExpandIcon } = useFilter(props, tree);
-  const valueKey = computed(() => {
+  const valueKey = computed2(() => {
     var _a2;
     return ((_a2 = props.props) == null ? void 0 : _a2.value) || TreeOptionsEnum.KEY;
   });
-  const childrenKey = computed(() => {
+  const childrenKey = computed2(() => {
     var _a2;
     return ((_a2 = props.props) == null ? void 0 : _a2.children) || TreeOptionsEnum.CHILDREN;
   });
-  const disabledKey = computed(() => {
+  const disabledKey = computed2(() => {
     var _a2;
     return ((_a2 = props.props) == null ? void 0 : _a2.disabled) || TreeOptionsEnum.DISABLED;
   });
-  const labelKey = computed(() => {
+  const labelKey = computed2(() => {
     var _a2;
     return ((_a2 = props.props) == null ? void 0 : _a2.label) || TreeOptionsEnum.LABEL;
   });
-  const flattenTree = computed(() => {
+  const flattenTree = computed2(() => {
     const expandedKeys = expandedKeySet.value;
     const hiddenKeys = hiddenNodeKeySet.value;
     const flattenNodes = [];
@@ -61839,7 +60348,7 @@ function useTree3(props, emit) {
     traverse();
     return flattenNodes;
   });
-  const isNotEmpty = computed(() => {
+  const isNotEmpty = computed2(() => {
     return flattenTree.value.length > 0;
   });
   function createTree(data) {
@@ -62033,7 +60542,7 @@ var ElNodeContent = defineComponent({
 });
 
 // node_modules/element-plus/es/components/tree-v2/src/tree-node.mjs
-var _hoisted_167 = ["aria-expanded", "aria-disabled", "aria-checked", "data-key", "onClick"];
+var _hoisted_166 = ["aria-expanded", "aria-disabled", "aria-checked", "data-key", "onClick"];
 var __default__97 = defineComponent({
   name: "ElTreeNode"
 });
@@ -62045,11 +60554,11 @@ var _sfc_main139 = defineComponent({
     const props = __props;
     const tree = inject(ROOT_TREE_INJECTION_KEY);
     const ns = useNamespace("tree");
-    const indent = computed(() => {
+    const indent = computed2(() => {
       var _a2;
       return (_a2 = tree == null ? void 0 : tree.props.indent) != null ? _a2 : 16;
     });
-    const icon = computed(() => {
+    const icon = computed2(() => {
       var _a2;
       return (_a2 = tree == null ? void 0 : tree.props.icon) != null ? _a2 : caret_right_default;
     });
@@ -62125,7 +60634,7 @@ var _sfc_main139 = defineComponent({
           }, null, 8, ["model-value", "indeterminate", "disabled"])) : createCommentVNode("v-if", true),
           createVNode(unref(ElNodeContent), { node: _ctx.node }, null, 8, ["node"])
         ], 6)
-      ], 42, _hoisted_167);
+      ], 42, _hoisted_166);
     };
   }
 });
@@ -62142,7 +60651,7 @@ var _sfc_main140 = defineComponent({
   setup(__props, { expose, emit }) {
     const props = __props;
     const slots = useSlots();
-    const treeNodeSize = computed(() => props.itemSize);
+    const treeNodeSize = computed2(() => props.itemSize);
     provide(ROOT_TREE_INJECTION_KEY, {
       ctx: {
         emit,
@@ -62256,7 +60765,7 @@ var ElTreeV2 = withInstall(TreeV2);
 var uploadContextKey = Symbol("uploadContextKey");
 
 // node_modules/element-plus/es/components/upload/src/ajax.mjs
-var SCOPE8 = "ElUpload";
+var SCOPE7 = "ElUpload";
 var UploadAjaxError = class extends Error {
   constructor(message2, status, method5, url2) {
     super(message2);
@@ -62290,7 +60799,7 @@ function getBody(xhr) {
 }
 var ajaxUpload = (option) => {
   if (typeof XMLHttpRequest === "undefined")
-    throwError(SCOPE8, "XMLHttpRequest is undefined");
+    throwError(SCOPE7, "XMLHttpRequest is undefined");
   const xhr = new XMLHttpRequest();
   const action = option.action;
   if (xhr.upload) {
@@ -62468,12 +60977,12 @@ var uploadListEmits = {
 };
 
 // node_modules/element-plus/es/components/upload/src/upload-list2.mjs
-var _hoisted_168 = ["onKeydown"];
+var _hoisted_167 = ["onKeydown"];
 var _hoisted_242 = ["src", "crossorigin"];
-var _hoisted_320 = ["onClick"];
-var _hoisted_411 = ["title"];
-var _hoisted_58 = ["onClick"];
-var _hoisted_65 = ["onClick"];
+var _hoisted_317 = ["onClick"];
+var _hoisted_410 = ["title"];
+var _hoisted_57 = ["onClick"];
+var _hoisted_64 = ["onClick"];
 var __default__99 = defineComponent({
   name: "ElUploadList"
 });
@@ -62489,7 +60998,7 @@ var _sfc_main141 = defineComponent({
     const nsList = useNamespace("list");
     const disabled = useFormDisabled();
     const focusing = ref(false);
-    const containerKls = computed(() => [
+    const containerKls = computed2(() => [
       nsUpload.b("list"),
       nsUpload.bm("list", props.listType),
       nsUpload.is("disabled", props.disabled)
@@ -62545,8 +61054,8 @@ var _sfc_main141 = defineComponent({
                     createBaseVNode("span", {
                       class: normalizeClass(unref(nsUpload).be("list", "item-file-name")),
                       title: file.name
-                    }, toDisplayString(file.name), 11, _hoisted_411)
-                  ], 10, _hoisted_320),
+                    }, toDisplayString(file.name), 11, _hoisted_410)
+                  ], 10, _hoisted_317),
                   file.status === "uploading" ? (openBlock(), createBlock(unref(ElProgress), {
                     key: 0,
                     type: _ctx.listType === "picture-card" ? "circle" : "line",
@@ -62609,7 +61118,7 @@ var _sfc_main141 = defineComponent({
                       ]),
                       _: 1
                     }, 8, ["class"])
-                  ], 10, _hoisted_58),
+                  ], 10, _hoisted_57),
                   !unref(disabled) ? (openBlock(), createElementBlock("span", {
                     key: 0,
                     class: normalizeClass(unref(nsUpload).be("list", "item-delete")),
@@ -62623,10 +61132,10 @@ var _sfc_main141 = defineComponent({
                       ]),
                       _: 1
                     }, 8, ["class"])
-                  ], 10, _hoisted_65)) : createCommentVNode("v-if", true)
+                  ], 10, _hoisted_64)) : createCommentVNode("v-if", true)
                 ], 2)) : createCommentVNode("v-if", true)
               ])
-            ], 42, _hoisted_168);
+            ], 42, _hoisted_167);
           }), 128)),
           renderSlot(_ctx.$slots, "append")
         ]),
@@ -62649,7 +61158,7 @@ var uploadDraggerEmits = {
 };
 
 // node_modules/element-plus/es/components/upload/src/upload-dragger2.mjs
-var _hoisted_169 = ["onDrop", "onDragover"];
+var _hoisted_168 = ["onDrop", "onDragover"];
 var COMPONENT_NAME25 = "ElUploadDrag";
 var __default__100 = defineComponent({
   name: COMPONENT_NAME25
@@ -62672,7 +61181,29 @@ var _sfc_main142 = defineComponent({
       dragover.value = false;
       e.stopPropagation();
       const files = Array.from(e.dataTransfer.files);
-      emit("file", files);
+      const accept = uploaderContext.accept.value;
+      if (!accept) {
+        emit("file", files);
+        return;
+      }
+      const filesFiltered = files.filter((file) => {
+        const { type: type4, name } = file;
+        const extension = name.includes(".") ? `.${name.split(".").pop()}` : "";
+        const baseType = type4.replace(/\/.*$/, "");
+        return accept.split(",").map((type22) => type22.trim()).filter((type22) => type22).some((acceptedType) => {
+          if (acceptedType.startsWith(".")) {
+            return extension === acceptedType;
+          }
+          if (/\/\*$/.test(acceptedType)) {
+            return baseType === acceptedType.replace(/\/\*$/, "");
+          }
+          if (/^[^/]+\/[^/]+$/.test(acceptedType)) {
+            return type4 === acceptedType;
+          }
+          return false;
+        });
+      });
+      emit("file", filesFiltered);
     };
     const onDragover = () => {
       if (!disabled.value)
@@ -62686,7 +61217,7 @@ var _sfc_main142 = defineComponent({
         onDragleave: _cache[0] || (_cache[0] = withModifiers(($event) => dragover.value = false, ["prevent"]))
       }, [
         renderSlot(_ctx.$slots, "default")
-      ], 42, _hoisted_169);
+      ], 42, _hoisted_168);
     };
   }
 });
@@ -62726,7 +61257,7 @@ var uploadContentProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/upload/src/upload-content2.mjs
-var _hoisted_170 = ["onKeydown"];
+var _hoisted_169 = ["onKeydown"];
 var _hoisted_243 = ["name", "multiple", "accept"];
 var __default__101 = defineComponent({
   name: "ElUploadContent",
@@ -62904,14 +61435,14 @@ var _sfc_main143 = defineComponent({
           onClick: _cache[0] || (_cache[0] = withModifiers(() => {
           }, ["stop"]))
         }, null, 42, _hoisted_243)
-      ], 42, _hoisted_170);
+      ], 42, _hoisted_169);
     };
   }
 });
 var UploadContent = _export_sfc(_sfc_main143, [["__file", "upload-content.vue"]]);
 
 // node_modules/element-plus/es/components/upload/src/use-handlers.mjs
-var SCOPE9 = "ElUpload";
+var SCOPE8 = "ElUpload";
 var revokeFileObjectURL = (file) => {
   var _a2;
   if ((_a2 = file.url) == null ? void 0 : _a2.startsWith("blob:")) {
@@ -62970,7 +61501,7 @@ var useHandlers = (props, uploadRef) => {
       try {
         uploadFile.url = URL.createObjectURL(file);
       } catch (err) {
-        debugWarn(SCOPE9, err.message);
+        debugWarn(SCOPE8, err.message);
         props.onError(err, uploadFile, uploadFiles.value);
       }
     }
@@ -62980,7 +61511,7 @@ var useHandlers = (props, uploadRef) => {
   const handleRemove = async (file) => {
     const uploadFile = file instanceof File ? getFile(file) : file;
     if (!uploadFile)
-      throwError(SCOPE9, "file to be removed not found");
+      throwError(SCOPE8, "file to be removed not found");
     const doRemove = (file2) => {
       abort(file2);
       const fileList = uploadFiles.value;
@@ -63061,8 +61592,8 @@ var _sfc_main144 = defineComponent({
       handleProgress,
       revokeFileObjectURL: revokeFileObjectURL2
     } = useHandlers(props, uploadRef);
-    const isPictureCard = computed(() => props.listType === "picture-card");
-    const uploadContentProps2 = computed(() => ({
+    const isPictureCard = computed2(() => props.listType === "picture-card");
+    const uploadContentProps2 = computed2(() => ({
       ...props,
       fileList: uploadFiles.value,
       onStart: handleStart,
@@ -63254,10 +61785,10 @@ function useClips() {
       const targetY = x2 * Math.sin(angle) + y * Math.cos(angle);
       return [targetX, targetY];
     }
-    let left3 = 0;
-    let right3 = 0;
-    let top2 = 0;
-    let bottom2 = 0;
+    let left2 = 0;
+    let right2 = 0;
+    let top = 0;
+    let bottom = 0;
     const halfWidth = contentWidth / 2;
     const halfHeight = contentHeight / 2;
     const points = [
@@ -63268,15 +61799,15 @@ function useClips() {
     ];
     points.forEach(([x2, y]) => {
       const [targetX, targetY] = getRotatePos(x2, y);
-      left3 = Math.min(left3, targetX);
-      right3 = Math.max(right3, targetX);
-      top2 = Math.min(top2, targetY);
-      bottom2 = Math.max(bottom2, targetY);
+      left2 = Math.min(left2, targetX);
+      right2 = Math.max(right2, targetX);
+      top = Math.min(top, targetY);
+      bottom = Math.max(bottom, targetY);
     });
-    const cutLeft = left3 + realMaxSize / 2;
-    const cutTop = top2 + realMaxSize / 2;
-    const cutWidth = right3 - left3;
-    const cutHeight = bottom2 - top2;
+    const cutLeft = left2 + realMaxSize / 2;
+    const cutTop = top + realMaxSize / 2;
+    const cutWidth = right2 - left2;
+    const cutHeight = bottom - top;
     const realGapX = gapX * ratio;
     const realGapY = gapY * ratio;
     const filledWidth = (cutWidth + realGapX) * 2;
@@ -63305,43 +61836,43 @@ var _sfc_main145 = defineComponent({
     const style = {
       position: "relative"
     };
-    const color = computed(() => {
+    const color = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = props.font) == null ? void 0 : _a2.color) != null ? _b : "rgba(0,0,0,.15)";
     });
-    const fontSize = computed(() => {
+    const fontSize = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = props.font) == null ? void 0 : _a2.fontSize) != null ? _b : 16;
     });
-    const fontWeight = computed(() => {
+    const fontWeight = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = props.font) == null ? void 0 : _a2.fontWeight) != null ? _b : "normal";
     });
-    const fontStyle = computed(() => {
+    const fontStyle = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = props.font) == null ? void 0 : _a2.fontStyle) != null ? _b : "normal";
     });
-    const fontFamily = computed(() => {
+    const fontFamily = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = props.font) == null ? void 0 : _a2.fontFamily) != null ? _b : "sans-serif";
     });
-    const textAlign = computed(() => {
+    const textAlign = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = props.font) == null ? void 0 : _a2.textAlign) != null ? _b : "center";
     });
-    const textBaseline = computed(() => {
+    const textBaseline = computed2(() => {
       var _a2, _b;
-      return (_b = (_a2 = props.font) == null ? void 0 : _a2.textBaseline) != null ? _b : "hanging";
+      return (_b = (_a2 = props.font) == null ? void 0 : _a2.textBaseline) != null ? _b : "top";
     });
-    const gapX = computed(() => props.gap[0]);
-    const gapY = computed(() => props.gap[1]);
-    const gapXCenter = computed(() => gapX.value / 2);
-    const gapYCenter = computed(() => gapY.value / 2);
-    const offsetLeft = computed(() => {
+    const gapX = computed2(() => props.gap[0]);
+    const gapY = computed2(() => props.gap[1]);
+    const gapXCenter = computed2(() => gapX.value / 2);
+    const gapYCenter = computed2(() => gapY.value / 2);
+    const offsetLeft = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = props.offset) == null ? void 0 : _a2[0]) != null ? _b : gapXCenter.value;
     });
-    const offsetTop = computed(() => {
+    const offsetTop = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = props.offset) == null ? void 0 : _a2[1]) != null ? _b : gapYCenter.value;
     });
@@ -63545,10 +62076,10 @@ var useTarget = (target2, open, gap, mergedMask, scrollIntoViewOptions) => {
     if (!isInViewPort(targetEl) && open.value) {
       targetEl.scrollIntoView(scrollIntoViewOptions.value);
     }
-    const { left: left3, top: top2, width, height } = targetEl.getBoundingClientRect();
+    const { left: left2, top, width, height } = targetEl.getBoundingClientRect();
     posInfo.value = {
-      left: left3,
-      top: top2,
+      left: left2,
+      top,
       width,
       height,
       radius: 0
@@ -63569,7 +62100,7 @@ var useTarget = (target2, open, gap, mergedMask, scrollIntoViewOptions) => {
     var _a2;
     return (_a2 = isArray(gap.value.offset) ? gap.value.offset[index] : gap.value.offset) != null ? _a2 : 6;
   };
-  const mergedPosInfo = computed(() => {
+  const mergedPosInfo = computed2(() => {
     var _a2;
     if (!posInfo.value)
       return posInfo.value;
@@ -63584,7 +62115,7 @@ var useTarget = (target2, open, gap, mergedMask, scrollIntoViewOptions) => {
       radius: gapRadius
     };
   });
-  const triggerTarget = computed(() => {
+  const triggerTarget = computed2(() => {
     const targetEl = getTargetEl();
     if (!mergedMask.value || !targetEl || !window.DOMRect) {
       return targetEl || void 0;
@@ -63610,8 +62141,8 @@ var tourKey = Symbol("ElTour");
 function isInViewPort(element) {
   const viewWidth = window.innerWidth || document.documentElement.clientWidth;
   const viewHeight = window.innerHeight || document.documentElement.clientHeight;
-  const { top: top2, right: right3, bottom: bottom2, left: left3 } = element.getBoundingClientRect();
-  return top2 >= 0 && left3 >= 0 && right3 <= viewWidth && bottom2 <= viewHeight;
+  const { top, right: right2, bottom, left: left2 } = element.getBoundingClientRect();
+  return top >= 0 && left2 >= 0 && right2 <= viewWidth && bottom <= viewHeight;
 }
 var useFloating2 = (referenceRef, contentRef, arrowRef, placement, strategy, offset$1, zIndex2, showArrow) => {
   const x2 = ref();
@@ -63624,15 +62155,15 @@ var useFloating2 = (referenceRef, contentRef, arrowRef, placement, strategy, off
     strategy,
     middlewareData
   };
-  const middleware = computed(() => {
+  const middleware = computed2(() => {
     const _middleware = [
-      offset3(unref(offset$1)),
-      flip4(),
+      offset2(unref(offset$1)),
+      flip3(),
       shift2(),
       overflowMiddleware()
     ];
     if (unref(showArrow) && unref(arrowRef)) {
-      _middleware.push(arrow3({
+      _middleware.push(arrow2({
         element: unref(arrowRef)
       }));
     }
@@ -63654,7 +62185,7 @@ var useFloating2 = (referenceRef, contentRef, arrowRef, placement, strategy, off
       states[key].value = data[key];
     });
   };
-  const contentStyle = computed(() => {
+  const contentStyle = computed2(() => {
     if (!unref(referenceRef)) {
       return {
         position: "fixed",
@@ -63674,7 +62205,7 @@ var useFloating2 = (referenceRef, contentRef, arrowRef, placement, strategy, off
       maxWidth: (overflow == null ? void 0 : overflow.maxWidth) ? `${overflow == null ? void 0 : overflow.maxWidth}px` : ""
     };
   });
-  const arrowStyle = computed(() => {
+  const arrowStyle = computed2(() => {
     if (!unref(showArrow))
       return {};
     const { arrow: arrow22 } = unref(middlewareData);
@@ -63685,11 +62216,7 @@ var useFloating2 = (referenceRef, contentRef, arrowRef, placement, strategy, off
   });
   let cleanup;
   onMounted(() => {
-    const referenceEl = unref(referenceRef);
-    const contentEl = unref(contentRef);
-    if (referenceEl && contentEl) {
-      cleanup = autoUpdate(referenceEl, contentEl, update2);
-    }
+    cleanup = autoUpdate(unref(referenceRef), unref(contentRef), update2);
     watchEffect(() => {
       update2();
     });
@@ -63707,7 +62234,7 @@ var overflowMiddleware = () => {
   return {
     name: "overflow",
     async fn(state) {
-      const overflow = await detectOverflow3(state);
+      const overflow = await detectOverflow2(state);
       let overWidth = 0;
       if (overflow.left > 0)
         overWidth = overflow.left;
@@ -63724,7 +62251,7 @@ var overflowMiddleware = () => {
 };
 
 // node_modules/element-plus/es/components/tour/src/mask2.mjs
-var _hoisted_171 = { style: {
+var _hoisted_170 = { style: {
   width: "100%",
   height: "100%"
 } };
@@ -63739,11 +62266,11 @@ var _sfc_main146 = defineComponent({
   setup(__props) {
     const props = __props;
     const { ns } = inject(tourKey);
-    const radius = computed(() => {
+    const radius = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = props.pos) == null ? void 0 : _a2.radius) != null ? _b : 2;
     });
-    const roundInfo = computed(() => {
+    const roundInfo = computed2(() => {
       const v2 = radius.value;
       const baseInfo = `a${v2},${v2} 0 0 1`;
       return {
@@ -63753,7 +62280,7 @@ var _sfc_main146 = defineComponent({
         topLeft: `${baseInfo} ${v2},${-v2}`
       };
     });
-    const path = computed(() => {
+    const path = computed2(() => {
       const width = window.innerWidth;
       const height = window.innerHeight;
       const info = roundInfo.value;
@@ -63761,7 +62288,7 @@ var _sfc_main146 = defineComponent({
       const _radius = radius.value;
       return props.pos ? `${_path} M${props.pos.left + _radius},${props.pos.top} h${props.pos.width - _radius * 2} ${info.topRight} v${props.pos.height - _radius * 2} ${info.bottomRight} h${-props.pos.width + _radius * 2} ${info.bottomLeft} v${-props.pos.height + _radius * 2} ${info.topLeft} z` : _path;
     });
-    const pathStyle = computed(() => {
+    const pathStyle = computed2(() => {
       return {
         fill: props.fill,
         pointerEvents: "auto",
@@ -63785,7 +62312,7 @@ var _sfc_main146 = defineComponent({
           pointerEvents: _ctx.pos && _ctx.targetAreaClickable ? "none" : "auto"
         }
       }, _ctx.$attrs), [
-        (openBlock(), createElementBlock("svg", _hoisted_171, [
+        (openBlock(), createElementBlock("svg", _hoisted_170, [
           createBaseVNode("path", {
             class: normalizeClass(unref(ns).e("hollow")),
             style: normalizeStyle(unref(pathStyle)),
@@ -63844,7 +62371,7 @@ var tourContentEmits = {
 };
 
 // node_modules/element-plus/es/components/tour/src/content2.mjs
-var _hoisted_173 = ["data-side"];
+var _hoisted_171 = ["data-side"];
 var __default__105 = defineComponent({
   name: "ElTourContent"
 });
@@ -63862,17 +62389,12 @@ var _sfc_main147 = defineComponent({
       placement.value = props.placement;
     });
     const { contentStyle, arrowStyle } = useFloating2(toRef(props, "reference"), contentRef, arrowRef, placement, strategy, toRef(props, "offset"), toRef(props, "zIndex"), toRef(props, "showArrow"));
-    const side = computed(() => {
+    const side = computed2(() => {
       return placement.value.split("-")[0];
     });
     const { ns } = inject(tourKey);
     const onCloseRequested = () => {
       emit("close");
-    };
-    const onFocusoutPrevented = (event) => {
-      if (event.detail.focusReason === "pointer") {
-        event.preventDefault();
-      }
     };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -63888,8 +62410,7 @@ var _sfc_main147 = defineComponent({
           trapped: "",
           "focus-start-el": "container",
           "focus-trap-el": contentRef.value || void 0,
-          onReleaseRequested: onCloseRequested,
-          onFocusoutPrevented
+          onReleaseRequested: onCloseRequested
         }, {
           default: withCtx(() => [
             renderSlot(_ctx.$slots, "default")
@@ -63903,7 +62424,7 @@ var _sfc_main147 = defineComponent({
           style: normalizeStyle(unref(arrowStyle)),
           class: normalizeClass(unref(ns).e("arrow"))
         }, null, 6)) : createCommentVNode("v-if", true)
-      ], 14, _hoisted_173);
+      ], 14, _hoisted_171);
     };
   }
 });
@@ -64035,43 +62556,43 @@ var _sfc_main148 = defineComponent({
     const current = useVModel(props, "current", emit, {
       passive: true
     });
-    const currentTarget = computed(() => {
+    const currentTarget = computed2(() => {
       var _a2;
       return (_a2 = currentStep.value) == null ? void 0 : _a2.target;
     });
-    const kls = computed(() => [
+    const kls = computed2(() => [
       ns.b(),
       mergedType.value === "primary" ? ns.m("primary") : ""
     ]);
-    const mergedPlacement = computed(() => {
+    const mergedPlacement = computed2(() => {
       var _a2;
       return ((_a2 = currentStep.value) == null ? void 0 : _a2.placement) || props.placement;
     });
-    const mergedContentStyle = computed(() => {
+    const mergedContentStyle = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = currentStep.value) == null ? void 0 : _a2.contentStyle) != null ? _b : props.contentStyle;
     });
-    const mergedMask = computed(() => {
+    const mergedMask = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = currentStep.value) == null ? void 0 : _a2.mask) != null ? _b : props.mask;
     });
-    const mergedShowMask = computed(() => !!mergedMask.value && props.modelValue);
-    const mergedMaskStyle = computed(() => isBoolean2(mergedMask.value) ? void 0 : mergedMask.value);
-    const mergedShowArrow = computed(() => {
+    const mergedShowMask = computed2(() => !!mergedMask.value && props.modelValue);
+    const mergedMaskStyle = computed2(() => isBoolean2(mergedMask.value) ? void 0 : mergedMask.value);
+    const mergedShowArrow = computed2(() => {
       var _a2, _b;
       return !!currentTarget.value && ((_b = (_a2 = currentStep.value) == null ? void 0 : _a2.showArrow) != null ? _b : props.showArrow);
     });
-    const mergedScrollIntoViewOptions = computed(() => {
+    const mergedScrollIntoViewOptions = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = currentStep.value) == null ? void 0 : _a2.scrollIntoViewOptions) != null ? _b : props.scrollIntoViewOptions;
     });
-    const mergedType = computed(() => {
+    const mergedType = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = currentStep.value) == null ? void 0 : _a2.type) != null ? _b : props.type;
     });
     const { nextZIndex } = useZIndex();
     const nowZIndex = nextZIndex();
-    const mergedZIndex = computed(() => {
+    const mergedZIndex = computed2(() => {
       var _a2;
       return (_a2 = props.zIndex) != null ? _a2 : nowZIndex;
     });
@@ -64237,11 +62758,11 @@ var _sfc_main149 = defineComponent({
     }, {
       immediate: true
     });
-    const mergedShowClose = computed(() => {
+    const mergedShowClose = computed2(() => {
       var _a2;
       return (_a2 = props.showClose) != null ? _a2 : showClose.value;
     });
-    const mergedCloseIcon = computed(() => {
+    const mergedCloseIcon = computed2(() => {
       var _a2, _b;
       return (_b = (_a2 = props.closeIcon) != null ? _a2 : closeIcon.value) != null ? _b : Close;
     });
@@ -64374,505 +62895,6 @@ var ElTour = withInstall(Tour, {
 });
 var ElTourStep = withNoopInstall(TourStep);
 
-// node_modules/element-plus/es/components/anchor/src/anchor.mjs
-var anchorProps = buildProps({
-  container: {
-    type: definePropType([
-      String,
-      Object
-    ])
-  },
-  offset: {
-    type: Number,
-    default: 0
-  },
-  bound: {
-    type: Number,
-    default: 15
-  },
-  duration: {
-    type: Number,
-    default: 300
-  },
-  marker: {
-    type: Boolean,
-    default: true
-  },
-  type: {
-    type: definePropType(String),
-    default: "default"
-  },
-  direction: {
-    type: definePropType(String),
-    default: "vertical"
-  }
-});
-var anchorEmits = {
-  change: (href) => isString(href),
-  click: (e, href) => e instanceof MouseEvent && (isString(href) || isUndefined2(href))
-};
-
-// node_modules/element-plus/es/components/anchor/src/constants.mjs
-var anchorKey = Symbol("anchor");
-
-// node_modules/element-plus/es/components/anchor/src/anchor2.mjs
-var __default__108 = defineComponent({
-  name: "ElAnchor"
-});
-var _sfc_main150 = defineComponent({
-  ...__default__108,
-  props: anchorProps,
-  emits: anchorEmits,
-  setup(__props, { expose, emit }) {
-    const props = __props;
-    const currentAnchor = ref("");
-    const anchorRef = ref(null);
-    const markerRef = ref(null);
-    const containerEl = ref();
-    const links = {};
-    let isScrolling = false;
-    let currentScrollTop = 0;
-    const ns = useNamespace("anchor");
-    const cls = computed(() => [
-      ns.b(),
-      props.type === "underline" ? ns.m("underline") : "",
-      ns.m(props.direction)
-    ]);
-    const addLink = (state) => {
-      links[state.href] = state.el;
-    };
-    const removeLink = (href) => {
-      delete links[href];
-    };
-    const setCurrentAnchor = (href) => {
-      const activeHref = currentAnchor.value;
-      if (activeHref !== href) {
-        currentAnchor.value = href;
-        emit("change", href);
-      }
-    };
-    let clearAnimate = null;
-    const scrollToAnchor = (href) => {
-      if (!containerEl.value)
-        return;
-      const target2 = getElement(href);
-      if (!target2)
-        return;
-      if (clearAnimate)
-        clearAnimate();
-      isScrolling = true;
-      const scrollEle = getScrollElement(target2, containerEl.value);
-      const distance = getOffsetTopDistance(target2, scrollEle);
-      const max5 = scrollEle.scrollHeight - scrollEle.clientHeight;
-      const to = Math.min(distance - props.offset, max5);
-      clearAnimate = animateScrollTo(containerEl.value, currentScrollTop, to, props.duration, () => {
-        setTimeout(() => {
-          isScrolling = false;
-        }, 20);
-      });
-    };
-    const scrollTo = (href) => {
-      if (href) {
-        setCurrentAnchor(href);
-        scrollToAnchor(href);
-      }
-    };
-    const handleClick = (e, href) => {
-      emit("click", e, href);
-      scrollTo(href);
-    };
-    const handleScroll2 = throttleByRaf(() => {
-      if (containerEl.value) {
-        currentScrollTop = getScrollTop(containerEl.value);
-      }
-      const currentHref = getCurrentHref();
-      if (isScrolling || isUndefined2(currentHref))
-        return;
-      setCurrentAnchor(currentHref);
-    });
-    const getCurrentHref = () => {
-      if (!containerEl.value)
-        return;
-      const scrollTop = getScrollTop(containerEl.value);
-      const anchorTopList = [];
-      for (const href of Object.keys(links)) {
-        const target2 = getElement(href);
-        if (!target2)
-          continue;
-        const scrollEle = getScrollElement(target2, containerEl.value);
-        const distance = getOffsetTopDistance(target2, scrollEle);
-        anchorTopList.push({
-          top: distance - props.offset - props.bound,
-          href
-        });
-      }
-      anchorTopList.sort((prev, next) => prev.top - next.top);
-      for (let i = 0; i < anchorTopList.length; i++) {
-        const item = anchorTopList[i];
-        const next = anchorTopList[i + 1];
-        if (i === 0 && scrollTop === 0) {
-          return "";
-        }
-        if (item.top <= scrollTop && (!next || next.top > scrollTop)) {
-          return item.href;
-        }
-      }
-    };
-    const getContainer = () => {
-      const el = getElement(props.container);
-      if (!el || isWindow(el)) {
-        containerEl.value = window;
-      } else {
-        containerEl.value = el;
-      }
-    };
-    useEventListener(containerEl, "scroll", handleScroll2);
-    const markerStyle = computed(() => {
-      if (!anchorRef.value || !markerRef.value || !currentAnchor.value)
-        return {};
-      const currentLinkEl = links[currentAnchor.value];
-      if (!currentLinkEl)
-        return {};
-      const anchorRect = anchorRef.value.getBoundingClientRect();
-      const markerRect = markerRef.value.getBoundingClientRect();
-      const linkRect = currentLinkEl.getBoundingClientRect();
-      if (props.direction === "horizontal") {
-        const left3 = linkRect.left - anchorRect.left;
-        return {
-          left: `${left3}px`,
-          width: `${linkRect.width}px`,
-          opacity: 1
-        };
-      } else {
-        const top2 = linkRect.top - anchorRect.top + (linkRect.height - markerRect.height) / 2;
-        return {
-          top: `${top2}px`,
-          opacity: 1
-        };
-      }
-    });
-    onMounted(() => {
-      getContainer();
-      const hash3 = decodeURIComponent(window.location.hash);
-      const target2 = getElement(hash3);
-      if (target2) {
-        scrollTo(hash3);
-      } else {
-        handleScroll2();
-      }
-    });
-    watch(() => props.container, () => {
-      getContainer();
-    });
-    provide(anchorKey, {
-      ns,
-      direction: props.direction,
-      currentAnchor,
-      addLink,
-      removeLink,
-      handleClick
-    });
-    expose({
-      scrollTo
-    });
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", {
-        ref_key: "anchorRef",
-        ref: anchorRef,
-        class: normalizeClass(unref(cls))
-      }, [
-        _ctx.marker ? (openBlock(), createElementBlock("div", {
-          key: 0,
-          ref_key: "markerRef",
-          ref: markerRef,
-          class: normalizeClass(unref(ns).e("marker")),
-          style: normalizeStyle(unref(markerStyle))
-        }, null, 6)) : createCommentVNode("v-if", true),
-        createBaseVNode("div", {
-          class: normalizeClass(unref(ns).e("list"))
-        }, [
-          renderSlot(_ctx.$slots, "default")
-        ], 2)
-      ], 2);
-    };
-  }
-});
-var Anchor = _export_sfc(_sfc_main150, [["__file", "anchor.vue"]]);
-
-// node_modules/element-plus/es/components/anchor/src/anchor-link.mjs
-var anchorLinkProps = buildProps({
-  title: String,
-  href: String
-});
-
-// node_modules/element-plus/es/components/anchor/src/anchor-link2.mjs
-var _hoisted_174 = ["href"];
-var __default__109 = defineComponent({
-  name: "ElAnchorLink"
-});
-var _sfc_main151 = defineComponent({
-  ...__default__109,
-  props: anchorLinkProps,
-  setup(__props) {
-    const props = __props;
-    const linkRef = ref(null);
-    const {
-      ns,
-      direction: direction2,
-      currentAnchor,
-      addLink,
-      removeLink,
-      handleClick: contextHandleClick
-    } = inject(anchorKey);
-    const cls = computed(() => [
-      ns.e("link"),
-      ns.is("active", currentAnchor.value === props.href)
-    ]);
-    const handleClick = (e) => {
-      contextHandleClick(e, props.href);
-    };
-    watch(() => props.href, (val, oldVal) => {
-      nextTick(() => {
-        if (oldVal)
-          removeLink(oldVal);
-        if (val) {
-          addLink({
-            href: val,
-            el: linkRef.value
-          });
-        }
-      });
-    });
-    onMounted(() => {
-      const { href } = props;
-      if (href) {
-        addLink({
-          href,
-          el: linkRef.value
-        });
-      }
-    });
-    onBeforeUnmount(() => {
-      const { href } = props;
-      if (href) {
-        removeLink(href);
-      }
-    });
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", {
-        class: normalizeClass(unref(ns).e("item"))
-      }, [
-        createBaseVNode("a", {
-          ref_key: "linkRef",
-          ref: linkRef,
-          class: normalizeClass(unref(cls)),
-          href: _ctx.href,
-          onClick: handleClick
-        }, [
-          renderSlot(_ctx.$slots, "default", {}, () => [
-            createTextVNode(toDisplayString(_ctx.title), 1)
-          ])
-        ], 10, _hoisted_174),
-        _ctx.$slots["sub-link"] && unref(direction2) === "vertical" ? (openBlock(), createElementBlock("div", {
-          key: 0,
-          class: normalizeClass(unref(ns).e("list"))
-        }, [
-          renderSlot(_ctx.$slots, "sub-link")
-        ], 2)) : createCommentVNode("v-if", true)
-      ], 2);
-    };
-  }
-});
-var AnchorLink = _export_sfc(_sfc_main151, [["__file", "anchor-link.vue"]]);
-
-// node_modules/element-plus/es/components/anchor/index.mjs
-var ElAnchor = withInstall(Anchor, {
-  AnchorLink
-});
-var ElAnchorLink = withNoopInstall(AnchorLink);
-
-// node_modules/element-plus/es/components/segmented/src/segmented.mjs
-var segmentedProps = buildProps({
-  options: {
-    type: definePropType(Array),
-    default: () => []
-  },
-  modelValue: {
-    type: [String, Number, Boolean],
-    default: void 0
-  },
-  block: Boolean,
-  size: useSizeProp,
-  disabled: Boolean,
-  validateEvent: {
-    type: Boolean,
-    default: true
-  },
-  id: String,
-  name: String,
-  ...useAriaProps(["ariaLabel"])
-});
-var segmentedEmits = {
-  [UPDATE_MODEL_EVENT]: (val) => isString(val) || isNumber3(val),
-  [CHANGE_EVENT]: (val) => isString(val) || isNumber3(val)
-};
-
-// node_modules/element-plus/es/components/segmented/src/segmented2.mjs
-var _hoisted_175 = ["id", "aria-label", "aria-labelledby"];
-var _hoisted_245 = ["name", "disabled", "checked", "onChange"];
-var __default__110 = defineComponent({
-  name: "ElSegmented"
-});
-var _sfc_main152 = defineComponent({
-  ...__default__110,
-  props: segmentedProps,
-  emits: segmentedEmits,
-  setup(__props, { emit }) {
-    const props = __props;
-    const ns = useNamespace("segmented");
-    const segmentedId = useId();
-    const segmentedSize = useFormSize();
-    const _disabled = useFormDisabled();
-    const { formItem } = useFormItem();
-    const { inputId, isLabeledByFormItem } = useFormItemInputId(props, {
-      formItemContext: formItem
-    });
-    const segmentedRef = ref(null);
-    const activeElement = useActiveElement();
-    const state = reactive({
-      isInit: false,
-      width: 0,
-      translateX: 0,
-      disabled: false,
-      focusVisible: false
-    });
-    const handleChange = (item) => {
-      const value = getValue3(item);
-      emit(UPDATE_MODEL_EVENT, value);
-      emit(CHANGE_EVENT, value);
-    };
-    const getValue3 = (item) => {
-      return isObject(item) ? item.value : item;
-    };
-    const getLabel = (item) => {
-      return isObject(item) ? item.label : item;
-    };
-    const getDisabled = (item) => {
-      return !!(_disabled.value || (isObject(item) ? item.disabled : false));
-    };
-    const getSelected = (item) => {
-      return props.modelValue === getValue3(item);
-    };
-    const getOption = (value) => {
-      return props.options.find((item) => getValue3(item) === value);
-    };
-    const getItemCls = (item) => {
-      return [
-        ns.e("item"),
-        ns.is("selected", getSelected(item)),
-        ns.is("disabled", getDisabled(item))
-      ];
-    };
-    const updateSelect = () => {
-      if (!segmentedRef.value)
-        return;
-      const selectedItem = segmentedRef.value.querySelector(".is-selected");
-      const selectedItemInput = segmentedRef.value.querySelector(".is-selected input");
-      if (!selectedItem || !selectedItemInput) {
-        state.width = 0;
-        state.translateX = 0;
-        state.disabled = false;
-        state.focusVisible = false;
-        return;
-      }
-      const rect = selectedItem.getBoundingClientRect();
-      state.isInit = true;
-      state.width = rect.width;
-      state.translateX = selectedItem.offsetLeft;
-      state.disabled = getDisabled(getOption(props.modelValue));
-      try {
-        state.focusVisible = selectedItemInput.matches(":focus-visible");
-      } catch (e) {
-      }
-    };
-    const segmentedCls = computed(() => [
-      ns.b(),
-      ns.m(segmentedSize.value),
-      ns.is("block", props.block)
-    ]);
-    const selectedStyle = computed(() => ({
-      width: `${state.width}px`,
-      transform: `translateX(${state.translateX}px)`,
-      display: state.isInit ? "block" : "none"
-    }));
-    const selectedCls = computed(() => [
-      ns.e("item-selected"),
-      ns.is("disabled", state.disabled),
-      ns.is("focus-visible", state.focusVisible)
-    ]);
-    const name = computed(() => {
-      return props.name || segmentedId.value;
-    });
-    useResizeObserver(segmentedRef, updateSelect);
-    watch(activeElement, updateSelect);
-    watch(() => props.modelValue, () => {
-      var _a2;
-      updateSelect();
-      if (props.validateEvent) {
-        (_a2 = formItem == null ? void 0 : formItem.validate) == null ? void 0 : _a2.call(formItem, "change").catch((err) => debugWarn(err));
-      }
-    }, {
-      flush: "post"
-    });
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", {
-        id: unref(inputId),
-        ref_key: "segmentedRef",
-        ref: segmentedRef,
-        class: normalizeClass(unref(segmentedCls)),
-        role: "radiogroup",
-        "aria-label": !unref(isLabeledByFormItem) ? _ctx.ariaLabel || "segmented" : void 0,
-        "aria-labelledby": unref(isLabeledByFormItem) ? unref(formItem).labelId : void 0
-      }, [
-        createBaseVNode("div", {
-          class: normalizeClass(unref(ns).e("group"))
-        }, [
-          createBaseVNode("div", {
-            style: normalizeStyle(unref(selectedStyle)),
-            class: normalizeClass(unref(selectedCls))
-          }, null, 6),
-          (openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.options, (item, index) => {
-            return openBlock(), createElementBlock("label", {
-              key: index,
-              class: normalizeClass(getItemCls(item))
-            }, [
-              createBaseVNode("input", {
-                class: normalizeClass(unref(ns).e("item-input")),
-                type: "radio",
-                name: unref(name),
-                disabled: getDisabled(item),
-                checked: getSelected(item),
-                onChange: ($event) => handleChange(item)
-              }, null, 42, _hoisted_245),
-              createBaseVNode("div", {
-                class: normalizeClass(unref(ns).e("item-label"))
-              }, [
-                renderSlot(_ctx.$slots, "default", { item }, () => [
-                  createTextVNode(toDisplayString(getLabel(item)), 1)
-                ])
-              ], 2)
-            ], 2);
-          }), 128))
-        ], 2)
-      ], 10, _hoisted_175);
-    };
-  }
-});
-var Segmented = _export_sfc(_sfc_main152, [["__file", "segmented.vue"]]);
-
-// node_modules/element-plus/es/components/segmented/index.mjs
-var ElSegmented = withInstall(Segmented);
-
 // node_modules/element-plus/es/component.mjs
 var Components = [
   ElAffix,
@@ -64975,14 +62997,11 @@ var Components = [
   ElUpload,
   ElWatermark,
   ElTour,
-  ElTourStep,
-  ElAnchor,
-  ElAnchorLink,
-  ElSegmented
+  ElTourStep
 ];
 
 // node_modules/element-plus/es/components/infinite-scroll/src/index.mjs
-var SCOPE10 = "ElInfiniteScroll";
+var SCOPE9 = "ElInfiniteScroll";
 var CHECK_INTERVAL = 50;
 var DEFAULT_DELAY = 200;
 var DEFAULT_DISTANCE = 0;
@@ -65017,18 +63036,18 @@ var getScrollOptions = (el, instance) => {
   }, {});
 };
 var destroyObserver = (el) => {
-  const { observer } = el[SCOPE10];
+  const { observer } = el[SCOPE9];
   if (observer) {
     observer.disconnect();
-    delete el[SCOPE10].observer;
+    delete el[SCOPE9].observer;
   }
 };
 var handleScroll = (el, cb) => {
-  const { container, containerEl, instance, observer, lastScrollTop } = el[SCOPE10];
+  const { container, containerEl, instance, observer, lastScrollTop } = el[SCOPE9];
   const { disabled, distance } = getScrollOptions(el, instance);
   const { clientHeight, scrollHeight, scrollTop } = containerEl;
   const delta = scrollTop - lastScrollTop;
-  el[SCOPE10].lastScrollTop = scrollTop;
+  el[SCOPE9].lastScrollTop = scrollTop;
   if (observer || disabled || delta < 0)
     return;
   let shouldTrigger = false;
@@ -65044,7 +63063,7 @@ var handleScroll = (el, cb) => {
   }
 };
 function checkFull(el, cb) {
-  const { containerEl, instance } = el[SCOPE10];
+  const { containerEl, instance } = el[SCOPE9];
   const { disabled } = getScrollOptions(el, instance);
   if (disabled || containerEl.clientHeight === 0)
     return;
@@ -65058,7 +63077,7 @@ var InfiniteScroll = {
   async mounted(el, binding) {
     const { instance, value: cb } = binding;
     if (!isFunction(cb)) {
-      throwError(SCOPE10, "'v-infinite-scroll' binding value must be a function");
+      throwError(SCOPE9, "'v-infinite-scroll' binding value must be a function");
     }
     await nextTick();
     const { delay: delay2, immediate } = getScrollOptions(el, instance);
@@ -65067,7 +63086,7 @@ var InfiniteScroll = {
     const onScroll = throttle_default(handleScroll.bind(null, el, cb), delay2);
     if (!container)
       return;
-    el[SCOPE10] = {
+    el[SCOPE9] = {
       instance,
       container,
       containerEl,
@@ -65078,24 +63097,22 @@ var InfiniteScroll = {
     };
     if (immediate) {
       const observer = new MutationObserver(throttle_default(checkFull.bind(null, el, cb), CHECK_INTERVAL));
-      el[SCOPE10].observer = observer;
+      el[SCOPE9].observer = observer;
       observer.observe(el, { childList: true, subtree: true });
       checkFull(el, cb);
     }
     container.addEventListener("scroll", onScroll);
   },
   unmounted(el) {
-    if (!el[SCOPE10])
-      return;
-    const { container, onScroll } = el[SCOPE10];
+    const { container, onScroll } = el[SCOPE9];
     container == null ? void 0 : container.removeEventListener("scroll", onScroll);
     destroyObserver(el);
   },
   async updated(el) {
-    if (!el[SCOPE10]) {
+    if (!el[SCOPE9]) {
       await nextTick();
     } else {
-      const { containerEl, cb, observer } = el[SCOPE10];
+      const { containerEl, cb, observer } = el[SCOPE9];
       if (containerEl.clientHeight && observer) {
         checkFull(el, cb);
       }
@@ -65407,7 +63424,6 @@ var messageDefaults = mutable({
   onClose: void 0,
   showClose: false,
   type: "info",
-  plain: false,
   offset: 16,
   zIndex: 0,
   grouping: false,
@@ -65449,7 +63465,7 @@ var messageProps = buildProps({
   },
   onClose: {
     type: definePropType(Function),
-    default: messageDefaults.onClose
+    required: false
   },
   showClose: {
     type: Boolean,
@@ -65459,10 +63475,6 @@ var messageProps = buildProps({
     type: String,
     values: messageTypes,
     default: messageDefaults.type
-  },
-  plain: {
-    type: Boolean,
-    default: messageDefaults.plain
   },
   offset: {
     type: Number,
@@ -65502,19 +63514,19 @@ var getLastOffset = (id) => {
     return 0;
   return prev.vm.exposed.bottom.value;
 };
-var getOffsetOrSpace = (id, offset4) => {
+var getOffsetOrSpace = (id, offset3) => {
   const idx = instances.findIndex((instance) => instance.id === id);
-  return idx > 0 ? 16 : offset4;
+  return idx > 0 ? 20 : offset3;
 };
 
 // node_modules/element-plus/es/components/message/src/message2.mjs
-var _hoisted_176 = ["id"];
-var _hoisted_246 = ["innerHTML"];
-var __default__111 = defineComponent({
+var _hoisted_173 = ["id"];
+var _hoisted_245 = ["innerHTML"];
+var __default__108 = defineComponent({
   name: "ElMessage"
 });
-var _sfc_main153 = defineComponent({
-  ...__default__111,
+var _sfc_main150 = defineComponent({
+  ...__default__108,
   props: messageProps,
   emits: messageEmits,
   setup(__props, { expose }) {
@@ -65526,17 +63538,17 @@ var _sfc_main153 = defineComponent({
     const visible = ref(false);
     const height = ref(0);
     let stopTimer = void 0;
-    const badgeType = computed(() => props.type ? props.type === "error" ? "danger" : props.type : "info");
-    const typeClass = computed(() => {
+    const badgeType = computed2(() => props.type ? props.type === "error" ? "danger" : props.type : "info");
+    const typeClass = computed2(() => {
       const type4 = props.type;
       return { [ns.bm("icon", type4)]: type4 && TypeComponentsMap[type4] };
     });
-    const iconComponent = computed(() => props.icon || TypeComponentsMap[props.type] || "");
-    const lastOffset = computed(() => getLastOffset(props.id));
-    const offset4 = computed(() => getOffsetOrSpace(props.id, props.offset) + lastOffset.value);
-    const bottom2 = computed(() => height.value + offset4.value);
-    const customStyle = computed(() => ({
-      top: `${offset4.value}px`,
+    const iconComponent = computed2(() => props.icon || TypeComponentsMap[props.type] || "");
+    const lastOffset = computed2(() => getLastOffset(props.id));
+    const offset3 = computed2(() => getOffsetOrSpace(props.id, props.offset) + lastOffset.value);
+    const bottom = computed2(() => height.value + offset3.value);
+    const customStyle = computed2(() => ({
+      top: `${offset3.value}px`,
       zIndex: currentZIndex.value
     }));
     function startTimer() {
@@ -65572,7 +63584,7 @@ var _sfc_main153 = defineComponent({
     });
     expose({
       visible,
-      bottom: bottom2,
+      bottom,
       close: close2
     });
     return (_ctx, _cache) => {
@@ -65592,7 +63604,6 @@ var _sfc_main153 = defineComponent({
               { [unref(ns).m(_ctx.type)]: _ctx.type },
               unref(ns).is("center", _ctx.center),
               unref(ns).is("closable", _ctx.showClose),
-              unref(ns).is("plain", _ctx.plain),
               _ctx.customClass
             ]),
             style: normalizeStyle(unref(customStyle)),
@@ -65624,7 +63635,7 @@ var _sfc_main153 = defineComponent({
                 createBaseVNode("p", {
                   class: normalizeClass(unref(ns).e("content")),
                   innerHTML: _ctx.message
-                }, null, 10, _hoisted_246)
+                }, null, 10, _hoisted_245)
               ], 2112))
             ]),
             _ctx.showClose ? (openBlock(), createBlock(unref(ElIcon), {
@@ -65637,7 +63648,7 @@ var _sfc_main153 = defineComponent({
               ]),
               _: 1
             }, 8, ["class", "onClick"])) : createCommentVNode("v-if", true)
-          ], 46, _hoisted_176), [
+          ], 46, _hoisted_173), [
             [vShow, visible.value]
           ])
         ]),
@@ -65646,7 +63657,7 @@ var _sfc_main153 = defineComponent({
     };
   }
 });
-var MessageConstructor = _export_sfc(_sfc_main153, [["__file", "message.vue"]]);
+var MessageConstructor = _export_sfc(_sfc_main150, [["__file", "message.vue"]]);
 
 // node_modules/element-plus/es/components/message/src/method.mjs
 var seed = 1;
@@ -65754,7 +63765,7 @@ message._context = null;
 var ElMessage = withInstallFunction(message, "$message");
 
 // node_modules/element-plus/es/components/message-box/src/index.mjs
-var _sfc_main154 = defineComponent({
+var _sfc_main151 = defineComponent({
   name: "ElMessageBox",
   directives: {
     TrapFocus
@@ -65820,7 +63831,7 @@ var _sfc_main154 = defineComponent({
       zIndex: zIndex2,
       ns,
       size: btnSize
-    } = useGlobalComponentSettings("message-box", computed(() => props.buttonSize));
+    } = useGlobalComponentSettings("message-box", computed2(() => props.buttonSize));
     const { t } = locale;
     const { nextZIndex } = zIndex2;
     const visible = ref(false);
@@ -65859,20 +63870,20 @@ var _sfc_main154 = defineComponent({
       validateError: false,
       zIndex: nextZIndex()
     });
-    const typeClass = computed(() => {
+    const typeClass = computed2(() => {
       const type4 = state.type;
       return { [ns.bm("icon", type4)]: type4 && TypeComponentsMap[type4] };
     });
     const contentId = useId();
     const inputId = useId();
-    const iconComponent = computed(() => state.icon || TypeComponentsMap[state.type] || "");
-    const hasMessage = computed(() => !!state.message);
+    const iconComponent = computed2(() => state.icon || TypeComponentsMap[state.type] || "");
+    const hasMessage = computed2(() => !!state.message);
     const rootRef = ref();
     const headerRef = ref();
     const focusStartRef = ref();
     const inputRef = ref();
     const confirmRef = ref();
-    const confirmButtonClasses = computed(() => state.confirmButtonClass);
+    const confirmButtonClasses = computed2(() => state.confirmButtonClass);
     watch(() => state.inputValue, async (val) => {
       await nextTick();
       if (props.boxType === "prompt" && val !== null) {
@@ -65909,8 +63920,8 @@ var _sfc_main154 = defineComponent({
         state.validateError = false;
       }
     });
-    const draggable2 = computed(() => props.draggable);
-    const overflow = computed(() => props.overflow);
+    const draggable2 = computed2(() => props.draggable);
+    const overflow = computed2(() => props.overflow);
     useDraggable(rootRef, headerRef, draggable2, overflow);
     onMounted(async () => {
       await nextTick();
@@ -66025,9 +64036,9 @@ var _sfc_main154 = defineComponent({
     };
   }
 });
-var _hoisted_177 = ["aria-label", "aria-describedby"];
-var _hoisted_247 = ["aria-label"];
-var _hoisted_321 = ["id"];
+var _hoisted_174 = ["aria-label", "aria-describedby"];
+var _hoisted_246 = ["aria-label"];
+var _hoisted_318 = ["id"];
 function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_icon = resolveComponent("el-icon");
   const _component_close = resolveComponent("close");
@@ -66113,7 +64124,7 @@ function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
                         ]),
                         _: 1
                       }, 8, ["class"])
-                    ], 42, _hoisted_247)) : createCommentVNode("v-if", true)
+                    ], 42, _hoisted_246)) : createCommentVNode("v-if", true)
                   ], 2)) : createCommentVNode("v-if", true),
                   createBaseVNode("div", {
                     id: _ctx.contentId,
@@ -66175,7 +64186,7 @@ function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
                     ], 2), [
                       [vShow, _ctx.showInput]
                     ])
-                  ], 10, _hoisted_321),
+                  ], 10, _hoisted_318),
                   createBaseVNode("div", {
                     class: normalizeClass(_ctx.ns.e("btns"))
                   }, [
@@ -66216,7 +64227,7 @@ function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
               ]),
               _: 3
             }, 8, ["trapped", "focus-trap-el", "focus-start-el", "onReleaseRequested"])
-          ], 42, _hoisted_177)
+          ], 42, _hoisted_174)
         ]),
         _: 3
       }, 8, ["z-index", "overlay-class", "mask"]), [
@@ -66226,7 +64237,7 @@ function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
     _: 3
   });
 }
-var MessageBoxConstructor = _export_sfc(_sfc_main154, [["render", _sfc_render31], ["__file", "index.vue"]]);
+var MessageBoxConstructor = _export_sfc(_sfc_main151, [["render", _sfc_render31], ["__file", "index.vue"]]);
 
 // node_modules/element-plus/es/components/message-box/src/messageBox.mjs
 var messageInstance = /* @__PURE__ */ new Map();
@@ -66436,15 +64447,15 @@ var notificationEmits = {
 };
 
 // node_modules/element-plus/es/components/notification/src/notification2.mjs
-var _hoisted_178 = ["id"];
-var _hoisted_248 = ["textContent"];
-var _hoisted_322 = { key: 0 };
-var _hoisted_412 = ["innerHTML"];
-var __default__112 = defineComponent({
+var _hoisted_175 = ["id"];
+var _hoisted_247 = ["textContent"];
+var _hoisted_319 = { key: 0 };
+var _hoisted_411 = ["innerHTML"];
+var __default__109 = defineComponent({
   name: "ElNotification"
 });
-var _sfc_main155 = defineComponent({
-  ...__default__112,
+var _sfc_main152 = defineComponent({
+  ...__default__109,
   props: notificationProps,
   emits: notificationEmits,
   setup(__props, { expose }) {
@@ -66454,18 +64465,18 @@ var _sfc_main155 = defineComponent({
     const { Close } = CloseComponents;
     const visible = ref(false);
     let timer = void 0;
-    const typeClass = computed(() => {
+    const typeClass = computed2(() => {
       const type4 = props.type;
       return type4 && TypeComponentsMap[props.type] ? ns.m(type4) : "";
     });
-    const iconComponent = computed(() => {
+    const iconComponent = computed2(() => {
       if (!props.type)
         return props.icon;
       return TypeComponentsMap[props.type] || props.icon;
     });
-    const horizontalClass = computed(() => props.position.endsWith("right") ? "right" : "left");
-    const verticalProperty = computed(() => props.position.startsWith("top") ? "top" : "bottom");
-    const positionStyle = computed(() => {
+    const horizontalClass = computed2(() => props.position.endsWith("right") ? "right" : "left");
+    const verticalProperty = computed2(() => props.position.startsWith("top") ? "top" : "bottom");
+    const positionStyle = computed2(() => {
       var _a2;
       return {
         [verticalProperty.value]: `${props.offset}px`,
@@ -66540,15 +64551,15 @@ var _sfc_main155 = defineComponent({
               createBaseVNode("h2", {
                 class: normalizeClass(unref(ns).e("title")),
                 textContent: toDisplayString(_ctx.title)
-              }, null, 10, _hoisted_248),
+              }, null, 10, _hoisted_247),
               withDirectives(createBaseVNode("div", {
                 class: normalizeClass(unref(ns).e("content")),
                 style: normalizeStyle(!!_ctx.title ? void 0 : { margin: 0 })
               }, [
                 renderSlot(_ctx.$slots, "default", {}, () => [
-                  !_ctx.dangerouslyUseHTMLString ? (openBlock(), createElementBlock("p", _hoisted_322, toDisplayString(_ctx.message), 1)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+                  !_ctx.dangerouslyUseHTMLString ? (openBlock(), createElementBlock("p", _hoisted_319, toDisplayString(_ctx.message), 1)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
                     createCommentVNode(" Caution here, message could've been compromised, never use user's input as message "),
-                    createBaseVNode("p", { innerHTML: _ctx.message }, null, 8, _hoisted_412)
+                    createBaseVNode("p", { innerHTML: _ctx.message }, null, 8, _hoisted_411)
                   ], 2112))
                 ])
               ], 6), [
@@ -66565,7 +64576,7 @@ var _sfc_main155 = defineComponent({
                 _: 1
               }, 8, ["class", "onClick"])) : createCommentVNode("v-if", true)
             ], 2)
-          ], 46, _hoisted_178), [
+          ], 46, _hoisted_175), [
             [vShow, visible.value]
           ])
         ]),
@@ -66574,7 +64585,7 @@ var _sfc_main155 = defineComponent({
     };
   }
 });
-var NotificationConstructor = _export_sfc(_sfc_main155, [["__file", "notification.vue"]]);
+var NotificationConstructor = _export_sfc(_sfc_main152, [["__file", "notification.vue"]]);
 
 // node_modules/element-plus/es/components/notification/src/notify.mjs
 var notifications = {
@@ -66712,11 +64723,9 @@ export {
   ClickOutside,
   CommonPicker,
   CommonProps,
-  DEFAULT_EMPTY_VALUES,
   DEFAULT_FORMATS_DATE,
   DEFAULT_FORMATS_DATEPICKER,
   DEFAULT_FORMATS_TIME,
-  DEFAULT_VALUE_ON_CLEAR,
   COLLECTION_INJECTION_KEY2 as DROPDOWN_COLLECTION_INJECTION_KEY,
   COLLECTION_ITEM_INJECTION_KEY2 as DROPDOWN_COLLECTION_ITEM_INJECTION_KEY,
   DROPDOWN_INJECTION_KEY,
@@ -66727,8 +64736,6 @@ export {
   Effect,
   ElAffix,
   ElAlert,
-  ElAnchor,
-  ElAnchorLink,
   ElAside,
   ElAutoResizer,
   ElAutocomplete,
@@ -66810,7 +64817,6 @@ export {
   ElResult,
   ElRow,
   ElScrollbar,
-  ElSegmented,
   ElSelect,
   ElSelectV2,
   ElSkeleton,
@@ -66862,7 +64868,6 @@ export {
   ROOT_PICKER_INJECTION_KEY,
   RowAlign,
   RowJustify,
-  SCOPE3 as SCOPE,
   SIZE_INJECTION_KEY,
   TOOLTIP_INJECTION_KEY,
   TableV2,
@@ -66874,15 +64879,11 @@ export {
   TrapFocus,
   UPDATE_MODEL_EVENT,
   WEEK_DAYS,
-  ZINDEX_INJECTION_KEY,
   affixEmits,
   affixProps,
   alertEffects,
   alertEmits,
   alertProps,
-  anchorEmits,
-  anchorProps,
-  ariaProps,
   arrowMiddleware,
   autoResizerProps,
   autocompleteEmits,
@@ -66941,7 +64942,6 @@ export {
   installer as default,
   defaultInitialZIndex,
   defaultNamespace,
-  descriptionItemProps,
   descriptionProps,
   dialogEmits,
   dialogInjectionKey,
@@ -66962,7 +64962,6 @@ export {
   formItemContextKey,
   formItemProps,
   formItemValidateStates,
-  formMetaProps,
   formProps,
   formatter,
   genFileId,
@@ -67033,8 +65032,6 @@ export {
   scrollbarContextKey,
   scrollbarEmits,
   scrollbarProps,
-  segmentedEmits,
-  segmentedProps,
   selectGroupKey,
   selectKey,
   selectV2InjectionKey,
@@ -67043,7 +65040,6 @@ export {
   sliderContextKey,
   sliderEmits,
   sliderProps,
-  spaceItemProps,
   spaceProps,
   statisticProps,
   stepProps,
@@ -67069,14 +65065,8 @@ export {
   timeUnits,
   timelineItemProps,
   tooltipEmits,
-  tourContentEmits,
-  tourContentProps,
   tourEmits,
-  tourPlacements,
   tourProps,
-  tourStepEmits,
-  tourStepProps,
-  tourStrategies,
   transferCheckedChangeFn,
   transferEmits,
   transferProps,
@@ -67090,7 +65080,6 @@ export {
   uploadListProps,
   uploadListTypes,
   uploadProps,
-  useAriaProps,
   useAttrs2 as useAttrs,
   useCascaderConfig,
   useCursor,
@@ -67101,8 +65090,6 @@ export {
   useDialog,
   useDisabled,
   useDraggable,
-  useEmptyValues,
-  useEmptyValuesProps,
   useEscapeKeydown,
   useFloating,
   useFloatingProps,

@@ -7,7 +7,7 @@ import {
 import {
   Fragment,
   TransitionGroup,
-  computed,
+  computed2 as computed,
   customRef,
   defineComponent,
   effectScope,
@@ -39,8 +39,8 @@ import {
   version,
   watch,
   watchEffect
-} from "./chunk-W7CXCETU.js";
-import "./chunk-LQ2VYIYD.js";
+} from "./chunk-SWYVVCLY.js";
+import "./chunk-ZS7NZCD4.js";
 
 // node_modules/@vueuse/shared/index.mjs
 function computedEager(fn, options) {
