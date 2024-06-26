@@ -3,9 +3,9 @@ import { h } from 'vue'
 import DefaultTheme from 'vitepress/theme'
 import Layout from './Layout.vue'
 import './style.css'
-import ElementPlus from 'element-plus'
+// import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
-import zhCn from 'element-plus/es/locale/lang/zh-cn'
+// import zhCn from 'element-plus/es/locale/lang/zh-cn'
 // import 'bootstrap/dist/css/bootstrap.css'
 /** @type {import('vitepress').Theme} */
 export default {
@@ -17,8 +17,6 @@ export default {
   //   })
   // },
   enhanceApp({ app, router, siteData }) {
-    app.use(ElementPlus,{
-      locale: zhCn,
-    })
+    // app.use(ElementPlus)
   }
 }

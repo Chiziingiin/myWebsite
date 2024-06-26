@@ -14,11 +14,10 @@
   </div>  
 <!-- </template>   -->
   
-<script>  
+<script setup>  
 import { ref, computed } from 'vue';  
-  
-export default {  
-  setup() {  
+import { ElDatePicker } from 'element-plus';  
+
     const birthDate = ref(null);  
     const result = ref(null);  
   
@@ -55,13 +54,6 @@ export default {
       };  
     };  
   
-    return {  
-      birthDate,  
-      result,  
-      calculateBiorhythm,  
-    };  
-  },  
-};  
 </script>  
   
 <style scoped>  
