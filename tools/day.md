@@ -20,12 +20,14 @@
       <p>情绪周期: {{ result.emotionalCycle }}</p>
       <p>智力周期: {{ result.intellectualCycle }}</p>
     </div>
-    <div id="chart" style="width: 600px;height:400px;"></div>
+    <div v-show="result" style="width:100%;overflow-x:auto;">
+      <div id="chart" style="width: 600px;height:400px;"></div>
+    </div>
   </div>
 <!-- </template> -->
 
 <script setup>
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, onUnmounted } from 'vue';
   import { ElDatePicker } from 'element-plus';
   import * as echarts from 'echarts';
 
@@ -57,14 +59,7 @@
       const millisecondsPerDay = 24 * 60 * 60 * 1000; // 一天有24小时，每小时60分钟，每分钟60秒，每秒1000毫秒  
       return Math.floor((target - birth) / millisecondsPerDay);  
   };
-  // const calculateDaysSinceBirth = (birthDate, targetDate) => {
-  //   const daysSinceBirth = (targetDate - birthDate) / (1000 * 60 * 60 * 24);
-  //   const leapYears = Math.floor((targetDate.getFullYear() - birthDate.getFullYear()) / 4) -
-  //     Math.floor((birthDate.getMonth() > 2 ? birthDate.getFullYear() : birthDate.getFullYear() - 1) / 4) +
-  //     (birthDate.getMonth() === 2 && birthDate.getDate() >= 29 ? 1 : 0);
 
-  //   return Math.floor(365 * (targetDate.getFullYear() - birthDate.getFullYear()) + leapYears + (targetDate.getDate() - birthDate.getDate()));
-  // };
 
   const calculateCycle = (X, period) => {
     return {
@@ -74,11 +69,14 @@
       all:X,
     };
   };
-
+  let chart;
   const drawChart = (cycles) => {
-    const chart = echarts.init(document.getElementById('chart'));
+    chart = echarts.init(document.getElementById('chart'));
 
     const option = {
+      grid: {
+        containLabel: true
+      },
       tooltip: {  
         trigger: 'axis',  
         axisPointer: {  
@@ -103,7 +101,7 @@
           let T = cycle.period
           let w = (2 * Math.PI) / T;
           let phi = 0 * w * (2 * Math.PI) * (cycle.day / cycle.period);
-          return Math.floor(A*Math.sin(w*(cycle.all+j)+phi) *10)/10
+          return Math.floor(A*Math.sin(w*(cycle.all+j)) *10)/10
         }),
         type: 'line',
         smooth: true,
@@ -118,5 +116,13 @@
     if (birthDate.value && targetDate.value) {
       calculateBiorhythm();
     }
+    // window.addEventListener('resize', () => {
+    //   chart.resize();
+    // });
   });
+  // onUnmounted(() => {
+  //   window.removeEventListener('resize', () => {
+  //     chart.resize();
+  //   });
+  // });
 </script>
