@@ -71,6 +71,7 @@
       cycle: Math.floor(X / period),
       day: X % period,
       period,
+      all:X,
     };
   };
 
@@ -101,8 +102,8 @@
           let A = 100;
           let T = cycle.period
           let w = (2 * Math.PI) / T;
-          let phi = w * (2 * Math.PI) * (cycle.day / cycle.period);
-          return Math.floor(A*Math.sin(w*(cycle.cycle*T+cycle.day+j)+phi) *10)/10
+          let phi = 0 * w * (2 * Math.PI) * (cycle.day / cycle.period);
+          return Math.floor(A*Math.sin(w*(cycle.all+j)+phi) *10)/10
         }),
         type: 'line',
         smooth: true,
