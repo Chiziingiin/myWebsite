@@ -1,43 +1,43 @@
 {
-  "hash": "36c7d27f",
+  "hash": "5393ca1f",
   "configHash": "287d6357",
-  "lockfileHash": "08b058dd",
-  "browserHash": "a144f94c",
+  "lockfileHash": "701c647e",
+  "browserHash": "232c4f66",
   "optimized": {
     "vue": {
       "src": "../../../node_modules/vue/dist/vue.runtime.esm-bundler.js",
       "file": "vue.js",
-      "fileHash": "b2b6b516",
+      "fileHash": "38c92d93",
       "needsInterop": false
     },
     "vitepress > @vue/devtools-api": {
       "src": "../../../node_modules/@vue/devtools-api/dist/index.js",
       "file": "vitepress___@vue_devtools-api.js",
-      "fileHash": "c7f5f18d",
+      "fileHash": "19c3fe05",
       "needsInterop": false
     },
     "vitepress > @vueuse/core": {
       "src": "../../../node_modules/@vueuse/core/index.mjs",
       "file": "vitepress___@vueuse_core.js",
-      "fileHash": "3a467db8",
+      "fileHash": "bd176604",
       "needsInterop": false
     },
     "element-plus": {
       "src": "../../../node_modules/element-plus/es/index.mjs",
       "file": "element-plus.js",
-      "fileHash": "13275a12",
-      "needsInterop": false
-    },
-    "echarts": {
-      "src": "../../../node_modules/echarts/index.js",
-      "file": "echarts.js",
-      "fileHash": "8c88adb1",
+      "fileHash": "281421a1",
       "needsInterop": false
     },
     "element-plus/es/locale/lang/zh-cn": {
       "src": "../../../node_modules/element-plus/es/locale/lang/zh-cn.mjs",
       "file": "element-plus_es_locale_lang_zh-cn.js",
-      "fileHash": "433cb39b",
+      "fileHash": "9e4edc6e",
+      "needsInterop": false
+    },
+    "echarts": {
+      "src": "../../../node_modules/echarts/index.js",
+      "file": "echarts.js",
+      "fileHash": "fbd447b5",
       "needsInterop": false
     }
   },
@@ -45,8 +45,8 @@
     "chunk-Z5MM7V3J": {
       "file": "chunk-Z5MM7V3J.js"
     },
-    "chunk-SWYVVCLY": {
-      "file": "chunk-SWYVVCLY.js"
+    "chunk-W7CXCETU": {
+      "file": "chunk-W7CXCETU.js"
     },
     "chunk-ZS7NZCD4": {
       "file": "chunk-ZS7NZCD4.js"

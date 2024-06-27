@@ -7,7 +7,7 @@ import {
 import {
   Fragment,
   TransitionGroup,
-  computed2 as computed,
+  computed,
   customRef,
   defineComponent,
   effectScope,
@@ -39,7 +39,7 @@ import {
   version,
   watch,
   watchEffect
-} from "./chunk-SWYVVCLY.js";
+} from "./chunk-W7CXCETU.js";
 import "./chunk-ZS7NZCD4.js";
 
 // node_modules/@vueuse/shared/index.mjs

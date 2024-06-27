@@ -13,7 +13,6 @@ import {
   capitalize,
   cloneVNode,
   computed,
-  computed2,
   createApp,
   createBaseVNode,
   createBlock,
@@ -22,6 +21,7 @@ import {
   createSlots,
   createTextVNode,
   createVNode,
+  customRef,
   defineComponent,
   effectScope,
   getCurrentInstance,
@@ -68,6 +68,7 @@ import {
   shallowReactive,
   shallowRef,
   toDisplayString,
+  toHandlerKey,
   toHandlers,
   toRaw,
   toRawType,
@@ -87,7 +88,7 @@ import {
   withDirectives,
   withKeys,
   withModifiers
-} from "./chunk-SWYVVCLY.js";
+} from "./chunk-W7CXCETU.js";
 import {
   __commonJS,
   __toESM
@@ -758,8 +759,8 @@ var FOCUSABLE_ELEMENT_SELECTORS = `a[href],button:not([disabled]),button:not([hi
 var isVisible = (element) => {
   if (false)
     return true;
-  const computed3 = getComputedStyle(element);
-  return computed3.position === "fixed" ? false : element.offsetParent !== null;
+  const computed2 = getComputedStyle(element);
+  return computed2.position === "fixed" ? false : element.offsetParent !== null;
 };
 var obtainAllFocusableElements = (element) => {
   return Array.from(element.querySelectorAll(FOCUSABLE_ELEMENT_SELECTORS)).filter((item) => isFocusable(item) && isVisible(item));
@@ -971,6 +972,39 @@ function throttleFilter(ms, trailing = true, leading = true, rejectOnCancel = fa
 function identity(arg) {
   return arg;
 }
+function computedWithControl(source, fn2) {
+  let v2 = void 0;
+  let track;
+  let trigger;
+  const dirty = ref(true);
+  const update2 = () => {
+    dirty.value = true;
+    trigger();
+  };
+  watch(source, update2, { flush: "sync" });
+  const get2 = isFunction2(fn2) ? fn2 : fn2.get;
+  const set3 = isFunction2(fn2) ? void 0 : fn2.set;
+  const result2 = customRef((_track, _trigger) => {
+    track = _track;
+    trigger = _trigger;
+    return {
+      get() {
+        if (dirty.value) {
+          v2 = get2();
+          dirty.value = false;
+        }
+        track();
+        return v2;
+      },
+      set(v22) {
+        set3 == null ? void 0 : set3(v22);
+      }
+    };
+  });
+  if (Object.isExtensible(result2))
+    result2.trigger = update2;
+  return result2;
+}
 function tryOnScopeDispose(fn2) {
   if (getCurrentScope()) {
     onScopeDispose(fn2);
@@ -1138,6 +1172,21 @@ function onClickOutside(target2, handler, options = {}) {
   const stop = () => cleanup.forEach((fn2) => fn2());
   return stop;
 }
+function useActiveElement(options = {}) {
+  var _a2;
+  const { window: window2 = defaultWindow } = options;
+  const document2 = (_a2 = options.document) != null ? _a2 : window2 == null ? void 0 : window2.document;
+  const activeElement = computedWithControl(() => null, () => document2 == null ? void 0 : document2.activeElement);
+  if (window2) {
+    useEventListener(window2, "blur", (event) => {
+      if (event.relatedTarget !== null)
+        return;
+      activeElement.trigger();
+    }, true);
+    useEventListener(window2, "focus", activeElement.trigger, true);
+  }
+  return activeElement;
+}
 function useSupported(callback, sync = false) {
   const isSupported = ref();
   const update2 = () => isSupported.value = Boolean(callback());
@@ -1154,7 +1203,7 @@ _global[globalKey] = _global[globalKey] || {};
 var handlers = _global[globalKey];
 function useCssVar(prop, target2, { window: window2 = defaultWindow, initialValue = "" } = {}) {
   const variable = ref(initialValue);
-  const elRef = computed2(() => {
+  const elRef = computed(() => {
     var _a2;
     return unrefElement(target2) || ((_a2 = window2 == null ? void 0 : window2.document) == null ? void 0 : _a2.documentElement);
   });
@@ -1428,7 +1477,7 @@ function useVModel(props, key, emit, options = {}) {
     }, { deep });
     return proxy;
   } else {
-    return computed2({
+    return computed({
       get() {
         return getValue3();
       },
@@ -1530,6 +1579,16 @@ var getClientXY = (event) => {
     clientY
   };
 };
+
+// node_modules/element-plus/es/utils/easings.mjs
+function easeInOutCubic(t, b2, c2, d2) {
+  const cc = c2 - b2;
+  t /= d2 / 2;
+  if (t < 1) {
+    return cc / 2 * t * t * t + b2;
+  }
+  return cc / 2 * ((t -= 2) * t * t + 2) + b2;
+}
 
 // node_modules/lodash-es/_freeGlobal.js
 var freeGlobal = typeof global == "object" && global && global.Object === Object && global;
@@ -5414,17 +5473,17 @@ function baseDifference(array4, values2, iteratee2, comparator) {
   }
   outer:
     while (++index < length) {
-      var value = array4[index], computed3 = iteratee2 == null ? value : iteratee2(value);
+      var value = array4[index], computed2 = iteratee2 == null ? value : iteratee2(value);
       value = comparator || value !== 0 ? value : 0;
-      if (isCommon && computed3 === computed3) {
+      if (isCommon && computed2 === computed2) {
         var valuesIndex = valuesLength;
         while (valuesIndex--) {
-          if (values2[valuesIndex] === computed3) {
+          if (values2[valuesIndex] === computed2) {
             continue outer;
           }
         }
         result2.push(value);
-      } else if (!includes2(values2, computed3, comparator)) {
+      } else if (!includes2(values2, computed2, comparator)) {
         result2.push(value);
       }
     }
@@ -6149,18 +6208,18 @@ function baseIntersection(arrays, iteratee2, comparator) {
   var index = -1, seen = caches[0];
   outer:
     while (++index < length && result2.length < maxLength) {
-      var value = array4[index], computed3 = iteratee2 ? iteratee2(value) : value;
+      var value = array4[index], computed2 = iteratee2 ? iteratee2(value) : value;
       value = comparator || value !== 0 ? value : 0;
-      if (!(seen ? cacheHas_default(seen, computed3) : includes2(result2, computed3, comparator))) {
+      if (!(seen ? cacheHas_default(seen, computed2) : includes2(result2, computed2, comparator))) {
         othIndex = othLength;
         while (--othIndex) {
           var cache2 = caches[othIndex];
-          if (!(cache2 ? cacheHas_default(cache2, computed3) : includes2(arrays[othIndex], computed3, comparator))) {
+          if (!(cache2 ? cacheHas_default(cache2, computed2) : includes2(arrays[othIndex], computed2, comparator))) {
             continue outer;
           }
         }
         if (seen) {
-          seen.push(computed3);
+          seen.push(computed2);
         }
         result2.push(value);
       }
@@ -6584,8 +6643,8 @@ function baseExtremum(array4, iteratee2, comparator) {
   var index = -1, length = array4.length;
   while (++index < length) {
     var value = array4[index], current = iteratee2(value);
-    if (current != null && (computed3 === void 0 ? current === current && !isSymbol_default(current) : comparator(current, computed3))) {
-      var computed3 = current, result2 = value;
+    if (current != null && (computed2 === void 0 ? current === current && !isSymbol_default(current) : comparator(current, computed2))) {
+      var computed2 = current, result2 = value;
     }
   }
   return result2;
@@ -7241,8 +7300,8 @@ function basePullAll(array4, values2, iteratee2, comparator) {
     seen = arrayMap_default(array4, baseUnary_default(iteratee2));
   }
   while (++index < length) {
-    var fromIndex = 0, value = values2[index], computed3 = iteratee2 ? iteratee2(value) : value;
-    while ((fromIndex = indexOf2(seen, computed3, fromIndex, comparator)) > -1) {
+    var fromIndex = 0, value = values2[index], computed2 = iteratee2 ? iteratee2(value) : value;
+    while ((fromIndex = indexOf2(seen, computed2, fromIndex, comparator)) > -1) {
       if (seen !== array4) {
         splice2.call(seen, fromIndex, 1);
       }
@@ -7707,7 +7766,7 @@ function baseSortedIndexBy(array4, value, iteratee2, retHighest) {
   value = iteratee2(value);
   var valIsNaN = value !== value, valIsNull = value === null, valIsSymbol = isSymbol_default(value), valIsUndefined = value === void 0;
   while (low < high) {
-    var mid = nativeFloor4((low + high) / 2), computed3 = iteratee2(array4[mid]), othIsDefined = computed3 !== void 0, othIsNull = computed3 === null, othIsReflexive = computed3 === computed3, othIsSymbol = isSymbol_default(computed3);
+    var mid = nativeFloor4((low + high) / 2), computed2 = iteratee2(array4[mid]), othIsDefined = computed2 !== void 0, othIsNull = computed2 === null, othIsReflexive = computed2 === computed2, othIsSymbol = isSymbol_default(computed2);
     if (valIsNaN) {
       var setLow = retHighest || othIsReflexive;
     } else if (valIsUndefined) {
@@ -7719,7 +7778,7 @@ function baseSortedIndexBy(array4, value, iteratee2, retHighest) {
     } else if (othIsNull || othIsSymbol) {
       setLow = false;
     } else {
-      setLow = retHighest ? computed3 <= value : computed3 < value;
+      setLow = retHighest ? computed2 <= value : computed2 < value;
     }
     if (setLow) {
       low = mid + 1;
@@ -7738,8 +7797,8 @@ function baseSortedIndex(array4, value, retHighest) {
   var low = 0, high = array4 == null ? low : array4.length;
   if (typeof value == "number" && value === value && high <= HALF_MAX_ARRAY_LENGTH) {
     while (low < high) {
-      var mid = low + high >>> 1, computed3 = array4[mid];
-      if (computed3 !== null && !isSymbol_default(computed3) && (retHighest ? computed3 <= value : computed3 < value)) {
+      var mid = low + high >>> 1, computed2 = array4[mid];
+      if (computed2 !== null && !isSymbol_default(computed2) && (retHighest ? computed2 <= value : computed2 < value)) {
         low = mid + 1;
       } else {
         high = mid;
@@ -7805,9 +7864,9 @@ var sortedLastIndexOf_default = sortedLastIndexOf;
 function baseSortedUniq(array4, iteratee2) {
   var index = -1, length = array4.length, resIndex = 0, result2 = [];
   while (++index < length) {
-    var value = array4[index], computed3 = iteratee2 ? iteratee2(value) : value;
-    if (!index || !eq_default(computed3, seen)) {
-      var seen = computed3;
+    var value = array4[index], computed2 = iteratee2 ? iteratee2(value) : value;
+    if (!index || !eq_default(computed2, seen)) {
+      var seen = computed2;
       result2[resIndex++] = value === 0 ? 0 : value;
     }
   }
@@ -8397,22 +8456,22 @@ function baseUniq(array4, iteratee2, comparator) {
   }
   outer:
     while (++index < length) {
-      var value = array4[index], computed3 = iteratee2 ? iteratee2(value) : value;
+      var value = array4[index], computed2 = iteratee2 ? iteratee2(value) : value;
       value = comparator || value !== 0 ? value : 0;
-      if (isCommon && computed3 === computed3) {
+      if (isCommon && computed2 === computed2) {
         var seenIndex = seen.length;
         while (seenIndex--) {
-          if (seen[seenIndex] === computed3) {
+          if (seen[seenIndex] === computed2) {
             continue outer;
           }
         }
         if (iteratee2) {
-          seen.push(computed3);
+          seen.push(computed2);
         }
         result2.push(value);
-      } else if (!includes2(seen, computed3, comparator)) {
+      } else if (!includes2(seen, computed2, comparator)) {
         if (seen !== result2) {
-          seen.push(computed3);
+          seen.push(computed2);
         }
         result2.push(value);
       }
@@ -9109,10 +9168,10 @@ function lazyValue() {
       index += dir;
       var iterIndex = -1, value = array4[index];
       while (++iterIndex < iterLength) {
-        var data = iteratees[iterIndex], iteratee2 = data.iteratee, type4 = data.type, computed3 = iteratee2(value);
+        var data = iteratees[iterIndex], iteratee2 = data.iteratee, type4 = data.type, computed2 = iteratee2(value);
         if (type4 == LAZY_MAP_FLAG) {
-          value = computed3;
-        } else if (!computed3) {
+          value = computed2;
+        } else if (!computed2) {
           if (type4 == LAZY_FILTER_FLAG) {
             continue outer;
           } else {
@@ -9643,6 +9702,13 @@ var isStringNumber = (val) => {
   }
   return !Number.isNaN(Number(val));
 };
+var isWindow = (val) => {
+  return val === window;
+};
+
+// node_modules/element-plus/es/utils/raf.mjs
+var rAF = (fn2) => isClient ? window.requestAnimationFrame(fn2) : setTimeout(fn2, 16);
+var cAF = (handle) => isClient ? window.cancelAnimationFrame(handle) : clearTimeout(handle);
 
 // node_modules/element-plus/es/utils/strings.mjs
 var escapeStringRegexp = (string3 = "") => string3.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&").replace(/-/g, "\\x2d");
@@ -9710,8 +9776,8 @@ var getStyle = (element, styleName) => {
     const style = element.style[key];
     if (style)
       return style;
-    const computed3 = (_a2 = document.defaultView) == null ? void 0 : _a2.getComputedStyle(element, "");
-    return computed3 ? computed3[key] : "";
+    const computed2 = (_a2 = document.defaultView) == null ? void 0 : _a2.getComputedStyle(element, "");
+    return computed2 ? computed2[key] : "";
   } catch (e) {
     return element.style[key];
   }
@@ -9799,6 +9865,55 @@ function scrollIntoView(container, selected) {
     container.scrollTop = bottom - container.clientHeight;
   }
 }
+function animateScrollTo(container, from, to, duration, callback) {
+  const startTime = Date.now();
+  let handle;
+  const scroll = () => {
+    const timestamp2 = Date.now();
+    const time = timestamp2 - startTime;
+    const nextScrollTop = easeInOutCubic(time > duration ? duration : time, from, to, duration);
+    if (isWindow(container)) {
+      container.scrollTo(window.pageXOffset, nextScrollTop);
+    } else {
+      container.scrollTop = nextScrollTop;
+    }
+    if (time < duration) {
+      handle = rAF(scroll);
+    } else if (typeof callback === "function") {
+      callback();
+    }
+  };
+  scroll();
+  return () => {
+    handle && cAF(handle);
+  };
+}
+var getScrollElement = (target2, container) => {
+  if (isWindow(container)) {
+    return target2.ownerDocument.documentElement;
+  }
+  return container;
+};
+var getScrollTop = (container) => {
+  if (isWindow(container)) {
+    return window.scrollY;
+  }
+  return container.scrollTop;
+};
+
+// node_modules/element-plus/es/utils/dom/element.mjs
+var getElement = (target2) => {
+  if (!isClient || target2 === "")
+    return null;
+  if (isString(target2)) {
+    try {
+      return document.querySelector(target2);
+    } catch (e) {
+      return null;
+    }
+  }
+  return target2;
+};
 
 // node_modules/element-plus/es/utils/vue/global-node.mjs
 var globalNodes = [];
@@ -14882,6 +14997,7 @@ var EVENT_CODE = {
 // node_modules/element-plus/es/constants/date.mjs
 var datePickTypes = [
   "year",
+  "years",
   "month",
   "date",
   "dates",
@@ -15001,27 +15117,42 @@ var castArray2 = (arr) => {
 // node_modules/element-plus/es/utils/i18n.mjs
 var isKorean = (text) => /([\uAC00-\uD7AF\u3130-\u318F])+/gi.test(text);
 
-// node_modules/element-plus/es/utils/raf.mjs
-var rAF = (fn2) => isClient ? window.requestAnimationFrame(fn2) : setTimeout(fn2, 16);
-var cAF = (handle) => isClient ? window.cancelAnimationFrame(handle) : clearTimeout(handle);
-
 // node_modules/element-plus/es/utils/typescript.mjs
 var mutable = (val) => val;
+
+// node_modules/element-plus/es/utils/throttleByRaf.mjs
+function throttleByRaf(cb) {
+  let timer = 0;
+  const throttle2 = (...args) => {
+    if (timer) {
+      cAF(timer);
+    }
+    timer = rAF(() => {
+      cb(...args);
+      timer = 0;
+    });
+  };
+  throttle2.cancel = () => {
+    cAF(timer);
+    timer = 0;
+  };
+  return throttle2;
+}
 
 // node_modules/element-plus/es/hooks/use-attrs/index.mjs
 var DEFAULT_EXCLUDE_KEYS = ["class", "style"];
 var LISTENER_PREFIX = /^on[A-Z]/;
 var useAttrs2 = (params = {}) => {
   const { excludeListeners = false, excludeKeys } = params;
-  const allExcludeKeys = computed2(() => {
+  const allExcludeKeys = computed(() => {
     return ((excludeKeys == null ? void 0 : excludeKeys.value) || []).concat(DEFAULT_EXCLUDE_KEYS);
   });
   const instance = getCurrentInstance();
   if (!instance) {
     debugWarn("use-attrs", "getCurrentInstance() returned null. useAttrs() must be called at the top of a setup function");
-    return computed2(() => ({}));
+    return computed(() => ({}));
   }
-  return computed2(() => {
+  return computed(() => {
     var _a2;
     return fromPairs_default(Object.entries((_a2 = instance.proxy) == null ? void 0 : _a2.$attrs).filter(([key]) => !allExcludeKeys.value.includes(key) && !(excludeListeners && LISTENER_PREFIX.test(key))));
   });
@@ -15121,6 +15252,9 @@ var useFocus = (el) => {
 var English = {
   name: "en",
   el: {
+    breadcrumb: {
+      label: "Breadcrumb"
+    },
     colorpicker: {
       confirm: "OK",
       clear: "Clear",
@@ -15282,6 +15416,11 @@ var English = {
     popconfirm: {
       confirmButtonText: "Yes",
       cancelButtonText: "No"
+    },
+    carousel: {
+      leftArrow: "Carousel arrow left",
+      rightArrow: "Carousel arrow right",
+      indicator: "Carousel switch to index {index}"
     }
   }
 };
@@ -15293,7 +15432,7 @@ var translate = (path, option, locale) => get_default(locale, path, path).replac
   return `${(_a2 = option == null ? void 0 : option[key]) != null ? _a2 : `{${key}}`}`;
 });
 var buildLocaleContext = (locale) => {
-  const lang = computed2(() => unref(locale).name);
+  const lang = computed(() => unref(locale).name);
   const localeRef = isRef(locale) ? locale : ref(locale);
   return {
     lang,
@@ -15304,7 +15443,7 @@ var buildLocaleContext = (locale) => {
 var localeContextKey = Symbol("localeContextKey");
 var useLocale = (localeOverrides) => {
   const locale = localeOverrides || inject(localeContextKey, ref());
-  return buildLocaleContext(computed2(() => locale.value || English));
+  return buildLocaleContext(computed(() => locale.value || English));
 };
 
 // node_modules/element-plus/es/hooks/use-namespace/index.mjs
@@ -15326,7 +15465,7 @@ var _bem = (namespace, block, blockSuffix, element, modifier) => {
 var namespaceContextKey = Symbol("namespaceContextKey");
 var useGetDerivedNamespace = (namespaceOverrides) => {
   const derivedNamespace = namespaceOverrides || (getCurrentInstance() ? inject(namespaceContextKey, ref(defaultNamespace)) : ref(defaultNamespace));
-  const namespace = computed2(() => {
+  const namespace = computed(() => {
     return unref(derivedNamespace) || defaultNamespace;
   });
   return namespace;
@@ -15472,8 +15611,8 @@ var createModelToggleComposable = (name) => {
     const instance = getCurrentInstance();
     const { emit } = instance;
     const props = instance.props;
-    const hasUpdateHandler = computed2(() => isFunction(props[updateEventKeyRaw2]));
-    const isModelBindingAbsent = computed2(() => props[name] === null);
+    const hasUpdateHandler = computed(() => isFunction(props[updateEventKeyRaw2]));
+    const isModelBindingAbsent = computed(() => props[name] === null);
     const doShow = (event) => {
       if (indicator.value === true) {
         return;
@@ -15589,7 +15728,7 @@ var usePreventGlobal = (indicator, evt, cb) => {
 // node_modules/element-plus/es/hooks/use-prop/index.mjs
 var useProp = (name) => {
   const vm = getCurrentInstance();
-  return computed2(() => {
+  return computed(() => {
     var _a2, _b;
     return (_b = (_a2 = vm == null ? void 0 : vm.proxy) == null ? void 0 : _a2.$props) == null ? void 0 : _b[name];
   });
@@ -16187,7 +16326,7 @@ var usePopper = (referenceElementRef, popperElementRef, opts = {}) => {
     },
     requires: ["computeStyles"]
   };
-  const options = computed2(() => {
+  const options = computed(() => {
     const { onFirstUpdate, placement, strategy, modifiers } = unref(opts);
     return {
       onFirstUpdate,
@@ -16238,12 +16377,12 @@ var usePopper = (referenceElementRef, popperElementRef, opts = {}) => {
     destroy();
   });
   return {
-    state: computed2(() => {
+    state: computed(() => {
       var _a2;
       return { ...((_a2 = unref(instanceRef)) == null ? void 0 : _a2.state) || {} };
     }),
-    styles: computed2(() => unref(states).styles),
-    attributes: computed2(() => unref(states).attributes),
+    styles: computed(() => unref(states).styles),
+    attributes: computed(() => unref(states).attributes),
     update: () => {
       var _a2;
       return (_a2 = unref(instanceRef)) == null ? void 0 : _a2.update();
@@ -16252,7 +16391,7 @@ var usePopper = (referenceElementRef, popperElementRef, opts = {}) => {
       var _a2;
       return (_a2 = unref(instanceRef)) == null ? void 0 : _a2.forceUpdate();
     },
-    instanceRef: computed2(() => unref(instanceRef))
+    instanceRef: computed(() => unref(instanceRef))
   };
 };
 function deriveState(state) {
@@ -16444,7 +16583,7 @@ usage: app.provide(ID_INJECTION_KEY, {
 })`);
   }
   const namespace = useGetDerivedNamespace();
-  const idRef = computed2(() => unref(deterministicId) || `${namespace.value}-id-${idInjection.prefix}-${idInjection.current++}`);
+  const idRef = computed(() => unref(deterministicId) || `${namespace.value}-id-${idInjection.prefix}-${idInjection.current++}`);
   return idRef;
 };
 
@@ -16478,10 +16617,10 @@ var cachedContainer;
 var usePopperContainerId = () => {
   const namespace = useGetDerivedNamespace();
   const idInjection = useIdInjection();
-  const id = computed2(() => {
+  const id = computed(() => {
     return `${namespace.value}-popper-container-${idInjection.prefix}`;
   });
-  const selector = computed2(() => `#${id.value}`);
+  const selector = computed(() => `#${id.value}`);
   return {
     id,
     selector
@@ -16623,20 +16762,30 @@ var useForwardRefDirective = (setForwardRef) => {
 };
 
 // node_modules/element-plus/es/hooks/use-z-index/index.mjs
+var initial2 = {
+  current: 0
+};
 var zIndex = ref(0);
 var defaultInitialZIndex = 2e3;
+var ZINDEX_INJECTION_KEY = Symbol("elZIndexContextKey");
 var zIndexContextKey = Symbol("zIndexContextKey");
 var useZIndex = (zIndexOverrides) => {
+  const increasingInjection = getCurrentInstance() ? inject(ZINDEX_INJECTION_KEY, initial2) : initial2;
   const zIndexInjection = zIndexOverrides || (getCurrentInstance() ? inject(zIndexContextKey, void 0) : void 0);
-  const initialZIndex = computed2(() => {
+  const initialZIndex = computed(() => {
     const zIndexFromInjection = unref(zIndexInjection);
     return isNumber3(zIndexFromInjection) ? zIndexFromInjection : defaultInitialZIndex;
   });
-  const currentZIndex = computed2(() => initialZIndex.value + zIndex.value);
+  const currentZIndex = computed(() => initialZIndex.value + zIndex.value);
   const nextZIndex = () => {
-    zIndex.value++;
+    increasingInjection.current++;
+    zIndex.value = increasingInjection.current;
     return currentZIndex.value;
   };
+  if (!isClient && !inject(ZINDEX_INJECTION_KEY)) {
+    debugWarn("ZIndexInjection", `Looks like you are using server rendering, you must provide a z-index provider to ensure the hydration process to be succeed
+usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`);
+  }
   return {
     initialZIndex,
     currentZIndex,
@@ -18134,7 +18283,7 @@ var useSizeProps = {
 var SIZE_INJECTION_KEY = Symbol("size");
 var useGlobalSize = () => {
   const injectedSize = inject(SIZE_INJECTION_KEY, {});
-  return computed2(() => {
+  return computed(() => {
     return unref(injectedSize.size) || "";
   });
 };
@@ -18179,6 +18328,62 @@ function useFocusController(target2, { afterFocus, beforeBlur, afterBlur } = {})
   };
 }
 
+// node_modules/element-plus/es/hooks/use-empty-values/index.mjs
+var SCOPE3 = "use-empty-values";
+var DEFAULT_EMPTY_VALUES = ["", void 0, null];
+var DEFAULT_VALUE_ON_CLEAR = void 0;
+var useEmptyValuesProps = buildProps({
+  emptyValues: Array,
+  valueOnClear: {
+    type: [String, Number, Boolean, Function],
+    default: void 0,
+    validator: (val) => isFunction(val) ? !val() : !val
+  }
+});
+var useEmptyValues = (props, defaultValue) => {
+  let config = useGlobalConfig();
+  if (!config.value) {
+    config = ref({});
+  }
+  const emptyValues = computed(() => props.emptyValues || config.value.emptyValues || DEFAULT_EMPTY_VALUES);
+  const valueOnClear = computed(() => {
+    if (isFunction(props.valueOnClear)) {
+      return props.valueOnClear();
+    } else if (props.valueOnClear !== void 0) {
+      return props.valueOnClear;
+    } else if (isFunction(config.value.valueOnClear)) {
+      return config.value.valueOnClear();
+    } else if (config.value.valueOnClear !== void 0) {
+      return config.value.valueOnClear;
+    }
+    return defaultValue !== void 0 ? defaultValue : DEFAULT_VALUE_ON_CLEAR;
+  });
+  const isEmptyValue2 = (value) => {
+    return emptyValues.value.includes(value);
+  };
+  if (!emptyValues.value.includes(valueOnClear.value)) {
+    debugWarn(SCOPE3, "value-on-clear should be a value of empty-values");
+  }
+  return {
+    emptyValues,
+    valueOnClear,
+    isEmptyValue: isEmptyValue2
+  };
+};
+
+// node_modules/element-plus/es/hooks/use-aria/index.mjs
+var ariaProps = buildProps({
+  ariaLabel: String,
+  ariaOrientation: {
+    type: String,
+    values: ["horizontal", "vertical", "undefined"]
+  },
+  ariaControls: String
+});
+var useAriaProps = (arias) => {
+  return pick_default(ariaProps, arias);
+};
+
 // node_modules/element-plus/es/components/config-provider/src/constants.mjs
 var configProviderContextKey = Symbol();
 
@@ -18187,7 +18392,7 @@ var globalConfig = ref();
 function useGlobalConfig(key, defaultValue = void 0) {
   const config = getCurrentInstance() ? inject(configProviderContextKey, globalConfig) : globalConfig;
   if (key) {
-    return computed2(() => {
+    return computed(() => {
       var _a2, _b;
       return (_b = (_a2 = config.value) == null ? void 0 : _a2[key]) != null ? _b : defaultValue;
     });
@@ -18197,23 +18402,23 @@ function useGlobalConfig(key, defaultValue = void 0) {
 }
 function useGlobalComponentSettings(block, sizeFallback) {
   const config = useGlobalConfig();
-  const ns = useNamespace(block, computed2(() => {
+  const ns = useNamespace(block, computed(() => {
     var _a2;
     return ((_a2 = config.value) == null ? void 0 : _a2.namespace) || defaultNamespace;
   }));
-  const locale = useLocale(computed2(() => {
+  const locale = useLocale(computed(() => {
     var _a2;
     return (_a2 = config.value) == null ? void 0 : _a2.locale;
   }));
-  const zIndex2 = useZIndex(computed2(() => {
+  const zIndex2 = useZIndex(computed(() => {
     var _a2;
     return ((_a2 = config.value) == null ? void 0 : _a2.zIndex) || defaultInitialZIndex;
   }));
-  const size3 = computed2(() => {
+  const size3 = computed(() => {
     var _a2;
     return unref(sizeFallback) || ((_a2 = config.value) == null ? void 0 : _a2.size) || "";
   });
-  provideGlobalConfig(computed2(() => unref(config) || {}));
+  provideGlobalConfig(computed(() => unref(config) || {}));
   return {
     ns,
     locale,
@@ -18230,18 +18435,18 @@ var provideGlobalConfig = (config, app, global2 = false) => {
     debugWarn("provideGlobalConfig", "provideGlobalConfig() can only be used inside setup().");
     return;
   }
-  const context = computed2(() => {
+  const context = computed(() => {
     const cfg = unref(config);
     if (!(oldConfig == null ? void 0 : oldConfig.value))
       return cfg;
     return mergeConfig(oldConfig.value, cfg);
   });
   provideFn(configProviderContextKey, context);
-  provideFn(localeContextKey, computed2(() => context.value.locale));
-  provideFn(namespaceContextKey, computed2(() => context.value.namespace));
-  provideFn(zIndexContextKey, computed2(() => context.value.zIndex));
+  provideFn(localeContextKey, computed(() => context.value.locale));
+  provideFn(namespaceContextKey, computed(() => context.value.namespace));
+  provideFn(zIndexContextKey, computed(() => context.value.zIndex));
   provideFn(SIZE_INJECTION_KEY, {
-    size: computed2(() => context.value.size || "")
+    size: computed(() => context.value.size || "")
   });
   if (global2 || !globalConfig.value) {
     globalConfig.value = context.value;
@@ -18249,11 +18454,10 @@ var provideGlobalConfig = (config, app, global2 = false) => {
   return context;
 };
 var mergeConfig = (a2, b2) => {
-  var _a2;
   const keys3 = [.../* @__PURE__ */ new Set([...keysOf(a2), ...keysOf(b2)])];
   const obj = {};
   for (const key of keys3) {
-    obj[key] = (_a2 = b2[key]) != null ? _a2 : a2[key];
+    obj[key] = b2[key] !== void 0 ? b2[key] : a2[key];
   }
   return obj;
 };
@@ -18285,7 +18489,8 @@ var configProviderProps = buildProps({
   namespace: {
     type: String,
     default: "el"
-  }
+  },
+  ...useEmptyValuesProps
 });
 
 // node_modules/element-plus/es/components/config-provider/src/config-provider.mjs
@@ -18306,7 +18511,7 @@ var ConfigProvider = defineComponent({
 var ElConfigProvider = withInstall(ConfigProvider);
 
 // node_modules/element-plus/es/version.mjs
-var version2 = "2.5.5";
+var version2 = "2.7.6";
 
 // node_modules/element-plus/es/make-installer.mjs
 var makeInstaller = (components = []) => {
@@ -18324,7 +18529,7 @@ var makeInstaller = (components = []) => {
   };
 };
 
-// node_modules/element-plus/es/components/affix/src/affix2.mjs
+// node_modules/element-plus/es/components/affix/src/affix.mjs
 var affixProps = buildProps({
   zIndex: {
     type: definePropType([Number, String]),
@@ -18358,7 +18563,7 @@ var _export_sfc = (sfc, props) => {
   return target2;
 };
 
-// node_modules/element-plus/es/components/affix/src/affix.mjs
+// node_modules/element-plus/es/components/affix/src/affix2.mjs
 var COMPONENT_NAME = "ElAffix";
 var __default__ = defineComponent({
   name: COMPONENT_NAME
@@ -18385,13 +18590,13 @@ var _sfc_main = defineComponent({
     const fixed = ref(false);
     const scrollTop = ref(0);
     const transform2 = ref(0);
-    const rootStyle = computed2(() => {
+    const rootStyle = computed(() => {
       return {
         height: fixed.value ? `${rootHeight.value}px` : "",
         width: fixed.value ? `${rootWidth.value}px` : ""
       };
     });
-    const affixStyle = computed2(() => {
+    const affixStyle = computed(() => {
       if (!fixed.value)
         return {};
       const offset3 = props.offset ? addUnit(props.offset) : 0;
@@ -18437,7 +18642,7 @@ var _sfc_main = defineComponent({
       if (props.target) {
         target2.value = (_a2 = document.querySelector(props.target)) != null ? _a2 : void 0;
         if (!target2.value)
-          throwError(COMPONENT_NAME, `Target is not existed: ${props.target}`);
+          throwError(COMPONENT_NAME, `Target does not exist: ${props.target}`);
       } else {
         target2.value = document.documentElement;
       }
@@ -18493,7 +18698,7 @@ var _sfc_main2 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("icon");
-    const style = computed2(() => {
+    const style = computed(() => {
       const { size: size3, color } = props;
       if (!size3 && !color)
         return {};
@@ -18567,13 +18772,13 @@ var _sfc_main3 = defineComponent({
     const slots = useSlots();
     const ns = useNamespace("alert");
     const visible = ref(true);
-    const iconComponent = computed2(() => TypeComponentsMap[props.type]);
-    const iconClass = computed2(() => [
+    const iconComponent = computed(() => TypeComponentsMap[props.type]);
+    const iconClass = computed(() => [
       ns.e("icon"),
       { [ns.is("big")]: !!props.description || !!slots.default }
     ]);
-    const isBoldTitle = computed2(() => {
-      return { [ns.is("bold")]: props.description || slots.default };
+    const withDescription = computed(() => {
+      return { "with-description": props.description || slots.default };
     });
     const close2 = (evt) => {
       visible.value = false;
@@ -18603,7 +18808,7 @@ var _sfc_main3 = defineComponent({
             }, [
               _ctx.title || _ctx.$slots.title ? (openBlock(), createElementBlock("span", {
                 key: 0,
-                class: normalizeClass([unref(ns).e("title"), unref(isBoldTitle)])
+                class: normalizeClass([unref(ns).e("title"), unref(withDescription)])
               }, [
                 renderSlot(_ctx.$slots, "title", {}, () => [
                   createTextVNode(toDisplayString(_ctx.title), 1)
@@ -18659,12 +18864,12 @@ var useFormSize = (fallback, ignore = {}) => {
   const globalConfig2 = ignore.global ? emptyRef : useGlobalSize();
   const form = ignore.form ? { size: void 0 } : inject(formContextKey, void 0);
   const formItem = ignore.formItem ? { size: void 0 } : inject(formItemContextKey, void 0);
-  return computed2(() => size3.value || unref(fallback) || (formItem == null ? void 0 : formItem.size) || (form == null ? void 0 : form.size) || globalConfig2.value || "");
+  return computed(() => size3.value || unref(fallback) || (formItem == null ? void 0 : formItem.size) || (form == null ? void 0 : form.size) || globalConfig2.value || "");
 };
 var useFormDisabled = (fallback) => {
   const disabled = useProp("disabled");
   const form = inject(formContextKey, void 0);
-  return computed2(() => disabled.value || unref(fallback) || (form == null ? void 0 : form.disabled) || false);
+  return computed(() => disabled.value || unref(fallback) || (form == null ? void 0 : form.disabled) || false);
 };
 var useSize = useFormSize;
 var useDisabled = useFormDisabled;
@@ -18691,9 +18896,9 @@ var useFormItemInputId = (props, {
   }
   const inputId = ref();
   let idUnwatch = void 0;
-  const isLabeledByFormItem = computed2(() => {
+  const isLabeledByFormItem = computed(() => {
     var _a2;
-    return !!(!props.label && formItemContext && formItemContext.inputIds && ((_a2 = formItemContext.inputIds) == null ? void 0 : _a2.length) <= 1);
+    return !!(!(props.label || props.ariaLabel) && formItemContext && formItemContext.inputIds && ((_a2 = formItemContext.inputIds) == null ? void 0 : _a2.length) <= 1);
   });
   onMounted(() => {
     idUnwatch = watch([toRef(props, "id"), disableIdGeneration], ([id, disableIdGeneration2]) => {
@@ -18775,10 +18980,10 @@ var formEmits = {
 };
 
 // node_modules/element-plus/es/components/form/src/utils.mjs
-var SCOPE3 = "ElForm";
+var SCOPE4 = "ElForm";
 function useFormLabelWidth() {
   const potentialLabelWidthArr = ref([]);
-  const autoLabelWidth = computed2(() => {
+  const autoLabelWidth = computed(() => {
     if (!potentialLabelWidthArr.value.length)
       return "0";
     const max4 = Math.max(...potentialLabelWidthArr.value);
@@ -18787,7 +18992,7 @@ function useFormLabelWidth() {
   function getLabelWidthIndex(width) {
     const index = potentialLabelWidthArr.value.indexOf(width);
     if (index === -1 && autoLabelWidth.value === "0") {
-      debugWarn(SCOPE3, `unexpected width ${width}`);
+      debugWarn(SCOPE4, `unexpected width ${width}`);
     }
     return index;
   }
@@ -18830,7 +19035,7 @@ var _sfc_main4 = defineComponent({
     const fields = [];
     const formSize = useFormSize();
     const ns = useNamespace("form");
-    const formClasses = computed2(() => {
+    const formClasses = computed(() => {
       const { labelPosition, inline: inline2 } = props;
       return [
         ns.b(),
@@ -18862,7 +19067,7 @@ var _sfc_main4 = defineComponent({
     const clearValidate = (props2 = []) => {
       filterFields(fields, props2).forEach((field) => field.clearValidate());
     };
-    const isValidatable = computed2(() => {
+    const isValidatable = computed(() => {
       const hasModel = !!props.model;
       if (!hasModel) {
         debugWarn(COMPONENT_NAME2, "model is required for validate to work.");
@@ -18906,7 +19111,7 @@ var _sfc_main4 = defineComponent({
       try {
         const result2 = await doValidateField(modelProps);
         if (result2 === true) {
-          callback == null ? void 0 : callback(result2);
+          await (callback == null ? void 0 : callback(result2));
         }
         return result2;
       } catch (e) {
@@ -18916,7 +19121,7 @@ var _sfc_main4 = defineComponent({
         if (props.scrollToError) {
           scrollToField(Object.keys(invalidFields)[0]);
         }
-        callback == null ? void 0 : callback(false, invalidFields);
+        await (callback == null ? void 0 : callback(false, invalidFields));
         return shouldThrow && Promise.reject(invalidFields);
       }
     };
@@ -18948,7 +19153,8 @@ var _sfc_main4 = defineComponent({
       validateField,
       resetFields,
       clearValidate,
-      scrollToField
+      scrollToField,
+      fields
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("form", {
@@ -20110,7 +20316,7 @@ var FormLabelWrap = defineComponent({
         formContext == null ? void 0 : formContext.registerLabelWidth(val, oldVal);
       }
     });
-    useResizeObserver(computed2(() => {
+    useResizeObserver(computed(() => {
       var _a2, _b;
       return (_b = (_a2 = el.value) == null ? void 0 : _a2.firstElementChild) != null ? _b : null;
     }), updateLabelWidthFn);
@@ -20169,7 +20375,7 @@ var _sfc_main5 = defineComponent({
     const formItemRef = ref();
     let initialValue = void 0;
     let isResettingField = false;
-    const labelStyle = computed2(() => {
+    const labelStyle = computed(() => {
       if ((formContext == null ? void 0 : formContext.labelPosition) === "top") {
         return {};
       }
@@ -20178,7 +20384,7 @@ var _sfc_main5 = defineComponent({
         return { width: labelWidth };
       return {};
     });
-    const contentStyle = computed2(() => {
+    const contentStyle = computed(() => {
       if ((formContext == null ? void 0 : formContext.labelPosition) === "top" || (formContext == null ? void 0 : formContext.inline)) {
         return {};
       }
@@ -20191,7 +20397,7 @@ var _sfc_main5 = defineComponent({
       }
       return {};
     });
-    const formItemClasses = computed2(() => [
+    const formItemClasses = computed(() => [
       ns.b(),
       ns.m(_size.value),
       ns.is("error", validateState.value === "error"),
@@ -20202,34 +20408,34 @@ var _sfc_main5 = defineComponent({
       (formContext == null ? void 0 : formContext.requireAsteriskPosition) === "right" ? "asterisk-right" : "asterisk-left",
       { [ns.m("feedback")]: formContext == null ? void 0 : formContext.statusIcon }
     ]);
-    const _inlineMessage = computed2(() => isBoolean2(props.inlineMessage) ? props.inlineMessage : (formContext == null ? void 0 : formContext.inlineMessage) || false);
-    const validateClasses = computed2(() => [
+    const _inlineMessage = computed(() => isBoolean2(props.inlineMessage) ? props.inlineMessage : (formContext == null ? void 0 : formContext.inlineMessage) || false);
+    const validateClasses = computed(() => [
       ns.e("error"),
       { [ns.em("error", "inline")]: _inlineMessage.value }
     ]);
-    const propString = computed2(() => {
+    const propString = computed(() => {
       if (!props.prop)
         return "";
       return isString(props.prop) ? props.prop : props.prop.join(".");
     });
-    const hasLabel = computed2(() => {
+    const hasLabel = computed(() => {
       return !!(props.label || slots.label);
     });
-    const labelFor = computed2(() => {
+    const labelFor = computed(() => {
       return props.for || (inputIds.value.length === 1 ? inputIds.value[0] : void 0);
     });
-    const isGroup = computed2(() => {
+    const isGroup = computed(() => {
       return !labelFor.value && hasLabel.value;
     });
     const isNested = !!parentFormItemContext;
-    const fieldValue = computed2(() => {
+    const fieldValue = computed(() => {
       const model = formContext == null ? void 0 : formContext.model;
       if (!model || !props.prop) {
         return;
       }
       return getProp(model, props.prop).value;
     });
-    const normalizedRules = computed2(() => {
+    const normalizedRules = computed(() => {
       const { required: required4 } = props;
       const rules2 = [];
       if (props.rules) {
@@ -20256,7 +20462,7 @@ var _sfc_main5 = defineComponent({
       }
       return rules2;
     });
-    const validateEnabled = computed2(() => normalizedRules.value.length > 0);
+    const validateEnabled = computed(() => normalizedRules.value.length > 0);
     const getFilteredRule = (trigger) => {
       const rules2 = normalizedRules.value;
       return rules2.filter((rule) => {
@@ -20269,12 +20475,12 @@ var _sfc_main5 = defineComponent({
         }
       }).map(({ trigger: trigger2, ...rule }) => rule);
     };
-    const isRequired = computed2(() => normalizedRules.value.some((rule) => rule.required));
-    const shouldShowError = computed2(() => {
+    const isRequired = computed(() => normalizedRules.value.some((rule) => rule.required));
+    const shouldShowError = computed(() => {
       var _a2;
       return validateStateDebounced.value === "error" && props.showMessage && ((_a2 = formContext == null ? void 0 : formContext.showMessage) != null ? _a2 : true);
     });
-    const currentLabel = computed2(() => `${props.label || ""}${(formContext == null ? void 0 : formContext.labelSuffix) || ""}`);
+    const currentLabel = computed(() => `${props.label || ""}${(formContext == null ? void 0 : formContext.labelSuffix) || ""}`);
     const setValidationState = (state) => {
       validateState.value = state;
     };
@@ -20626,7 +20832,8 @@ var inputProps = buildProps({
   autofocus: {
     type: Boolean,
     default: false
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var inputEmits = {
   [UPDATE_MODEL_EVENT]: (value) => isString(value),
@@ -20659,7 +20866,7 @@ var _sfc_main6 = defineComponent({
     const props = __props;
     const rawAttrs = useAttrs();
     const slots = useSlots();
-    const containerAttrs = computed2(() => {
+    const containerAttrs = computed(() => {
       const comboBoxAttrs = {};
       if (props.containerRole === "combobox") {
         comboBoxAttrs["aria-haspopup"] = rawAttrs["aria-haspopup"];
@@ -20668,27 +20875,26 @@ var _sfc_main6 = defineComponent({
       }
       return comboBoxAttrs;
     });
-    const containerKls = computed2(() => [
+    const containerKls = computed(() => [
       props.type === "textarea" ? nsTextarea.b() : nsInput.b(),
       nsInput.m(inputSize.value),
       nsInput.is("disabled", inputDisabled.value),
       nsInput.is("exceed", inputExceed.value),
       {
         [nsInput.b("group")]: slots.prepend || slots.append,
-        [nsInput.bm("group", "append")]: slots.append,
-        [nsInput.bm("group", "prepend")]: slots.prepend,
         [nsInput.m("prefix")]: slots.prefix || props.prefixIcon,
         [nsInput.m("suffix")]: slots.suffix || props.suffixIcon || props.clearable || props.showPassword,
-        [nsInput.bm("suffix", "password-clear")]: showClear.value && showPwdVisible.value
+        [nsInput.bm("suffix", "password-clear")]: showClear.value && showPwdVisible.value,
+        [nsInput.b("hidden")]: props.type === "hidden"
       },
       rawAttrs.class
     ]);
-    const wrapperKls = computed2(() => [
+    const wrapperKls = computed(() => [
       nsInput.e("wrapper"),
       nsInput.is("focus", isFocused.value)
     ]);
     const attrs = useAttrs2({
-      excludeKeys: computed2(() => {
+      excludeKeys: computed(() => {
         return Object.keys(containerAttrs.value);
       })
     });
@@ -20707,7 +20913,7 @@ var _sfc_main6 = defineComponent({
     const passwordVisible = ref(false);
     const countStyle = ref();
     const textareaCalcStyle = shallowRef(props.inputStyle);
-    const _ref = computed2(() => input.value || textarea.value);
+    const _ref = computed(() => input.value || textarea.value);
     const { wrapperRef, isFocused, handleFocus, handleBlur } = useFocusController(_ref, {
       afterBlur() {
         var _a2;
@@ -20716,28 +20922,28 @@ var _sfc_main6 = defineComponent({
         }
       }
     });
-    const needStatusIcon = computed2(() => {
+    const needStatusIcon = computed(() => {
       var _a2;
       return (_a2 = elForm == null ? void 0 : elForm.statusIcon) != null ? _a2 : false;
     });
-    const validateState = computed2(() => (elFormItem == null ? void 0 : elFormItem.validateState) || "");
-    const validateIcon = computed2(() => validateState.value && ValidateComponentsMap[validateState.value]);
-    const passwordIcon = computed2(() => passwordVisible.value ? view_default : hide_default);
-    const containerStyle = computed2(() => [
+    const validateState = computed(() => (elFormItem == null ? void 0 : elFormItem.validateState) || "");
+    const validateIcon = computed(() => validateState.value && ValidateComponentsMap[validateState.value]);
+    const passwordIcon = computed(() => passwordVisible.value ? view_default : hide_default);
+    const containerStyle = computed(() => [
       rawAttrs.style
     ]);
-    const textareaStyle = computed2(() => [
+    const textareaStyle = computed(() => [
       props.inputStyle,
       textareaCalcStyle.value,
       { resize: props.resize }
     ]);
-    const nativeInputValue = computed2(() => isNil_default(props.modelValue) ? "" : String(props.modelValue));
-    const showClear = computed2(() => props.clearable && !inputDisabled.value && !props.readonly && !!nativeInputValue.value && (isFocused.value || hovering.value));
-    const showPwdVisible = computed2(() => props.showPassword && !inputDisabled.value && !props.readonly && !!nativeInputValue.value && (!!nativeInputValue.value || isFocused.value));
-    const isWordLimitVisible = computed2(() => props.showWordLimit && !!props.maxlength && (props.type === "text" || props.type === "textarea") && !inputDisabled.value && !props.readonly && !props.showPassword);
-    const textLength = computed2(() => nativeInputValue.value.length);
-    const inputExceed = computed2(() => !!isWordLimitVisible.value && textLength.value > Number(props.maxlength));
-    const suffixVisible = computed2(() => !!slots.suffix || !!props.suffixIcon || showClear.value || props.showPassword || isWordLimitVisible.value || !!validateState.value && needStatusIcon.value);
+    const nativeInputValue = computed(() => isNil_default(props.modelValue) ? "" : String(props.modelValue));
+    const showClear = computed(() => props.clearable && !inputDisabled.value && !props.readonly && !!nativeInputValue.value && (isFocused.value || hovering.value));
+    const showPwdVisible = computed(() => props.showPassword && !inputDisabled.value && !props.readonly && !!nativeInputValue.value && (!!nativeInputValue.value || isFocused.value));
+    const isWordLimitVisible = computed(() => props.showWordLimit && !!props.maxlength && (props.type === "text" || props.type === "textarea") && !inputDisabled.value && !props.readonly && !props.showPassword);
+    const textLength = computed(() => nativeInputValue.value.length);
+    const inputExceed = computed(() => !!isWordLimitVisible.value && textLength.value > Number(props.maxlength));
+    const suffixVisible = computed(() => !!slots.suffix || !!props.suffixIcon || showClear.value || props.showPassword || isWordLimitVisible.value || !!validateState.value && needStatusIcon.value);
     const [recordCursor, setCursor] = useCursor(input);
     useResizeObserver(textarea, (entries) => {
       onceInitSizeTextarea();
@@ -20885,6 +21091,13 @@ var _sfc_main6 = defineComponent({
       setNativeInputValue();
       nextTick(resizeTextarea);
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-input",
+      ref: "https://element-plus.org/en-US/component/input.html"
+    }, computed(() => !!props.label));
     expose({
       input,
       textarea,
@@ -20898,8 +21111,14 @@ var _sfc_main6 = defineComponent({
       resizeTextarea
     });
     return (_ctx, _cache) => {
-      return withDirectives((openBlock(), createElementBlock("div", mergeProps(unref(containerAttrs), {
-        class: unref(containerKls),
+      return openBlock(), createElementBlock("div", mergeProps(unref(containerAttrs), {
+        class: [
+          unref(containerKls),
+          {
+            [unref(nsInput).bm("group", "append")]: _ctx.$slots.append,
+            [unref(nsInput).bm("group", "prepend")]: _ctx.$slots.prepend
+          }
+        ],
         style: unref(containerStyle),
         role: _ctx.containerRole,
         onMouseenter: handleMouseEnter,
@@ -20952,7 +21171,7 @@ var _sfc_main6 = defineComponent({
               readonly: _ctx.readonly,
               autocomplete: _ctx.autocomplete,
               tabindex: _ctx.tabindex,
-              "aria-label": _ctx.label,
+              "aria-label": _ctx.label || _ctx.ariaLabel,
               placeholder: _ctx.placeholder,
               style: _ctx.inputStyle,
               form: _ctx.form,
@@ -21044,7 +21263,7 @@ var _sfc_main6 = defineComponent({
             id: unref(inputId),
             ref_key: "textarea",
             ref: textarea,
-            class: unref(nsTextarea).e("inner")
+            class: [unref(nsTextarea).e("inner"), unref(nsInput).is("focus", unref(isFocused))]
           }, unref(attrs), {
             minlength: _ctx.minlength,
             maxlength: _ctx.maxlength,
@@ -21053,7 +21272,7 @@ var _sfc_main6 = defineComponent({
             readonly: _ctx.readonly,
             autocomplete: _ctx.autocomplete,
             style: unref(textareaStyle),
-            "aria-label": _ctx.label,
+            "aria-label": _ctx.label || _ctx.ariaLabel,
             placeholder: _ctx.placeholder,
             form: _ctx.form,
             autofocus: _ctx.autofocus,
@@ -21072,9 +21291,7 @@ var _sfc_main6 = defineComponent({
             class: normalizeClass(unref(nsInput).e("count"))
           }, toDisplayString(unref(textLength)) + " / " + toDisplayString(_ctx.maxlength), 7)) : createCommentVNode("v-if", true)
         ], 64))
-      ], 16, _hoisted_12)), [
-        [vShow, _ctx.type !== "hidden"]
-      ]);
+      ], 16, _hoisted_12);
     };
   }
 });
@@ -21149,13 +21366,13 @@ var _sfc_main7 = defineComponent({
     let cursorDown = false;
     let cursorLeave = false;
     let originalOnSelectStart = isClient ? document.onselectstart : null;
-    const bar = computed2(() => BAR_MAP[props.vertical ? "vertical" : "horizontal"]);
-    const thumbStyle = computed2(() => renderThumbStyle({
+    const bar = computed(() => BAR_MAP[props.vertical ? "vertical" : "horizontal"]);
+    const thumbStyle = computed(() => renderThumbStyle({
       size: props.size,
       move: props.move,
       bar: bar.value
     }));
-    const offsetRatio = computed2(() => instance.value[bar.value.offset] ** 2 / scrollbar.wrapElement[bar.value.scrollSize] / props.ratio / thumb.value[bar.value.offset]);
+    const offsetRatio = computed(() => instance.value[bar.value.offset] ** 2 / scrollbar.wrapElement[bar.value.scrollSize] / props.ratio / thumb.value[bar.value.offset]);
     const clickThumbHandler = (e) => {
       var _a2;
       e.stopPropagation();
@@ -21260,15 +21477,9 @@ var barProps = buildProps({
     type: Boolean,
     default: true
   },
-  width: String,
-  height: String,
-  ratioX: {
+  minSize: {
     type: Number,
-    default: 1
-  },
-  ratioY: {
-    type: Number,
-    default: 1
+    required: true
   }
 });
 
@@ -21278,31 +21489,52 @@ var _sfc_main8 = defineComponent({
   props: barProps,
   setup(__props, { expose }) {
     const props = __props;
+    const scrollbar = inject(scrollbarContextKey);
     const moveX = ref(0);
     const moveY = ref(0);
+    const sizeWidth = ref("");
+    const sizeHeight = ref("");
+    const ratioY = ref(1);
+    const ratioX = ref(1);
     const handleScroll2 = (wrap2) => {
       if (wrap2) {
         const offsetHeight = wrap2.offsetHeight - GAP;
         const offsetWidth = wrap2.offsetWidth - GAP;
-        moveY.value = wrap2.scrollTop * 100 / offsetHeight * props.ratioY;
-        moveX.value = wrap2.scrollLeft * 100 / offsetWidth * props.ratioX;
+        moveY.value = wrap2.scrollTop * 100 / offsetHeight * ratioY.value;
+        moveX.value = wrap2.scrollLeft * 100 / offsetWidth * ratioX.value;
       }
     };
+    const update2 = () => {
+      const wrap2 = scrollbar == null ? void 0 : scrollbar.wrapElement;
+      if (!wrap2)
+        return;
+      const offsetHeight = wrap2.offsetHeight - GAP;
+      const offsetWidth = wrap2.offsetWidth - GAP;
+      const originalHeight = offsetHeight ** 2 / wrap2.scrollHeight;
+      const originalWidth = offsetWidth ** 2 / wrap2.scrollWidth;
+      const height = Math.max(originalHeight, props.minSize);
+      const width = Math.max(originalWidth, props.minSize);
+      ratioY.value = originalHeight / (offsetHeight - originalHeight) / (height / (offsetHeight - height));
+      ratioX.value = originalWidth / (offsetWidth - originalWidth) / (width / (offsetWidth - width));
+      sizeHeight.value = height + GAP < offsetHeight ? `${height}px` : "";
+      sizeWidth.value = width + GAP < offsetWidth ? `${width}px` : "";
+    };
     expose({
-      handleScroll: handleScroll2
+      handleScroll: handleScroll2,
+      update: update2
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock(Fragment, null, [
         createVNode(Thumb, {
           move: moveX.value,
-          ratio: _ctx.ratioX,
-          size: _ctx.width,
+          ratio: ratioX.value,
+          size: sizeWidth.value,
           always: _ctx.always
         }, null, 8, ["move", "ratio", "size", "always"]),
         createVNode(Thumb, {
           move: moveY.value,
-          ratio: _ctx.ratioY,
-          size: _ctx.height,
+          ratio: ratioY.value,
+          size: sizeHeight.value,
           vertical: "",
           always: _ctx.always
         }, null, 8, ["move", "ratio", "size", "always"])
@@ -21354,11 +21586,7 @@ var scrollbarProps = buildProps({
   },
   id: String,
   role: String,
-  ariaLabel: String,
-  ariaOrientation: {
-    type: String,
-    values: ["horizontal", "vertical"]
-  }
+  ...useAriaProps(["ariaLabel", "ariaOrientation"])
 });
 var scrollbarEmits = {
   scroll: ({
@@ -21384,12 +21612,8 @@ var _sfc_main9 = defineComponent({
     const scrollbarRef = ref();
     const wrapRef = ref();
     const resizeRef = ref();
-    const sizeWidth = ref("0");
-    const sizeHeight = ref("0");
     const barRef = ref();
-    const ratioY = ref(1);
-    const ratioX = ref(1);
-    const wrapStyle = computed2(() => {
+    const wrapStyle = computed(() => {
       const style = {};
       if (props.height)
         style.height = addUnit(props.height);
@@ -21397,14 +21621,14 @@ var _sfc_main9 = defineComponent({
         style.maxHeight = addUnit(props.maxHeight);
       return [props.wrapStyle, style];
     });
-    const wrapKls = computed2(() => {
+    const wrapKls = computed(() => {
       return [
         props.wrapClass,
         ns.e("wrap"),
         { [ns.em("wrap", "hidden-default")]: !props.native }
       ];
     });
-    const resizeKls = computed2(() => {
+    const resizeKls = computed(() => {
       return [ns.e("view"), props.viewClass];
     });
     const handleScroll2 = () => {
@@ -21439,18 +21663,8 @@ var _sfc_main9 = defineComponent({
       wrapRef.value.scrollLeft = value;
     };
     const update2 = () => {
-      if (!wrapRef.value)
-        return;
-      const offsetHeight = wrapRef.value.offsetHeight - GAP;
-      const offsetWidth = wrapRef.value.offsetWidth - GAP;
-      const originalHeight = offsetHeight ** 2 / wrapRef.value.scrollHeight;
-      const originalWidth = offsetWidth ** 2 / wrapRef.value.scrollWidth;
-      const height = Math.max(originalHeight, props.minSize);
-      const width = Math.max(originalWidth, props.minSize);
-      ratioY.value = originalHeight / (offsetHeight - originalHeight) / (height / (offsetHeight - height));
-      ratioX.value = originalWidth / (offsetWidth - originalWidth) / (width / (offsetWidth - width));
-      sizeHeight.value = height + GAP < offsetHeight ? `${height}px` : "";
-      sizeWidth.value = width + GAP < offsetWidth ? `${width}px` : "";
+      var _a2;
+      (_a2 = barRef.value) == null ? void 0 : _a2.update();
     };
     watch(() => props.noresize, (noresize) => {
       if (noresize) {
@@ -21524,12 +21738,9 @@ var _sfc_main9 = defineComponent({
           key: 0,
           ref_key: "barRef",
           ref: barRef,
-          height: sizeHeight.value,
-          width: sizeWidth.value,
           always: _ctx.always,
-          "ratio-x": ratioX.value,
-          "ratio-y": ratioY.value
-        }, null, 8, ["height", "width", "always", "ratio-x", "ratio-y"])) : createCommentVNode("v-if", true)
+          "min-size": _ctx.minSize
+        }, null, 8, ["always", "min-size"])) : createCommentVNode("v-if", true)
       ], 2);
     };
   }
@@ -21581,7 +21792,7 @@ var _sfc_main10 = defineComponent({
     const popperInstanceRef = ref();
     const contentRef = ref();
     const referenceRef = ref();
-    const role = computed2(() => props.role);
+    const role = computed(() => props.role);
     const popperProvides = {
       triggerRef,
       popperInstanceRef,
@@ -21743,22 +21954,22 @@ var _sfc_main12 = defineComponent({
     const props = __props;
     const { role, triggerRef } = inject(POPPER_INJECTION_KEY, void 0);
     useForwardRef(triggerRef);
-    const ariaControls = computed2(() => {
+    const ariaControls = computed(() => {
       return ariaHaspopup.value ? props.id : void 0;
     });
-    const ariaDescribedby = computed2(() => {
+    const ariaDescribedby = computed(() => {
       if (role && role.value === "tooltip") {
         return props.open && props.id ? props.id : void 0;
       }
       return void 0;
     });
-    const ariaHaspopup = computed2(() => {
+    const ariaHaspopup = computed(() => {
       if (role && role.value !== "tooltip") {
         return role.value;
       }
       return void 0;
     });
-    const ariaExpanded = computed2(() => {
+    const ariaExpanded = computed(() => {
       return ariaHaspopup.value ? `${props.open}` : void 0;
     });
     let virtualTriggerAriaStopWatch = void 0;
@@ -22312,12 +22523,9 @@ var popperContentProps = buildProps({
     type: Boolean,
     default: true
   },
-  ariaLabel: {
-    type: String,
-    default: void 0
-  },
   virtualTriggering: Boolean,
-  zIndex: Number
+  zIndex: Number,
+  ...useAriaProps(["ariaLabel"])
 });
 var popperContentEmits = {
   mouseenter: (evt) => evt instanceof MouseEvent,
@@ -22394,13 +22602,13 @@ var usePopperContent = (props) => {
   const { popperInstanceRef, contentRef, triggerRef, role } = inject(POPPER_INJECTION_KEY, void 0);
   const arrowRef = ref();
   const arrowOffset = ref();
-  const eventListenerModifier = computed2(() => {
+  const eventListenerModifier = computed(() => {
     return {
       name: "eventListeners",
       enabled: !!props.visible
     };
   });
-  const arrowModifier = computed2(() => {
+  const arrowModifier = computed(() => {
     var _a2;
     const arrowEl = unref(arrowRef);
     const offset3 = (_a2 = unref(arrowOffset)) != null ? _a2 : DEFAULT_ARROW_OFFSET;
@@ -22413,7 +22621,7 @@ var usePopperContent = (props) => {
       }
     };
   });
-  const options = computed2(() => {
+  const options = computed(() => {
     return {
       onFirstUpdate: () => {
         update2();
@@ -22424,7 +22632,7 @@ var usePopperContent = (props) => {
       ])
     };
   });
-  const computedReference = computed2(() => unwrapMeasurableEl(props.referenceEl) || unref(triggerRef));
+  const computedReference = computed(() => unwrapMeasurableEl(props.referenceEl) || unref(triggerRef));
   const { attributes: attributes2, state, styles, update: update2, forceUpdate, instanceRef } = usePopper(computedReference, contentRef, options);
   watch(instanceRef, (instance) => popperInstanceRef.value = instance);
   onMounted(() => {
@@ -22456,23 +22664,23 @@ var usePopperContentDOM = (props, {
 }) => {
   const { nextZIndex } = useZIndex();
   const ns = useNamespace("popper");
-  const contentAttrs = computed2(() => unref(attributes2).popper);
+  const contentAttrs = computed(() => unref(attributes2).popper);
   const contentZIndex = ref(isNumber3(props.zIndex) ? props.zIndex : nextZIndex());
-  const contentClass = computed2(() => [
+  const contentClass = computed(() => [
     ns.b(),
     ns.is("pure", props.pure),
     ns.is(props.effect),
     props.popperClass
   ]);
-  const contentStyle = computed2(() => {
+  const contentStyle = computed(() => {
     return [
       { zIndex: unref(contentZIndex) },
       unref(styles).popper,
       props.popperStyle || {}
     ];
   });
-  const ariaModal = computed2(() => role.value === "dialog" ? "false" : void 0);
-  const arrowStyle = computed2(() => unref(styles).arrow || {});
+  const ariaModal = computed(() => role.value === "dialog" ? "false" : void 0);
+  const arrowStyle = computed(() => unref(styles).arrow || {});
   const updateZIndex = () => {
     contentZIndex.value = isNumber3(props.zIndex) ? props.zIndex : nextZIndex();
   };
@@ -22571,7 +22779,7 @@ var _sfc_main14 = defineComponent({
       arrowRef,
       arrowOffset
     });
-    if (formItemContext && (formItemContext.addInputId || formItemContext.removeInputId)) {
+    if (formItemContext) {
       provide(formItemContextKey, {
         ...formItemContext,
         addInputId: NOOP,
@@ -22679,7 +22887,6 @@ var useTooltipContentProps = buildProps({
     default: false
   },
   persistent: Boolean,
-  ariaLabel: String,
   visible: {
     type: definePropType(Boolean),
     default: null
@@ -22689,7 +22896,8 @@ var useTooltipContentProps = buildProps({
     type: Boolean,
     default: true
   },
-  disabled: Boolean
+  disabled: Boolean,
+  ...useAriaProps(["ariaLabel"])
 });
 
 // node_modules/element-plus/es/components/tooltip/src/trigger.mjs
@@ -22838,10 +23046,10 @@ var _sfc_main16 = defineComponent({
       onBeforeShow,
       onBeforeHide
     } = inject(TOOLTIP_INJECTION_KEY, void 0);
-    const transitionClass = computed2(() => {
+    const transitionClass = computed(() => {
       return props.transition || `${ns.namespace.value}-fade-in-linear`;
     });
-    const persistentRef = computed2(() => {
+    const persistentRef = computed(() => {
       if (false) {
         return true;
       }
@@ -22850,20 +23058,20 @@ var _sfc_main16 = defineComponent({
     onBeforeUnmount(() => {
       destroyed.value = true;
     });
-    const shouldRender = computed2(() => {
+    const shouldRender = computed(() => {
       return unref(persistentRef) ? true : unref(open);
     });
-    const shouldShow = computed2(() => {
+    const shouldShow = computed(() => {
       return props.disabled ? false : unref(open);
     });
-    const appendTo = computed2(() => {
+    const appendTo = computed(() => {
       return props.appendTo || selector.value;
     });
-    const contentStyle = computed2(() => {
+    const contentStyle = computed(() => {
       var _a2;
       return (_a2 = props.style) != null ? _a2 : {};
     });
-    const ariaHidden = computed2(() => !unref(open));
+    const ariaHidden = computed(() => !unref(open));
     const onTransitionLeave = () => {
       onHide();
     };
@@ -22891,7 +23099,7 @@ var _sfc_main16 = defineComponent({
     };
     const onAfterShow = () => {
       onShow();
-      stopHandle = onClickOutside(computed2(() => {
+      stopHandle = onClickOutside(computed(() => {
         var _a2;
         return (_a2 = contentRef.value) == null ? void 0 : _a2.popperContentRef;
       }), () => {
@@ -23017,7 +23225,7 @@ var _sfc_main17 = defineComponent({
       open: show,
       close: hide2
     });
-    const controlled = computed2(() => isBoolean2(props.visible) && !hasUpdateHandler.value);
+    const controlled = computed(() => isBoolean2(props.visible) && !hasUpdateHandler.value);
     provide(TOOLTIP_INJECTION_KEY, {
       controlled,
       id,
@@ -23191,9 +23399,6 @@ var autocompleteProps = buildProps({
     type: Boolean,
     default: false
   },
-  label: {
-    type: String
-  },
   teleported: useTooltipContentProps.teleported,
   highlightFirstItem: {
     type: Boolean,
@@ -23211,7 +23416,8 @@ var autocompleteProps = buildProps({
     type: Boolean,
     default: false
   },
-  name: String
+  name: String,
+  ...useAriaProps(["ariaLabel"])
 });
 var autocompleteEmits = {
   [UPDATE_MODEL_EVENT]: (value) => isString(value),
@@ -23255,13 +23461,13 @@ var _sfc_main18 = defineComponent({
     const suggestionDisabled = ref(false);
     const loading = ref(false);
     const listboxId = useId();
-    const styles = computed2(() => rawAttrs.style);
-    const suggestionVisible = computed2(() => {
+    const styles = computed(() => rawAttrs.style);
+    const suggestionVisible = computed(() => {
       const isValidData = suggestions.value.length > 0;
       return (isValidData || loading.value) && activated.value;
     });
-    const suggestionLoading = computed2(() => !props.hideLoading && loading.value);
-    const refInput = computed2(() => {
+    const suggestionLoading = computed(() => !props.hideLoading && loading.value);
+    const refInput = computed(() => {
       if (inputRef.value) {
         return Array.from(inputRef.value.$el.querySelectorAll("input"));
       }
@@ -23521,6 +23727,7 @@ var _sfc_main18 = defineComponent({
               disabled: unref(disabled),
               name: _ctx.name,
               "model-value": _ctx.modelValue,
+              "aria-label": _ctx.ariaLabel,
               onInput: handleInput,
               onChange: handleChange,
               onFocus: handleFocus,
@@ -23559,7 +23766,7 @@ var _sfc_main18 = defineComponent({
                   renderSlot(_ctx.$slots, "suffix")
                 ])
               } : void 0
-            ]), 1040, ["clearable", "disabled", "name", "model-value", "onKeydown"])
+            ]), 1040, ["clearable", "disabled", "name", "model-value", "aria-label", "onKeydown"])
           ], 14, _hoisted_14)
         ]),
         _: 3
@@ -23572,7 +23779,7 @@ var Autocomplete = _export_sfc(_sfc_main18, [["__file", "autocomplete.vue"]]);
 // node_modules/element-plus/es/components/autocomplete/index.mjs
 var ElAutocomplete = withInstall(Autocomplete);
 
-// node_modules/element-plus/es/components/avatar/src/avatar.mjs
+// node_modules/element-plus/es/components/avatar/src/avatar2.mjs
 var avatarProps = buildProps({
   size: {
     type: [Number, String],
@@ -23603,7 +23810,7 @@ var avatarEmits = {
   error: (evt) => evt instanceof Event
 };
 
-// node_modules/element-plus/es/components/avatar/src/avatar2.mjs
+// node_modules/element-plus/es/components/avatar/src/avatar.mjs
 var _hoisted_15 = ["src", "alt", "srcset"];
 var __default__16 = defineComponent({
   name: "ElAvatar"
@@ -23616,7 +23823,7 @@ var _sfc_main19 = defineComponent({
     const props = __props;
     const ns = useNamespace("avatar");
     const hasLoadError = ref(false);
-    const avatarClass = computed2(() => {
+    const avatarClass = computed(() => {
       const { size: size3, icon, shape } = props;
       const classList = [ns.b()];
       if (isString(size3))
@@ -23627,13 +23834,13 @@ var _sfc_main19 = defineComponent({
         classList.push(ns.m(shape));
       return classList;
     });
-    const sizeStyle = computed2(() => {
+    const sizeStyle = computed(() => {
       const { size: size3 } = props;
       return isNumber3(size3) ? ns.cssVarBlock({
         size: addUnit(size3) || ""
       }) : void 0;
     });
-    const fitStyle = computed2(() => ({
+    const fitStyle = computed(() => ({
       objectFit: props.fit
     }));
     watch(() => props.src, () => hasLoadError.value = false);
@@ -23739,7 +23946,7 @@ var _sfc_main20 = defineComponent({
     const props = __props;
     const ns = useNamespace("backtop");
     const { handleClick, visible } = useBackTop(props, emit, COMPONENT_NAME7);
-    const backTopStyle = computed2(() => ({
+    const backTopStyle = computed(() => ({
       right: `${props.right}px`,
       bottom: `${props.bottom}px`
     }));
@@ -23792,6 +23999,27 @@ var badgeProps = buildProps({
     type: String,
     values: ["primary", "success", "warning", "info", "danger"],
     default: "danger"
+  },
+  showZero: {
+    type: Boolean,
+    default: true
+  },
+  color: String,
+  dotStyle: {
+    type: definePropType([String, Object, Array])
+  },
+  badgeStyle: {
+    type: definePropType([String, Object, Array])
+  },
+  offset: {
+    type: definePropType(Array),
+    default: [0, 0]
+  },
+  dotClass: {
+    type: String
+  },
+  badgeClass: {
+    type: String
   }
 });
 
@@ -23806,14 +24034,43 @@ var _sfc_main21 = defineComponent({
   setup(__props, { expose }) {
     const props = __props;
     const ns = useNamespace("badge");
-    const content = computed2(() => {
+    const content = computed(() => {
       if (props.isDot)
         return "";
       if (isNumber3(props.value) && isNumber3(props.max)) {
-        return props.max < props.value ? `${props.max}+` : `${props.value}`;
+        if (props.max < props.value) {
+          return `${props.max}+`;
+        }
+        return props.value === 0 && !props.showZero ? "" : `${props.value}`;
       }
       return `${props.value}`;
     });
+    const style = computed(() => {
+      var _a2, _b, _c, _d, _e, _f;
+      return [
+        {
+          backgroundColor: props.color,
+          marginRight: addUnit(-((_b = (_a2 = props.offset) == null ? void 0 : _a2[0]) != null ? _b : 0)),
+          marginTop: addUnit((_d = (_c = props.offset) == null ? void 0 : _c[1]) != null ? _d : 0)
+        },
+        (_e = props.dotStyle) != null ? _e : {},
+        (_f = props.badgeStyle) != null ? _f : {}
+      ];
+    });
+    useDeprecated({
+      from: "dot-style",
+      replacement: "badge-style",
+      version: "2.8.0",
+      scope: "el-badge",
+      ref: "https://element-plus.org/en-US/component/badge.html"
+    }, computed(() => !!props.dotStyle));
+    useDeprecated({
+      from: "dot-class",
+      replacement: "badge-class",
+      version: "2.8.0",
+      scope: "el-badge",
+      ref: "https://element-plus.org/en-US/component/badge.html"
+    }, computed(() => !!props.dotClass));
     expose({
       content
     });
@@ -23832,10 +24089,13 @@ var _sfc_main21 = defineComponent({
                 unref(ns).e("content"),
                 unref(ns).em("content", _ctx.type),
                 unref(ns).is("fixed", !!_ctx.$slots.default),
-                unref(ns).is("dot", _ctx.isDot)
+                unref(ns).is("dot", _ctx.isDot),
+                _ctx.dotClass,
+                _ctx.badgeClass
               ]),
+              style: normalizeStyle(unref(style)),
               textContent: toDisplayString(unref(content))
-            }, null, 10, _hoisted_16), [
+            }, null, 14, _hoisted_16), [
               [vShow, !_ctx.hidden && (unref(content) || _ctx.isDot)]
             ])
           ]),
@@ -23865,6 +24125,7 @@ var breadcrumbProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/breadcrumb/src/breadcrumb2.mjs
+var _hoisted_17 = ["aria-label"];
 var __default__19 = defineComponent({
   name: "ElBreadcrumb"
 });
@@ -23873,6 +24134,7 @@ var _sfc_main22 = defineComponent({
   props: breadcrumbProps,
   setup(__props) {
     const props = __props;
+    const { t } = useLocale();
     const ns = useNamespace("breadcrumb");
     const breadcrumb = ref();
     provide(breadcrumbKey, props);
@@ -23887,11 +24149,11 @@ var _sfc_main22 = defineComponent({
         ref_key: "breadcrumb",
         ref: breadcrumb,
         class: normalizeClass(unref(ns).b()),
-        "aria-label": "Breadcrumb",
+        "aria-label": unref(t)("el.breadcrumb.label"),
         role: "navigation"
       }, [
         renderSlot(_ctx.$slots, "default")
-      ], 2);
+      ], 10, _hoisted_17);
     };
   }
 });
@@ -23978,20 +24240,20 @@ var useButton = (props, emit) => {
     version: "3.0.0",
     scope: "props",
     ref: "https://element-plus.org/en-US/component/button.html#button-attributes"
-  }, computed2(() => props.type === "text"));
+  }, computed(() => props.type === "text"));
   const buttonGroupContext = inject(buttonGroupContextKey, void 0);
   const globalConfig2 = useGlobalConfig("button");
   const { form } = useFormItem();
-  const _size = useFormSize(computed2(() => buttonGroupContext == null ? void 0 : buttonGroupContext.size));
+  const _size = useFormSize(computed(() => buttonGroupContext == null ? void 0 : buttonGroupContext.size));
   const _disabled = useFormDisabled();
   const _ref = ref();
   const slots = useSlots();
-  const _type = computed2(() => props.type || (buttonGroupContext == null ? void 0 : buttonGroupContext.type) || "");
-  const autoInsertSpace = computed2(() => {
+  const _type = computed(() => props.type || (buttonGroupContext == null ? void 0 : buttonGroupContext.type) || "");
+  const autoInsertSpace = computed(() => {
     var _a2, _b, _c;
     return (_c = (_b = props.autoInsertSpace) != null ? _b : (_a2 = globalConfig2.value) == null ? void 0 : _a2.autoInsertSpace) != null ? _c : false;
   });
-  const _props = computed2(() => {
+  const _props = computed(() => {
     if (props.tag === "button") {
       return {
         ariaDisabled: _disabled.value || props.loading,
@@ -24002,7 +24264,7 @@ var useButton = (props, emit) => {
     }
     return {};
   });
-  const shouldAddSpace = computed2(() => {
+  const shouldAddSpace = computed(() => {
     var _a2;
     const defaultSlot = (_a2 = slots.default) == null ? void 0 : _a2.call(slots);
     if (autoInsertSpace.value && (defaultSlot == null ? void 0 : defaultSlot.length) === 1) {
@@ -24990,7 +25252,7 @@ function darken(color, amount = 20) {
 function useButtonCustomStyle(props) {
   const _disabled = useFormDisabled();
   const ns = useNamespace("button");
-  return computed2(() => {
+  return computed(() => {
     let styles = {};
     const buttonColor = props.color;
     if (buttonColor) {
@@ -25051,6 +25313,19 @@ var _sfc_main24 = defineComponent({
     const buttonStyle = useButtonCustomStyle(props);
     const ns = useNamespace("button");
     const { _ref, _size, _type, _disabled, _props, shouldAddSpace, handleClick } = useButton(props, emit);
+    const buttonKls = computed(() => [
+      ns.b(),
+      ns.m(_type.value),
+      ns.m(_size.value),
+      ns.is("disabled", _disabled.value),
+      ns.is("loading", props.loading),
+      ns.is("plain", props.plain),
+      ns.is("round", props.round),
+      ns.is("circle", props.circle),
+      ns.is("text", props.text),
+      ns.is("link", props.link),
+      ns.is("has-bg", props.bg)
+    ]);
     expose({
       ref: _ref,
       size: _size,
@@ -25063,19 +25338,7 @@ var _sfc_main24 = defineComponent({
         ref_key: "_ref",
         ref: _ref
       }, unref(_props), {
-        class: [
-          unref(ns).b(),
-          unref(ns).m(unref(_type)),
-          unref(ns).m(unref(_size)),
-          unref(ns).is("disabled", unref(_disabled)),
-          unref(ns).is("loading", _ctx.loading),
-          unref(ns).is("plain", _ctx.plain),
-          unref(ns).is("round", _ctx.round),
-          unref(ns).is("circle", _ctx.circle),
-          unref(ns).is("text", _ctx.text),
-          unref(ns).is("link", _ctx.link),
-          unref(ns).is("has-bg", _ctx.bg)
-        ],
+        class: unref(buttonKls),
         style: unref(buttonStyle),
         onClick: unref(handleClick)
       }), {
@@ -25160,6 +25423,7 @@ var DEFAULT_FORMATS_DATEPICKER = {
   dates: DEFAULT_FORMATS_DATE,
   week: "gggg[w]ww",
   year: "YYYY",
+  years: "YYYY",
   month: "YYYY-MM",
   datetime: `${DEFAULT_FORMATS_DATE} ${DEFAULT_FORMATS_TIME}`,
   monthrange: "YYYY-MM",
@@ -25342,11 +25606,13 @@ var timePickerDefaultProps = buildProps({
     type: Boolean,
     default: true
   },
-  unlinkPanels: Boolean
+  unlinkPanels: Boolean,
+  ...useEmptyValuesProps,
+  ...useAriaProps(["ariaLabel"])
 });
 
 // node_modules/element-plus/es/components/time-picker/src/common/picker.mjs
-var _hoisted_17 = ["id", "name", "placeholder", "value", "disabled", "readonly"];
+var _hoisted_18 = ["id", "name", "placeholder", "value", "disabled", "readonly"];
 var _hoisted_24 = ["id", "name", "placeholder", "value", "disabled", "readonly"];
 var __default__23 = defineComponent({
   name: "Picker"
@@ -25373,6 +25639,7 @@ var _sfc_main26 = defineComponent({
     const nsRange = useNamespace("range");
     const { form, formItem } = useFormItem();
     const elPopperOptions = inject("ElPopperOptions", {});
+    const { valueOnClear } = useEmptyValues(props, null);
     const refPopper = ref();
     const inputRef = ref();
     const pickerVisible = ref(false);
@@ -25380,7 +25647,7 @@ var _sfc_main26 = defineComponent({
     const valueOnOpen = ref(null);
     let hasJustTabExitedInput = false;
     let ignoreFocusEvent = false;
-    const rangeInputKls = computed2(() => [
+    const rangeInputKls = computed(() => [
       nsDate.b("editor"),
       nsDate.bm("editor", props.type),
       nsInput.e("wrapper"),
@@ -25390,7 +25657,7 @@ var _sfc_main26 = defineComponent({
       pickerSize ? nsRange.bm("editor", pickerSize.value) : "",
       attrs.class
     ]);
-    const clearIconKls = computed2(() => [
+    const clearIconKls = computed(() => [
       nsInput.e("icon"),
       nsRange.e("close-icon"),
       !showClose.value ? nsRange.e("close-icon--hidden") : ""
@@ -25429,7 +25696,7 @@ var _sfc_main26 = defineComponent({
     const emitKeydown = (e) => {
       emit("keydown", e);
     };
-    const refInput = computed2(() => {
+    const refInput = computed(() => {
       if (inputRef.value) {
         const _r = isRangeInput.value ? inputRef.value : inputRef.value.$el;
         return Array.from(_r.querySelectorAll("input"));
@@ -25530,10 +25797,10 @@ var _sfc_main26 = defineComponent({
       currentHandleBlurDeferCallback = handleBlurDefer;
       handleBlurDefer();
     };
-    const pickerDisabled = computed2(() => {
+    const pickerDisabled = computed(() => {
       return props.disabled || (form == null ? void 0 : form.disabled);
     });
-    const parsedValue2 = computed2(() => {
+    const parsedValue2 = computed(() => {
       let dayOrDays;
       if (valueIsEmpty.value) {
         if (pickerOptions.value.getDefaultValue) {
@@ -25558,7 +25825,7 @@ var _sfc_main26 = defineComponent({
       }
       return dayOrDays;
     });
-    const displayValue = computed2(() => {
+    const displayValue = computed(() => {
       if (!pickerOptions.value.panelReady)
         return "";
       const formattedValue = formatDayjsToString(parsedValue2.value);
@@ -25575,14 +25842,15 @@ var _sfc_main26 = defineComponent({
       if (!pickerVisible.value && valueIsEmpty.value)
         return "";
       if (formattedValue) {
-        return isDatesPicker.value ? formattedValue.join(", ") : formattedValue;
+        return isDatesPicker.value || isYearsPicker.value ? formattedValue.join(", ") : formattedValue;
       }
       return "";
     });
-    const isTimeLikePicker = computed2(() => props.type.includes("time"));
-    const isTimePicker = computed2(() => props.type.startsWith("time"));
-    const isDatesPicker = computed2(() => props.type === "dates");
-    const triggerIcon = computed2(() => props.prefixIcon || (isTimeLikePicker.value ? clock_default : calendar_default));
+    const isTimeLikePicker = computed(() => props.type.includes("time"));
+    const isTimePicker = computed(() => props.type.startsWith("time"));
+    const isDatesPicker = computed(() => props.type === "dates");
+    const isYearsPicker = computed(() => props.type === "years");
+    const triggerIcon = computed(() => props.prefixIcon || (isTimeLikePicker.value ? clock_default : calendar_default));
     const showClose = ref(false);
     const onClearIconClick = (event) => {
       if (props.readonly || pickerDisabled.value)
@@ -25590,14 +25858,14 @@ var _sfc_main26 = defineComponent({
       if (showClose.value) {
         event.stopPropagation();
         focusOnInputBox();
-        emitInput(null);
-        emitChange(null, true);
+        emitInput(valueOnClear.value);
+        emitChange(valueOnClear.value, true);
         showClose.value = false;
         pickerVisible.value = false;
         pickerOptions.value.handleClear && pickerOptions.value.handleClear();
       }
     };
-    const valueIsEmpty = computed2(() => {
+    const valueIsEmpty = computed(() => {
       const { modelValue } = props;
       return !modelValue || isArray(modelValue) && !modelValue.filter(Boolean).length;
     });
@@ -25627,15 +25895,15 @@ var _sfc_main26 = defineComponent({
         pickerVisible.value = true;
       }
     };
-    const isRangeInput = computed2(() => {
+    const isRangeInput = computed(() => {
       return props.type.includes("range");
     });
     const pickerSize = useFormSize();
-    const popperEl = computed2(() => {
+    const popperEl = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = unref(refPopper)) == null ? void 0 : _a2.popperRef) == null ? void 0 : _b.contentRef;
     });
-    const actualInputRef = computed2(() => {
+    const actualInputRef = computed(() => {
       var _a2;
       if (unref(isRangeInput)) {
         return unref(inputRef);
@@ -25661,8 +25929,8 @@ var _sfc_main26 = defineComponent({
         }
       }
       if (userInput.value === "") {
-        emitInput(null);
-        emitChange(null);
+        emitInput(valueOnClear.value);
+        emitChange(valueOnClear.value);
         userInput.value = null;
       }
     };
@@ -25796,6 +26064,13 @@ var _sfc_main26 = defineComponent({
     provide("EP_PICKER_BASE", {
       props
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-time-picker",
+      ref: "https://element-plus.org/en-US/component/time-picker.html"
+    }, computed(() => !!props.label));
     expose({
       focus,
       handleFocusInput,
@@ -25841,8 +26116,8 @@ var _sfc_main26 = defineComponent({
             placeholder: _ctx.placeholder,
             class: normalizeClass([unref(nsDate).b("editor"), unref(nsDate).bm("editor", _ctx.type), _ctx.$attrs.class]),
             style: normalizeStyle(_ctx.$attrs.style),
-            readonly: !_ctx.editable || _ctx.readonly || unref(isDatesPicker) || _ctx.type === "week",
-            label: _ctx.label,
+            readonly: !_ctx.editable || _ctx.readonly || unref(isDatesPicker) || unref(isYearsPicker) || _ctx.type === "week",
+            "aria-label": _ctx.label || _ctx.ariaLabel,
             tabindex: _ctx.tabindex,
             "validate-event": false,
             onInput: onUserInput,
@@ -25853,7 +26128,7 @@ var _sfc_main26 = defineComponent({
             onMousedown: onMouseDownInput,
             onMouseenter: onMouseEnter,
             onMouseleave: onMouseLeave,
-            onTouchstart: onTouchStartInput,
+            onTouchstartPassive: onTouchStartInput,
             onClick: _cache[0] || (_cache[0] = withModifiers(() => {
             }, ["stop"]))
           }, {
@@ -25862,7 +26137,7 @@ var _sfc_main26 = defineComponent({
                 key: 0,
                 class: normalizeClass(unref(nsInput).e("icon")),
                 onMousedown: withModifiers(onMouseDownInput, ["prevent"]),
-                onTouchstart: onTouchStartInput
+                onTouchstartPassive: onTouchStartInput
               }, {
                 default: withCtx(() => [
                   (openBlock(), createBlock(resolveDynamicComponent(unref(triggerIcon))))
@@ -25883,7 +26158,7 @@ var _sfc_main26 = defineComponent({
               }, 8, ["class", "onClick"])) : createCommentVNode("v-if", true)
             ]),
             _: 1
-          }, 8, ["id", "model-value", "name", "size", "disabled", "placeholder", "class", "style", "readonly", "label", "tabindex", "onKeydown"])) : (openBlock(), createElementBlock("div", {
+          }, 8, ["id", "model-value", "name", "size", "disabled", "placeholder", "class", "style", "readonly", "aria-label", "tabindex", "onKeydown"])) : (openBlock(), createElementBlock("div", {
             key: 1,
             ref_key: "inputRef",
             ref: inputRef,
@@ -25892,14 +26167,14 @@ var _sfc_main26 = defineComponent({
             onClick: handleFocusInput,
             onMouseenter: onMouseEnter,
             onMouseleave: onMouseLeave,
-            onTouchstart: onTouchStartInput,
+            onTouchstartPassive: onTouchStartInput,
             onKeydown: handleKeydownInput
           }, [
             unref(triggerIcon) ? (openBlock(), createBlock(unref(ElIcon), {
               key: 0,
               class: normalizeClass([unref(nsInput).e("icon"), unref(nsRange).e("icon")]),
               onMousedown: withModifiers(onMouseDownInput, ["prevent"]),
-              onTouchstart: onTouchStartInput
+              onTouchstartPassive: onTouchStartInput
             }, {
               default: withCtx(() => [
                 (openBlock(), createBlock(resolveDynamicComponent(unref(triggerIcon))))
@@ -25920,7 +26195,7 @@ var _sfc_main26 = defineComponent({
               onChange: handleStartChange,
               onFocus: handleFocusInput,
               onBlur: handleBlurInput
-            }, null, 42, _hoisted_17),
+            }, null, 42, _hoisted_18),
             renderSlot(_ctx.$slots, "range-separator", {}, () => [
               createBaseVNode("span", {
                 class: normalizeClass(unref(nsRange).b("separator"))
@@ -26391,7 +26666,7 @@ var basicTimeSpinnerProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/time-picker/src/time-picker-com/basic-time-spinner.mjs
-var _hoisted_18 = ["onClick"];
+var _hoisted_19 = ["onClick"];
 var _hoisted_25 = ["onMouseenter"];
 var _sfc_main27 = defineComponent({
   __name: "basic-time-spinner",
@@ -26411,17 +26686,17 @@ var _sfc_main27 = defineComponent({
       minutes: listMinutesRef,
       seconds: listSecondsRef
     };
-    const spinnerItems = computed2(() => {
+    const spinnerItems = computed(() => {
       return props.showSeconds ? timeUnits : timeUnits.slice(0, 2);
     });
-    const timePartials = computed2(() => {
+    const timePartials = computed(() => {
       const { spinnerDate } = props;
       const hours = spinnerDate.hour();
       const minutes = spinnerDate.minute();
       const seconds = spinnerDate.second();
       return { hours, minutes, seconds };
     });
-    const timeList = computed2(() => {
+    const timeList = computed(() => {
       const { hours, minutes } = unref(timePartials);
       return {
         hours: getHoursList(props.role),
@@ -26429,7 +26704,7 @@ var _sfc_main27 = defineComponent({
         seconds: getSecondsList(hours, minutes, props.role)
       };
     });
-    const arrowControlTimeList = computed2(() => {
+    const arrowControlTimeList = computed(() => {
       const { hours, minutes, seconds } = unref(timePartials);
       return {
         hours: buildTimeList(hours, 23),
@@ -26619,7 +26894,7 @@ var _sfc_main27 = defineComponent({
                   ], 64)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
                     createTextVNode(toDisplayString(("0" + key).slice(-2)), 1)
                   ], 64))
-                ], 10, _hoisted_18);
+                ], 10, _hoisted_19);
               }), 128))
             ]),
             _: 2
@@ -26701,13 +26976,13 @@ var _sfc_main28 = defineComponent({
     const { t, lang } = useLocale();
     const selectionRange = ref([0, 2]);
     const oldValue = useOldValue(props);
-    const transitionName = computed2(() => {
+    const transitionName = computed(() => {
       return isUndefined2(props.actualVisible) ? `${ns.namespace.value}-zoom-in-top` : "";
     });
-    const showSeconds = computed2(() => {
+    const showSeconds = computed(() => {
       return props.format.includes("ss");
     });
-    const amPmMode = computed2(() => {
+    const amPmMode = computed(() => {
       if (props.format.includes("A"))
         return "A";
       if (props.format.includes("a"))
@@ -26848,7 +27123,7 @@ var panelTimeRangeProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/time-picker/src/time-picker-com/panel-time-range.mjs
-var _hoisted_19 = ["disabled"];
+var _hoisted_110 = ["disabled"];
 var _sfc_main29 = defineComponent({
   __name: "panel-time-range",
   props: panelTimeRangeProps,
@@ -26873,28 +27148,28 @@ var _sfc_main29 = defineComponent({
       disabledSeconds,
       defaultValue
     } = pickerBase.props;
-    const startContainerKls = computed2(() => [
+    const startContainerKls = computed(() => [
       nsTime.be("range-picker", "body"),
       nsTime.be("panel", "content"),
       nsTime.is("arrow", arrowControl),
       showSeconds.value ? "has-seconds" : ""
     ]);
-    const endContainerKls = computed2(() => [
+    const endContainerKls = computed(() => [
       nsTime.be("range-picker", "body"),
       nsTime.be("panel", "content"),
       nsTime.is("arrow", arrowControl),
       showSeconds.value ? "has-seconds" : ""
     ]);
-    const startTime = computed2(() => props.parsedValue[0]);
-    const endTime = computed2(() => props.parsedValue[1]);
+    const startTime = computed(() => props.parsedValue[0]);
+    const endTime = computed(() => props.parsedValue[1]);
     const oldValue = useOldValue(props);
     const handleCancel = () => {
       emit("pick", oldValue.value, false);
     };
-    const showSeconds = computed2(() => {
+    const showSeconds = computed(() => {
       return props.format.includes("ss");
     });
-    const amPmMode = computed2(() => {
+    const amPmMode = computed(() => {
       if (props.format.includes("A"))
         return "A";
       if (props.format.includes("a"))
@@ -26918,7 +27193,7 @@ var _sfc_main29 = defineComponent({
     const handleChange = (start, end2) => {
       emit("pick", [start, end2], true);
     };
-    const btnConfirmDisabled = computed2(() => {
+    const btnConfirmDisabled = computed(() => {
       return startTime.value > endTime.value;
     });
     const selectionRange = ref([0, 2]);
@@ -26926,7 +27201,7 @@ var _sfc_main29 = defineComponent({
       emit("select-range", start, end2, "min");
       selectionRange.value = [start, end2];
     };
-    const offset3 = computed2(() => showSeconds.value ? 11 : 8);
+    const offset3 = computed(() => showSeconds.value ? 11 : 8);
     const setMaxSelectionRange = (start, end2) => {
       emit("select-range", start, end2, "max");
       const _offset = unref(offset3);
@@ -27111,7 +27386,7 @@ var _sfc_main29 = defineComponent({
             class: normalizeClass([unref(nsTime).be("panel", "btn"), "confirm"]),
             disabled: unref(btnConfirmDisabled),
             onClick: _cache[1] || (_cache[1] = ($event) => handleConfirm())
-          }, toDisplayString(unref(t)("el.datepicker.confirm")), 11, _hoisted_19)
+          }, toDisplayString(unref(t)("el.datepicker.confirm")), 11, _hoisted_110)
         ], 2)
       ], 2)) : createCommentVNode("v-if", true);
     };
@@ -27217,8 +27492,8 @@ var useDateTable = (props, emit) => {
   const firstDayOfWeek = import_dayjs5.default.localeData().firstDayOfWeek();
   const { t, lang } = useLocale();
   const now2 = (0, import_dayjs5.default)().locale(lang.value);
-  const isInRange = computed2(() => !!props.range && !!props.range.length);
-  const rows = computed2(() => {
+  const isInRange = computed(() => !!props.range && !!props.range.length);
+  const rows = computed(() => {
     let days = [];
     if (isInRange.value) {
       const [start, end2] = props.range;
@@ -27253,7 +27528,7 @@ var useDateTable = (props, emit) => {
     }
     return toNestedArr(days);
   });
-  const weekDays = computed2(() => {
+  const weekDays = computed(() => {
     const start = firstDayOfWeek;
     if (start === 0) {
       return WEEK_DAYS.map((_2) => t(`el.datepicker.weeks.${_2}`));
@@ -27296,7 +27571,7 @@ var useDateTable = (props, emit) => {
 };
 
 // node_modules/element-plus/es/components/calendar/src/date-table2.mjs
-var _hoisted_110 = { key: 0 };
+var _hoisted_111 = { key: 0 };
 var _hoisted_26 = ["onClick"];
 var __default__24 = defineComponent({
   name: "DateTable"
@@ -27340,7 +27615,7 @@ var _sfc_main30 = defineComponent({
         cellspacing: "0",
         cellpadding: "0"
       }, [
-        !_ctx.hideHeader ? (openBlock(), createElementBlock("thead", _hoisted_110, [
+        !_ctx.hideHeader ? (openBlock(), createElementBlock("thead", _hoisted_111, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(unref(weekDays), (day) => {
             return openBlock(), createElementBlock("th", { key: day }, toDisplayString(day), 1);
           }), 128))
@@ -27406,11 +27681,10 @@ var threeConsecutiveMonth = (start, end2) => {
   ];
 };
 var useCalendar = (props, emit, componentName2) => {
-  const slots = useSlots();
   const { lang } = useLocale();
   const selectedDay = ref();
   const now2 = (0, import_dayjs6.default)().locale(lang.value);
-  const realSelectedDay = computed2({
+  const realSelectedDay = computed({
     get() {
       if (!props.modelValue)
         return selectedDay.value;
@@ -27425,7 +27699,7 @@ var useCalendar = (props, emit, componentName2) => {
       emit(UPDATE_MODEL_EVENT, result2);
     }
   });
-  const validatedRange = computed2(() => {
+  const validatedRange = computed(() => {
     if (!props.range)
       return [];
     const rangeArrDayjs = props.range.map((_2) => (0, import_dayjs6.default)(_2).locale(lang.value));
@@ -27444,17 +27718,17 @@ var useCalendar = (props, emit, componentName2) => {
       return calculateValidatedDateRange(startDayjs, endDayjs);
     }
   });
-  const date5 = computed2(() => {
+  const date5 = computed(() => {
     if (!props.modelValue) {
       return realSelectedDay.value || (validatedRange.value.length ? validatedRange.value[0][0] : now2);
     } else {
       return (0, import_dayjs6.default)(props.modelValue).locale(lang.value);
     }
   });
-  const prevMonthDayjs = computed2(() => date5.value.subtract(1, "month").date(1));
-  const nextMonthDayjs = computed2(() => date5.value.add(1, "month").date(1));
-  const prevYearDayjs = computed2(() => date5.value.subtract(1, "year").date(1));
-  const nextYearDayjs = computed2(() => date5.value.add(1, "year").date(1));
+  const prevMonthDayjs = computed(() => date5.value.subtract(1, "month").date(1));
+  const nextMonthDayjs = computed(() => date5.value.add(1, "month").date(1));
+  const prevYearDayjs = computed(() => date5.value.subtract(1, "year").date(1));
+  const nextYearDayjs = computed(() => date5.value.add(1, "year").date(1));
   const calculateValidatedDateRange = (startDayjs, endDayjs) => {
     const firstDay = startDayjs.startOf("week");
     const lastDay = endDayjs.endOf("week");
@@ -27487,14 +27761,6 @@ var useCalendar = (props, emit, componentName2) => {
       pickDay(day);
     }
   };
-  useDeprecated({
-    from: '"dateCell"',
-    replacement: '"date-cell"',
-    scope: "ElCalendar",
-    version: "2.3.0",
-    ref: "https://element-plus.org/en-US/component/calendar.html#slots",
-    type: "Slot"
-  }, computed2(() => !!slots.dateCell));
   return {
     calculateValidatedDateRange,
     date: date5,
@@ -27542,7 +27808,7 @@ var _sfc_main31 = defineComponent({
       validatedRange
     } = useCalendar(props, emit, COMPONENT_NAME8);
     const { t } = useLocale();
-    const i18nDate = computed2(() => {
+    const i18nDate = computed(() => {
       const pickedMonth = `el.datepicker.month${date5.value.format("M")}`;
       return `${date5.value.year()} ${t("el.datepicker.year")} ${t(pickedMonth)}`;
     });
@@ -27611,10 +27877,10 @@ var _sfc_main31 = defineComponent({
             "selected-day": unref(realSelectedDay),
             onPick: unref(pickDay)
           }, createSlots({ _: 2 }, [
-            _ctx.$slots["date-cell"] || _ctx.$slots.dateCell ? {
+            _ctx.$slots["date-cell"] ? {
               name: "date-cell",
               fn: withCtx((data) => [
-                _ctx.$slots["date-cell"] ? renderSlot(_ctx.$slots, "date-cell", normalizeProps(mergeProps({ key: 0 }, data))) : renderSlot(_ctx.$slots, "dateCell", normalizeProps(mergeProps({ key: 1 }, data)))
+                renderSlot(_ctx.$slots, "date-cell", normalizeProps(guardReactiveProps(data)))
               ])
             } : void 0
           ]), 1032, ["date", "selected-day", "onPick"])
@@ -27631,10 +27897,10 @@ var _sfc_main31 = defineComponent({
               "hide-header": index !== 0,
               onPick: unref(pickDay)
             }, createSlots({ _: 2 }, [
-              _ctx.$slots["date-cell"] || _ctx.$slots.dateCell ? {
+              _ctx.$slots["date-cell"] ? {
                 name: "date-cell",
                 fn: withCtx((data) => [
-                  _ctx.$slots["date-cell"] ? renderSlot(_ctx.$slots, "date-cell", normalizeProps(mergeProps({ key: 0 }, data))) : renderSlot(_ctx.$slots, "dateCell", normalizeProps(mergeProps({ key: 1 }, data)))
+                  renderSlot(_ctx.$slots, "date-cell", normalizeProps(guardReactiveProps(data)))
                 ])
               } : void 0
             ]), 1032, ["date", "selected-day", "range", "hide-header", "onPick"]);
@@ -27765,6 +28031,10 @@ var carouselProps = buildProps({
   pauseOnHover: {
     type: Boolean,
     default: true
+  },
+  motionBlur: {
+    type: Boolean,
+    default: false
   }
 });
 var carouselEmits = {
@@ -27789,13 +28059,15 @@ var useCarousel = (props, emit, componentName2) => {
   const root2 = ref();
   const containerHeight = ref(0);
   const isItemsTwoLength = ref(true);
-  const arrowDisplay = computed2(() => props.arrow !== "never" && !unref(isVertical));
-  const hasLabel = computed2(() => {
+  const isFirstCall = ref(true);
+  const isTransitioning = ref(false);
+  const arrowDisplay = computed(() => props.arrow !== "never" && !unref(isVertical));
+  const hasLabel = computed(() => {
     return items.value.some((item) => item.props.label.toString().length > 0);
   });
-  const isCardType = computed2(() => props.type === "card");
-  const isVertical = computed2(() => props.direction === "vertical");
-  const containerStyle = computed2(() => {
+  const isCardType = computed(() => props.type === "card");
+  const isVertical = computed(() => props.direction === "vertical");
+  const containerStyle = computed(() => {
     if (props.height !== "auto") {
       return {
         height: props.height
@@ -27829,6 +28101,10 @@ var useCarousel = (props, emit, componentName2) => {
     timer.value = setInterval(() => playSlides(), props.interval);
   }
   const playSlides = () => {
+    if (!isFirstCall.value) {
+      isTransitioning.value = true;
+    }
+    isFirstCall.value = false;
     if (activeIndex.value < items.value.length - 1) {
       activeIndex.value = activeIndex.value + 1;
     } else if (props.loop) {
@@ -27836,6 +28112,10 @@ var useCarousel = (props, emit, componentName2) => {
     }
   };
   function setActiveItem(index) {
+    if (!isFirstCall.value) {
+      isTransitioning.value = true;
+    }
+    isFirstCall.value = false;
     if (isString(index)) {
       const filteredItems = items.value.filter((item) => item.props.name === index);
       if (filteredItems.length > 0) {
@@ -27896,6 +28176,9 @@ var useCarousel = (props, emit, componentName2) => {
     hover.value = false;
     startTimer();
   }
+  function handleTransitionEnd() {
+    isTransitioning.value = false;
+  }
   function handleButtonEnter(arrow3) {
     if (unref(isVertical))
       return;
@@ -27913,11 +28196,19 @@ var useCarousel = (props, emit, componentName2) => {
     });
   }
   function handleIndicatorClick(index) {
+    if (index !== activeIndex.value) {
+      if (!isFirstCall.value) {
+        isTransitioning.value = true;
+      }
+    }
     activeIndex.value = index;
   }
   function handleIndicatorHover(index) {
     if (props.trigger === "hover" && index !== activeIndex.value) {
       activeIndex.value = index;
+      if (!isFirstCall.value) {
+        isTransitioning.value = true;
+      }
     }
   }
   function prev() {
@@ -28008,11 +28299,13 @@ var useCarousel = (props, emit, componentName2) => {
     hasLabel,
     hover,
     isCardType,
+    isTransitioning,
     items,
     isVertical,
     containerStyle,
     isItemsTwoLength,
     handleButtonEnter,
+    handleTransitionEnd,
     handleButtonLeave,
     handleIndicatorClick,
     handleMouseEnter,
@@ -28028,8 +28321,34 @@ var useCarousel = (props, emit, componentName2) => {
 };
 
 // node_modules/element-plus/es/components/carousel/src/carousel2.mjs
-var _hoisted_111 = ["onMouseenter", "onClick"];
-var _hoisted_27 = { key: 0 };
+var _hoisted_112 = ["aria-label"];
+var _hoisted_27 = ["aria-label"];
+var _hoisted_33 = ["onMouseenter", "onClick"];
+var _hoisted_4 = ["aria-label"];
+var _hoisted_5 = { key: 0 };
+var _hoisted_6 = {
+  key: 3,
+  xmlns: "http://www.w3.org/2000/svg",
+  version: "1.1",
+  style: { "display": "none" }
+};
+var _hoisted_7 = createBaseVNode("defs", null, [
+  createBaseVNode("filter", { id: "elCarouselHorizontal" }, [
+    createBaseVNode("feGaussianBlur", {
+      in: "SourceGraphic",
+      stdDeviation: "12,0"
+    })
+  ]),
+  createBaseVNode("filter", { id: "elCarouselVertical" }, [
+    createBaseVNode("feGaussianBlur", {
+      in: "SourceGraphic",
+      stdDeviation: "0,10"
+    })
+  ])
+], -1);
+var _hoisted_8 = [
+  _hoisted_7
+];
 var COMPONENT_NAME9 = "ElCarousel";
 var __default__27 = defineComponent({
   name: COMPONENT_NAME9
@@ -28052,9 +28371,11 @@ var _sfc_main33 = defineComponent({
       containerStyle,
       handleButtonEnter,
       handleButtonLeave,
+      isTransitioning,
       handleIndicatorClick,
       handleMouseEnter,
       handleMouseLeave,
+      handleTransitionEnd,
       setActiveItem,
       prev,
       next,
@@ -28064,14 +28385,22 @@ var _sfc_main33 = defineComponent({
       throttledIndicatorHover
     } = useCarousel(props, emit, COMPONENT_NAME9);
     const ns = useNamespace("carousel");
-    const carouselClasses = computed2(() => {
+    const { t } = useLocale();
+    const carouselClasses = computed(() => {
       const classes = [ns.b(), ns.m(props.direction)];
       if (unref(isCardType)) {
         classes.push(ns.m("card"));
       }
       return classes;
     });
-    const indicatorsClasses = computed2(() => {
+    const carouselContainer = computed(() => {
+      const classes = [ns.e("container")];
+      if (props.motionBlur && unref(isTransitioning)) {
+        classes.push(unref(isVertical) ? `${ns.namespace.value}-transitioning-vertical` : `${ns.namespace.value}-transitioning`);
+      }
+      return classes;
+    });
+    const indicatorsClasses = computed(() => {
       const classes = [ns.e("indicators"), ns.em("indicators", props.direction)];
       if (unref(hasLabel)) {
         classes.push(ns.em("indicators", "labels"));
@@ -28094,74 +28423,77 @@ var _sfc_main33 = defineComponent({
         ref_key: "root",
         ref: root2,
         class: normalizeClass(unref(carouselClasses)),
-        onMouseenter: _cache[6] || (_cache[6] = withModifiers((...args) => unref(handleMouseEnter) && unref(handleMouseEnter)(...args), ["stop"])),
-        onMouseleave: _cache[7] || (_cache[7] = withModifiers((...args) => unref(handleMouseLeave) && unref(handleMouseLeave)(...args), ["stop"]))
+        onMouseenter: _cache[7] || (_cache[7] = withModifiers((...args) => unref(handleMouseEnter) && unref(handleMouseEnter)(...args), ["stop"])),
+        onMouseleave: _cache[8] || (_cache[8] = withModifiers((...args) => unref(handleMouseLeave) && unref(handleMouseLeave)(...args), ["stop"]))
       }, [
+        unref(arrowDisplay) ? (openBlock(), createBlock(Transition, {
+          key: 0,
+          name: "carousel-arrow-left",
+          persisted: ""
+        }, {
+          default: withCtx(() => [
+            withDirectives(createBaseVNode("button", {
+              type: "button",
+              class: normalizeClass([unref(ns).e("arrow"), unref(ns).em("arrow", "left")]),
+              "aria-label": unref(t)("el.carousel.leftArrow"),
+              onMouseenter: _cache[0] || (_cache[0] = ($event) => unref(handleButtonEnter)("left")),
+              onMouseleave: _cache[1] || (_cache[1] = (...args) => unref(handleButtonLeave) && unref(handleButtonLeave)(...args)),
+              onClick: _cache[2] || (_cache[2] = withModifiers(($event) => unref(throttledArrowClick)(unref(activeIndex) - 1), ["stop"]))
+            }, [
+              createVNode(unref(ElIcon), null, {
+                default: withCtx(() => [
+                  createVNode(unref(arrow_left_default))
+                ]),
+                _: 1
+              })
+            ], 42, _hoisted_112), [
+              [
+                vShow,
+                (_ctx.arrow === "always" || unref(hover)) && (props.loop || unref(activeIndex) > 0)
+              ]
+            ])
+          ]),
+          _: 1
+        })) : createCommentVNode("v-if", true),
+        unref(arrowDisplay) ? (openBlock(), createBlock(Transition, {
+          key: 1,
+          name: "carousel-arrow-right",
+          persisted: ""
+        }, {
+          default: withCtx(() => [
+            withDirectives(createBaseVNode("button", {
+              type: "button",
+              class: normalizeClass([unref(ns).e("arrow"), unref(ns).em("arrow", "right")]),
+              "aria-label": unref(t)("el.carousel.rightArrow"),
+              onMouseenter: _cache[3] || (_cache[3] = ($event) => unref(handleButtonEnter)("right")),
+              onMouseleave: _cache[4] || (_cache[4] = (...args) => unref(handleButtonLeave) && unref(handleButtonLeave)(...args)),
+              onClick: _cache[5] || (_cache[5] = withModifiers(($event) => unref(throttledArrowClick)(unref(activeIndex) + 1), ["stop"]))
+            }, [
+              createVNode(unref(ElIcon), null, {
+                default: withCtx(() => [
+                  createVNode(unref(arrow_right_default))
+                ]),
+                _: 1
+              })
+            ], 42, _hoisted_27), [
+              [
+                vShow,
+                (_ctx.arrow === "always" || unref(hover)) && (props.loop || unref(activeIndex) < unref(items).length - 1)
+              ]
+            ])
+          ]),
+          _: 1
+        })) : createCommentVNode("v-if", true),
         createBaseVNode("div", {
-          class: normalizeClass(unref(ns).e("container")),
-          style: normalizeStyle(unref(containerStyle))
+          class: normalizeClass(unref(carouselContainer)),
+          style: normalizeStyle(unref(containerStyle)),
+          onTransitionend: _cache[6] || (_cache[6] = (...args) => unref(handleTransitionEnd) && unref(handleTransitionEnd)(...args))
         }, [
-          unref(arrowDisplay) ? (openBlock(), createBlock(Transition, {
-            key: 0,
-            name: "carousel-arrow-left",
-            persisted: ""
-          }, {
-            default: withCtx(() => [
-              withDirectives(createBaseVNode("button", {
-                type: "button",
-                class: normalizeClass([unref(ns).e("arrow"), unref(ns).em("arrow", "left")]),
-                onMouseenter: _cache[0] || (_cache[0] = ($event) => unref(handleButtonEnter)("left")),
-                onMouseleave: _cache[1] || (_cache[1] = (...args) => unref(handleButtonLeave) && unref(handleButtonLeave)(...args)),
-                onClick: _cache[2] || (_cache[2] = withModifiers(($event) => unref(throttledArrowClick)(unref(activeIndex) - 1), ["stop"]))
-              }, [
-                createVNode(unref(ElIcon), null, {
-                  default: withCtx(() => [
-                    createVNode(unref(arrow_left_default))
-                  ]),
-                  _: 1
-                })
-              ], 34), [
-                [
-                  vShow,
-                  (_ctx.arrow === "always" || unref(hover)) && (props.loop || unref(activeIndex) > 0)
-                ]
-              ])
-            ]),
-            _: 1
-          })) : createCommentVNode("v-if", true),
-          unref(arrowDisplay) ? (openBlock(), createBlock(Transition, {
-            key: 1,
-            name: "carousel-arrow-right",
-            persisted: ""
-          }, {
-            default: withCtx(() => [
-              withDirectives(createBaseVNode("button", {
-                type: "button",
-                class: normalizeClass([unref(ns).e("arrow"), unref(ns).em("arrow", "right")]),
-                onMouseenter: _cache[3] || (_cache[3] = ($event) => unref(handleButtonEnter)("right")),
-                onMouseleave: _cache[4] || (_cache[4] = (...args) => unref(handleButtonLeave) && unref(handleButtonLeave)(...args)),
-                onClick: _cache[5] || (_cache[5] = withModifiers(($event) => unref(throttledArrowClick)(unref(activeIndex) + 1), ["stop"]))
-              }, [
-                createVNode(unref(ElIcon), null, {
-                  default: withCtx(() => [
-                    createVNode(unref(arrow_right_default))
-                  ]),
-                  _: 1
-                })
-              ], 34), [
-                [
-                  vShow,
-                  (_ctx.arrow === "always" || unref(hover)) && (props.loop || unref(activeIndex) < unref(items).length - 1)
-                ]
-              ])
-            ]),
-            _: 1
-          })) : createCommentVNode("v-if", true),
           createVNode(unref(PlaceholderItem)),
           renderSlot(_ctx.$slots, "default")
-        ], 6),
+        ], 38),
         _ctx.indicatorPosition !== "none" ? (openBlock(), createElementBlock("ul", {
-          key: 0,
+          key: 2,
           class: normalizeClass(unref(indicatorsClasses))
         }, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(unref(items), (item, index) => {
@@ -28176,15 +28508,17 @@ var _sfc_main33 = defineComponent({
               onClick: withModifiers(($event) => unref(handleIndicatorClick)(index), ["stop"])
             }, [
               createBaseVNode("button", {
-                class: normalizeClass(unref(ns).e("button"))
+                class: normalizeClass(unref(ns).e("button")),
+                "aria-label": unref(t)("el.carousel.indicator", { index: index + 1 })
               }, [
-                unref(hasLabel) ? (openBlock(), createElementBlock("span", _hoisted_27, toDisplayString(item.props.label), 1)) : createCommentVNode("v-if", true)
-              ], 2)
-            ], 42, _hoisted_111)), [
+                unref(hasLabel) ? (openBlock(), createElementBlock("span", _hoisted_5, toDisplayString(item.props.label), 1)) : createCommentVNode("v-if", true)
+              ], 10, _hoisted_4)
+            ], 42, _hoisted_33)), [
               [vShow, unref(isTwoLengthShow)(index)]
             ]);
           }), 128))
-        ], 2)) : createCommentVNode("v-if", true)
+        ], 2)) : createCommentVNode("v-if", true),
+        props.motionBlur ? (openBlock(), createElementBlock("svg", _hoisted_6, _hoisted_8)) : createCommentVNode("v-if", true)
       ], 34);
     };
   }
@@ -28343,7 +28677,7 @@ var _sfc_main34 = defineComponent({
       ready,
       handleItemClick
     } = useCarouselItem(props, COMPONENT_NAME10);
-    const itemKls = computed2(() => [
+    const itemKls = computed(() => [
       ns.e("item"),
       ns.is("active", active.value),
       ns.is("in-stage", inStage.value),
@@ -28354,7 +28688,7 @@ var _sfc_main34 = defineComponent({
         [ns.em("item", "card-vertical")]: isCardType.value && isVertical.value
       }
     ]);
-    const itemStyle = computed2(() => {
+    const itemStyle = computed(() => {
       const translateType = `translate${unref(isVertical) ? "Y" : "X"}`;
       const _translate = `${translateType}(${unref(translate2)}px)`;
       const _scale = `scale(${unref(scale)})`;
@@ -28402,11 +28736,23 @@ var checkboxProps = {
     type: [String, Boolean, Number, Object],
     default: void 0
   },
+  value: {
+    type: [String, Boolean, Number, Object],
+    default: void 0
+  },
   indeterminate: Boolean,
   disabled: Boolean,
   checked: Boolean,
   name: {
     type: String,
+    default: void 0
+  },
+  trueValue: {
+    type: [String, Number],
+    default: void 0
+  },
+  falseValue: {
+    type: [String, Number],
     default: void 0
   },
   trueLabel: {
@@ -28431,7 +28777,8 @@ var checkboxProps = {
   validateEvent: {
     type: Boolean,
     default: true
-  }
+  },
+  ...useAriaProps(["ariaControls"])
 };
 var checkboxEmits = {
   [UPDATE_MODEL_EVENT]: (val) => isString(val) || isNumber3(val) || isBoolean2(val),
@@ -28447,13 +28794,13 @@ var useCheckboxDisabled = ({
   isChecked
 }) => {
   const checkboxGroup = inject(checkboxGroupContextKey, void 0);
-  const isLimitDisabled = computed2(() => {
+  const isLimitDisabled = computed(() => {
     var _a2, _b;
     const max4 = (_a2 = checkboxGroup == null ? void 0 : checkboxGroup.max) == null ? void 0 : _a2.value;
     const min4 = (_b = checkboxGroup == null ? void 0 : checkboxGroup.min) == null ? void 0 : _b.value;
     return !isUndefined2(max4) && model.value.length >= max4 && !isChecked.value || !isUndefined2(min4) && model.value.length <= min4 && isChecked.value;
   });
-  const isDisabled = useFormDisabled(computed2(() => (checkboxGroup == null ? void 0 : checkboxGroup.disabled.value) || isLimitDisabled.value));
+  const isDisabled = useFormDisabled(computed(() => (checkboxGroup == null ? void 0 : checkboxGroup.disabled.value) || isLimitDisabled.value));
   return {
     isDisabled,
     isLimitDisabled
@@ -28472,8 +28819,8 @@ var useCheckboxEvent = (props, {
   const { formItem } = useFormItem();
   const { emit } = getCurrentInstance();
   function getLabeledValue(value) {
-    var _a2, _b;
-    return value === props.trueLabel || value === true ? (_a2 = props.trueLabel) != null ? _a2 : true : (_b = props.falseLabel) != null ? _b : false;
+    var _a2, _b, _c, _d;
+    return [true, props.trueValue, props.trueLabel].includes(value) ? (_b = (_a2 = props.trueValue) != null ? _a2 : props.trueLabel) != null ? _b : true : (_d = (_c = props.falseValue) != null ? _c : props.falseLabel) != null ? _d : false;
   }
   function emitChangeEvent(checked, e) {
     emit("change", getLabeledValue(checked), e);
@@ -28491,13 +28838,13 @@ var useCheckboxEvent = (props, {
       const eventTargets = e.composedPath();
       const hasLabel = eventTargets.some((item) => item.tagName === "LABEL");
       if (!hasLabel) {
-        model.value = getLabeledValue([false, props.falseLabel].includes(model.value));
+        model.value = getLabeledValue([false, props.falseValue, props.falseLabel].includes(model.value));
         await nextTick();
         emitChangeEvent(model.value, e);
       }
     }
   }
-  const validateEvent = computed2(() => (checkboxGroup == null ? void 0 : checkboxGroup.validateEvent) || props.validateEvent);
+  const validateEvent = computed(() => (checkboxGroup == null ? void 0 : checkboxGroup.validateEvent) || props.validateEvent);
   watch(() => props.modelValue, () => {
     if (validateEvent.value) {
       formItem == null ? void 0 : formItem.validate("change").catch((err) => debugWarn(err));
@@ -28514,9 +28861,9 @@ var useCheckboxModel = (props) => {
   const selfModel = ref(false);
   const { emit } = getCurrentInstance();
   const checkboxGroup = inject(checkboxGroupContextKey, void 0);
-  const isGroup = computed2(() => isUndefined2(checkboxGroup) === false);
+  const isGroup = computed(() => isUndefined2(checkboxGroup) === false);
   const isLimitExceeded = ref(false);
-  const model = computed2({
+  const model = computed({
     get() {
       var _a2, _b;
       return isGroup.value ? (_a2 = checkboxGroup == null ? void 0 : checkboxGroup.modelValue) == null ? void 0 : _a2.value : (_b = props.modelValue) != null ? _b : selfModel.value;
@@ -28543,55 +28890,52 @@ var useCheckboxModel = (props) => {
 var useCheckboxStatus = (props, slots, { model }) => {
   const checkboxGroup = inject(checkboxGroupContextKey, void 0);
   const isFocused = ref(false);
-  const isChecked = computed2(() => {
+  const actualValue = computed(() => {
+    if (!isPropAbsent(props.value)) {
+      return props.value;
+    }
+    return props.label;
+  });
+  const isChecked = computed(() => {
     const value = model.value;
     if (isBoolean2(value)) {
       return value;
     } else if (isArray(value)) {
-      if (isObject(props.label)) {
-        return value.map(toRaw).some((o2) => isEqual_default(o2, props.label));
+      if (isObject(actualValue.value)) {
+        return value.map(toRaw).some((o2) => isEqual_default(o2, actualValue.value));
       } else {
-        return value.map(toRaw).includes(props.label);
+        return value.map(toRaw).includes(actualValue.value);
       }
     } else if (value !== null && value !== void 0) {
-      return value === props.trueLabel;
+      return value === props.trueValue || value === props.trueLabel;
     } else {
       return !!value;
     }
   });
-  const checkboxButtonSize = useFormSize(computed2(() => {
+  const checkboxButtonSize = useFormSize(computed(() => {
     var _a2;
     return (_a2 = checkboxGroup == null ? void 0 : checkboxGroup.size) == null ? void 0 : _a2.value;
   }), {
     prop: true
   });
-  const checkboxSize = useFormSize(computed2(() => {
+  const checkboxSize = useFormSize(computed(() => {
     var _a2;
     return (_a2 = checkboxGroup == null ? void 0 : checkboxGroup.size) == null ? void 0 : _a2.value;
   }));
-  const hasOwnLabel = computed2(() => {
-    return !!slots.default || !isNil_default(props.label);
+  const hasOwnLabel = computed(() => {
+    return !!slots.default || !isPropAbsent(actualValue.value);
   });
   return {
     checkboxButtonSize,
     isChecked,
     isFocused,
     checkboxSize,
-    hasOwnLabel
+    hasOwnLabel,
+    actualValue
   };
 };
 
 // node_modules/element-plus/es/components/checkbox/src/composables/use-checkbox.mjs
-var setStoreValue = (props, { model }) => {
-  function addToStore() {
-    if (isArray(model.value) && !model.value.includes(props.label)) {
-      model.value.push(props.label);
-    } else {
-      model.value = props.trueLabel || true;
-    }
-  }
-  props.checked && addToStore();
-};
 var useCheckbox = (props, slots) => {
   const { formItem: elFormItem } = useFormItem();
   const { model, isGroup, isLimitExceeded } = useCheckboxModel(props);
@@ -28600,7 +28944,8 @@ var useCheckbox = (props, slots) => {
     isChecked,
     checkboxButtonSize,
     checkboxSize,
-    hasOwnLabel
+    hasOwnLabel,
+    actualValue
   } = useCheckboxStatus(props, slots, { model });
   const { isDisabled } = useCheckboxDisabled({ model, isChecked });
   const { inputId, isLabeledByFormItem } = useFormItemInputId(props, {
@@ -28615,7 +28960,46 @@ var useCheckbox = (props, slots) => {
     isDisabled,
     isLabeledByFormItem
   });
-  setStoreValue(props, { model });
+  const setStoreValue = () => {
+    function addToStore() {
+      var _a2, _b;
+      if (isArray(model.value) && !model.value.includes(actualValue.value)) {
+        model.value.push(actualValue.value);
+      } else {
+        model.value = (_b = (_a2 = props.trueValue) != null ? _a2 : props.trueLabel) != null ? _b : true;
+      }
+    }
+    props.checked && addToStore();
+  };
+  setStoreValue();
+  useDeprecated({
+    from: "controls",
+    replacement: "aria-controls",
+    version: "2.8.0",
+    scope: "el-checkbox",
+    ref: "https://element-plus.org/en-US/component/checkbox.html"
+  }, computed(() => !!props.controls));
+  useDeprecated({
+    from: "label act as value",
+    replacement: "value",
+    version: "3.0.0",
+    scope: "el-checkbox",
+    ref: "https://element-plus.org/en-US/component/checkbox.html"
+  }, computed(() => isGroup.value && isPropAbsent(props.value)));
+  useDeprecated({
+    from: "true-label",
+    replacement: "true-value",
+    version: "3.0.0",
+    scope: "el-checkbox",
+    ref: "https://element-plus.org/en-US/component/checkbox.html"
+  }, computed(() => !!props.trueLabel));
+  useDeprecated({
+    from: "false-label",
+    replacement: "false-value",
+    version: "3.0.0",
+    scope: "el-checkbox",
+    ref: "https://element-plus.org/en-US/component/checkbox.html"
+  }, computed(() => !!props.falseLabel));
   return {
     inputId,
     isLabeledByFormItem,
@@ -28626,13 +29010,14 @@ var useCheckbox = (props, slots) => {
     checkboxSize,
     hasOwnLabel,
     model,
+    actualValue,
     handleChange,
     onClickRoot
   };
 };
 
 // node_modules/element-plus/es/components/checkbox/src/checkbox2.mjs
-var _hoisted_112 = ["id", "indeterminate", "name", "tabindex", "disabled", "true-value", "false-value"];
+var _hoisted_113 = ["id", "indeterminate", "name", "tabindex", "disabled", "true-value", "false-value"];
 var _hoisted_28 = ["id", "indeterminate", "disabled", "value", "name", "tabindex"];
 var __default__29 = defineComponent({
   name: "ElCheckbox"
@@ -28653,11 +29038,12 @@ var _sfc_main35 = defineComponent({
       checkboxSize,
       hasOwnLabel,
       model,
+      actualValue,
       handleChange,
       onClickRoot
     } = useCheckbox(props, slots);
     const ns = useNamespace("checkbox");
-    const compKls = computed2(() => {
+    const compKls = computed(() => {
       return [
         ns.b(),
         ns.m(checkboxSize.value),
@@ -28666,7 +29052,7 @@ var _sfc_main35 = defineComponent({
         ns.is("checked", isChecked.value)
       ];
     });
-    const spanKls = computed2(() => {
+    const spanKls = computed(() => {
       return [
         ns.e("input"),
         ns.is("disabled", isDisabled.value),
@@ -28678,65 +29064,68 @@ var _sfc_main35 = defineComponent({
     return (_ctx, _cache) => {
       return openBlock(), createBlock(resolveDynamicComponent(!unref(hasOwnLabel) && unref(isLabeledByFormItem) ? "span" : "label"), {
         class: normalizeClass(unref(compKls)),
-        "aria-controls": _ctx.indeterminate ? _ctx.controls : null,
+        "aria-controls": _ctx.indeterminate ? _ctx.controls || _ctx.ariaControls : null,
         onClick: unref(onClickRoot)
       }, {
-        default: withCtx(() => [
-          createBaseVNode("span", {
-            class: normalizeClass(unref(spanKls))
-          }, [
-            _ctx.trueLabel || _ctx.falseLabel ? withDirectives((openBlock(), createElementBlock("input", {
-              key: 0,
-              id: unref(inputId),
-              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(model) ? model.value = $event : null),
-              class: normalizeClass(unref(ns).e("original")),
-              type: "checkbox",
-              indeterminate: _ctx.indeterminate,
-              name: _ctx.name,
-              tabindex: _ctx.tabindex,
-              disabled: unref(isDisabled),
-              "true-value": _ctx.trueLabel,
-              "false-value": _ctx.falseLabel,
-              onChange: _cache[1] || (_cache[1] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
-              onFocus: _cache[2] || (_cache[2] = ($event) => isFocused.value = true),
-              onBlur: _cache[3] || (_cache[3] = ($event) => isFocused.value = false),
-              onClick: _cache[4] || (_cache[4] = withModifiers(() => {
-              }, ["stop"]))
-            }, null, 42, _hoisted_112)), [
-              [vModelCheckbox, unref(model)]
-            ]) : withDirectives((openBlock(), createElementBlock("input", {
-              key: 1,
-              id: unref(inputId),
-              "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => isRef(model) ? model.value = $event : null),
-              class: normalizeClass(unref(ns).e("original")),
-              type: "checkbox",
-              indeterminate: _ctx.indeterminate,
-              disabled: unref(isDisabled),
-              value: _ctx.label,
-              name: _ctx.name,
-              tabindex: _ctx.tabindex,
-              onChange: _cache[6] || (_cache[6] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
-              onFocus: _cache[7] || (_cache[7] = ($event) => isFocused.value = true),
-              onBlur: _cache[8] || (_cache[8] = ($event) => isFocused.value = false),
-              onClick: _cache[9] || (_cache[9] = withModifiers(() => {
-              }, ["stop"]))
-            }, null, 42, _hoisted_28)), [
-              [vModelCheckbox, unref(model)]
-            ]),
+        default: withCtx(() => {
+          var _a2, _b;
+          return [
             createBaseVNode("span", {
-              class: normalizeClass(unref(ns).e("inner"))
-            }, null, 2)
-          ], 2),
-          unref(hasOwnLabel) ? (openBlock(), createElementBlock("span", {
-            key: 0,
-            class: normalizeClass(unref(ns).e("label"))
-          }, [
-            renderSlot(_ctx.$slots, "default"),
-            !_ctx.$slots.default ? (openBlock(), createElementBlock(Fragment, { key: 0 }, [
-              createTextVNode(toDisplayString(_ctx.label), 1)
-            ], 64)) : createCommentVNode("v-if", true)
-          ], 2)) : createCommentVNode("v-if", true)
-        ]),
+              class: normalizeClass(unref(spanKls))
+            }, [
+              _ctx.trueValue || _ctx.falseValue || _ctx.trueLabel || _ctx.falseLabel ? withDirectives((openBlock(), createElementBlock("input", {
+                key: 0,
+                id: unref(inputId),
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(model) ? model.value = $event : null),
+                class: normalizeClass(unref(ns).e("original")),
+                type: "checkbox",
+                indeterminate: _ctx.indeterminate,
+                name: _ctx.name,
+                tabindex: _ctx.tabindex,
+                disabled: unref(isDisabled),
+                "true-value": (_a2 = _ctx.trueValue) != null ? _a2 : _ctx.trueLabel,
+                "false-value": (_b = _ctx.falseValue) != null ? _b : _ctx.falseLabel,
+                onChange: _cache[1] || (_cache[1] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
+                onFocus: _cache[2] || (_cache[2] = ($event) => isFocused.value = true),
+                onBlur: _cache[3] || (_cache[3] = ($event) => isFocused.value = false),
+                onClick: _cache[4] || (_cache[4] = withModifiers(() => {
+                }, ["stop"]))
+              }, null, 42, _hoisted_113)), [
+                [vModelCheckbox, unref(model)]
+              ]) : withDirectives((openBlock(), createElementBlock("input", {
+                key: 1,
+                id: unref(inputId),
+                "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => isRef(model) ? model.value = $event : null),
+                class: normalizeClass(unref(ns).e("original")),
+                type: "checkbox",
+                indeterminate: _ctx.indeterminate,
+                disabled: unref(isDisabled),
+                value: unref(actualValue),
+                name: _ctx.name,
+                tabindex: _ctx.tabindex,
+                onChange: _cache[6] || (_cache[6] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
+                onFocus: _cache[7] || (_cache[7] = ($event) => isFocused.value = true),
+                onBlur: _cache[8] || (_cache[8] = ($event) => isFocused.value = false),
+                onClick: _cache[9] || (_cache[9] = withModifiers(() => {
+                }, ["stop"]))
+              }, null, 42, _hoisted_28)), [
+                [vModelCheckbox, unref(model)]
+              ]),
+              createBaseVNode("span", {
+                class: normalizeClass(unref(ns).e("inner"))
+              }, null, 2)
+            ], 2),
+            unref(hasOwnLabel) ? (openBlock(), createElementBlock("span", {
+              key: 0,
+              class: normalizeClass(unref(ns).e("label"))
+            }, [
+              renderSlot(_ctx.$slots, "default"),
+              !_ctx.$slots.default ? (openBlock(), createElementBlock(Fragment, { key: 0 }, [
+                createTextVNode(toDisplayString(_ctx.label), 1)
+              ], 64)) : createCommentVNode("v-if", true)
+            ], 2)) : createCommentVNode("v-if", true)
+          ];
+        }),
         _: 3
       }, 8, ["class", "aria-controls", "onClick"]);
     };
@@ -28745,7 +29134,7 @@ var _sfc_main35 = defineComponent({
 var Checkbox = _export_sfc(_sfc_main35, [["__file", "checkbox.vue"]]);
 
 // node_modules/element-plus/es/components/checkbox/src/checkbox-button.mjs
-var _hoisted_113 = ["name", "tabindex", "disabled", "true-value", "false-value"];
+var _hoisted_114 = ["name", "tabindex", "disabled", "true-value", "false-value"];
 var _hoisted_29 = ["name", "tabindex", "disabled", "value"];
 var __default__30 = defineComponent({
   name: "ElCheckboxButton"
@@ -28763,11 +29152,12 @@ var _sfc_main36 = defineComponent({
       isDisabled,
       checkboxButtonSize,
       model,
+      actualValue,
       handleChange
     } = useCheckbox(props, slots);
     const checkboxGroup = inject(checkboxGroupContextKey, void 0);
     const ns = useNamespace("checkbox");
-    const activeStyle = computed2(() => {
+    const activeStyle = computed(() => {
       var _a2, _b, _c, _d;
       const fillValue = (_b = (_a2 = checkboxGroup == null ? void 0 : checkboxGroup.fill) == null ? void 0 : _a2.value) != null ? _b : "";
       return {
@@ -28777,7 +29167,7 @@ var _sfc_main36 = defineComponent({
         boxShadow: fillValue ? `-1px 0 0 0 ${fillValue}` : void 0
       };
     });
-    const labelKls = computed2(() => {
+    const labelKls = computed(() => {
       return [
         ns.b("button"),
         ns.bm("button", checkboxButtonSize.value),
@@ -28787,10 +29177,11 @@ var _sfc_main36 = defineComponent({
       ];
     });
     return (_ctx, _cache) => {
+      var _a2, _b;
       return openBlock(), createElementBlock("label", {
         class: normalizeClass(unref(labelKls))
       }, [
-        _ctx.trueLabel || _ctx.falseLabel ? withDirectives((openBlock(), createElementBlock("input", {
+        _ctx.trueValue || _ctx.falseValue || _ctx.trueLabel || _ctx.falseLabel ? withDirectives((openBlock(), createElementBlock("input", {
           key: 0,
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(model) ? model.value = $event : null),
           class: normalizeClass(unref(ns).be("button", "original")),
@@ -28798,14 +29189,14 @@ var _sfc_main36 = defineComponent({
           name: _ctx.name,
           tabindex: _ctx.tabindex,
           disabled: unref(isDisabled),
-          "true-value": _ctx.trueLabel,
-          "false-value": _ctx.falseLabel,
+          "true-value": (_a2 = _ctx.trueValue) != null ? _a2 : _ctx.trueLabel,
+          "false-value": (_b = _ctx.falseValue) != null ? _b : _ctx.falseLabel,
           onChange: _cache[1] || (_cache[1] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
           onFocus: _cache[2] || (_cache[2] = ($event) => isFocused.value = true),
           onBlur: _cache[3] || (_cache[3] = ($event) => isFocused.value = false),
           onClick: _cache[4] || (_cache[4] = withModifiers(() => {
           }, ["stop"]))
-        }, null, 42, _hoisted_113)), [
+        }, null, 42, _hoisted_114)), [
           [vModelCheckbox, unref(model)]
         ]) : withDirectives((openBlock(), createElementBlock("input", {
           key: 1,
@@ -28815,7 +29206,7 @@ var _sfc_main36 = defineComponent({
           name: _ctx.name,
           tabindex: _ctx.tabindex,
           disabled: unref(isDisabled),
-          value: _ctx.label,
+          value: unref(actualValue),
           onChange: _cache[6] || (_cache[6] = (...args) => unref(handleChange) && unref(handleChange)(...args)),
           onFocus: _cache[7] || (_cache[7] = ($event) => isFocused.value = true),
           onBlur: _cache[8] || (_cache[8] = ($event) => isFocused.value = false),
@@ -28859,7 +29250,8 @@ var checkboxGroupProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var checkboxGroupEmits = {
   [UPDATE_MODEL_EVENT]: (val) => isArray(val),
@@ -28886,7 +29278,7 @@ var _sfc_main37 = defineComponent({
       await nextTick();
       emit("change", value);
     };
-    const modelValue = computed2({
+    const modelValue = computed({
       get() {
         return props.modelValue;
       },
@@ -28907,6 +29299,13 @@ var _sfc_main37 = defineComponent({
       modelValue,
       changeEvent
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-checkbox-group",
+      ref: "https://element-plus.org/en-US/component/checkbox.html"
+    }, computed(() => !!props.label));
     watch(() => props.modelValue, () => {
       if (props.validateEvent) {
         formItem == null ? void 0 : formItem.validate("change").catch((err) => debugWarn(err));
@@ -28918,7 +29317,7 @@ var _sfc_main37 = defineComponent({
         id: unref(groupId),
         class: normalizeClass(unref(ns).b("group")),
         role: "group",
-        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || "checkbox-group" : void 0,
+        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || _ctx.ariaLabel || "checkbox-group" : void 0,
         "aria-labelledby": unref(isLabeledByFormItem) ? (_a2 = unref(formItem)) == null ? void 0 : _a2.labelId : void 0
       }, {
         default: withCtx(() => [
@@ -28941,23 +29340,27 @@ var ElCheckboxGroup = withNoopInstall(CheckboxGroup);
 
 // node_modules/element-plus/es/components/radio/src/radio.mjs
 var radioPropsBase = buildProps({
+  modelValue: {
+    type: [String, Number, Boolean],
+    default: void 0
+  },
   size: useSizeProp,
   disabled: Boolean,
   label: {
     type: [String, Number, Boolean],
-    default: ""
+    default: void 0
+  },
+  value: {
+    type: [String, Number, Boolean],
+    default: void 0
+  },
+  name: {
+    type: String,
+    default: void 0
   }
 });
 var radioProps = buildProps({
   ...radioPropsBase,
-  modelValue: {
-    type: [String, Number, Boolean],
-    default: ""
-  },
-  name: {
-    type: String,
-    default: ""
-  },
   border: Boolean
 });
 var radioEmits = {
@@ -28972,8 +29375,14 @@ var radioGroupKey = Symbol("radioGroupKey");
 var useRadio = (props, emit) => {
   const radioRef = ref();
   const radioGroup = inject(radioGroupKey, void 0);
-  const isGroup = computed2(() => !!radioGroup);
-  const modelValue = computed2({
+  const isGroup = computed(() => !!radioGroup);
+  const actualValue = computed(() => {
+    if (!isPropAbsent(props.value)) {
+      return props.value;
+    }
+    return props.label;
+  });
+  const modelValue = computed({
     get() {
       return isGroup.value ? radioGroup.modelValue : props.modelValue;
     },
@@ -28983,15 +29392,22 @@ var useRadio = (props, emit) => {
       } else {
         emit && emit(UPDATE_MODEL_EVENT, val);
       }
-      radioRef.value.checked = props.modelValue === props.label;
+      radioRef.value.checked = props.modelValue === actualValue.value;
     }
   });
-  const size3 = useFormSize(computed2(() => radioGroup == null ? void 0 : radioGroup.size));
-  const disabled = useFormDisabled(computed2(() => radioGroup == null ? void 0 : radioGroup.disabled));
+  const size3 = useFormSize(computed(() => radioGroup == null ? void 0 : radioGroup.size));
+  const disabled = useFormDisabled(computed(() => radioGroup == null ? void 0 : radioGroup.disabled));
   const focus = ref(false);
-  const tabIndex = computed2(() => {
-    return disabled.value || isGroup.value && modelValue.value !== props.label ? -1 : 0;
+  const tabIndex = computed(() => {
+    return disabled.value || isGroup.value && modelValue.value !== actualValue.value ? -1 : 0;
   });
+  useDeprecated({
+    from: "label act as value",
+    replacement: "value",
+    version: "3.0.0",
+    scope: "el-radio",
+    ref: "https://element-plus.org/en-US/component/radio.html"
+  }, computed(() => isGroup.value && isPropAbsent(props.value)));
   return {
     radioRef,
     isGroup,
@@ -29000,12 +29416,13 @@ var useRadio = (props, emit) => {
     size: size3,
     disabled,
     tabIndex,
-    modelValue
+    modelValue,
+    actualValue
   };
 };
 
 // node_modules/element-plus/es/components/radio/src/radio2.mjs
-var _hoisted_114 = ["value", "name", "disabled"];
+var _hoisted_115 = ["value", "name", "disabled"];
 var __default__32 = defineComponent({
   name: "ElRadio"
 });
@@ -29016,7 +29433,7 @@ var _sfc_main38 = defineComponent({
   setup(__props, { emit }) {
     const props = __props;
     const ns = useNamespace("radio");
-    const { radioRef, radioGroup, focus, size: size3, disabled, modelValue } = useRadio(props, emit);
+    const { radioRef, radioGroup, focus, size: size3, disabled, modelValue, actualValue } = useRadio(props, emit);
     function handleChange() {
       nextTick(() => emit("change", modelValue.value));
     }
@@ -29028,7 +29445,7 @@ var _sfc_main38 = defineComponent({
           unref(ns).is("disabled", unref(disabled)),
           unref(ns).is("focus", unref(focus)),
           unref(ns).is("bordered", _ctx.border),
-          unref(ns).is("checked", unref(modelValue) === _ctx.label),
+          unref(ns).is("checked", unref(modelValue) === unref(actualValue)),
           unref(ns).m(unref(size3))
         ])
       }, [
@@ -29036,7 +29453,7 @@ var _sfc_main38 = defineComponent({
           class: normalizeClass([
             unref(ns).e("input"),
             unref(ns).is("disabled", unref(disabled)),
-            unref(ns).is("checked", unref(modelValue) === _ctx.label)
+            unref(ns).is("checked", unref(modelValue) === unref(actualValue))
           ])
         }, [
           withDirectives(createBaseVNode("input", {
@@ -29044,7 +29461,7 @@ var _sfc_main38 = defineComponent({
             ref: radioRef,
             "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(modelValue) ? modelValue.value = $event : null),
             class: normalizeClass(unref(ns).e("original")),
-            value: _ctx.label,
+            value: unref(actualValue),
             name: _ctx.name || ((_a2 = unref(radioGroup)) == null ? void 0 : _a2.name),
             disabled: unref(disabled),
             type: "radio",
@@ -29053,7 +29470,7 @@ var _sfc_main38 = defineComponent({
             onChange: handleChange,
             onClick: _cache[3] || (_cache[3] = withModifiers(() => {
             }, ["stop"]))
-          }, null, 42, _hoisted_114), [
+          }, null, 42, _hoisted_115), [
             [vModelRadio, unref(modelValue)]
           ]),
           createBaseVNode("span", {
@@ -29077,15 +29494,11 @@ var Radio = _export_sfc(_sfc_main38, [["__file", "radio.vue"]]);
 
 // node_modules/element-plus/es/components/radio/src/radio-button.mjs
 var radioButtonProps = buildProps({
-  ...radioPropsBase,
-  name: {
-    type: String,
-    default: ""
-  }
+  ...radioPropsBase
 });
 
 // node_modules/element-plus/es/components/radio/src/radio-button2.mjs
-var _hoisted_115 = ["value", "name", "disabled"];
+var _hoisted_116 = ["value", "name", "disabled"];
 var __default__33 = defineComponent({
   name: "ElRadioButton"
 });
@@ -29095,8 +29508,8 @@ var _sfc_main39 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("radio");
-    const { radioRef, focus, size: size3, disabled, modelValue, radioGroup } = useRadio(props);
-    const activeStyle = computed2(() => {
+    const { radioRef, focus, size: size3, disabled, modelValue, radioGroup, actualValue } = useRadio(props);
+    const activeStyle = computed(() => {
       return {
         backgroundColor: (radioGroup == null ? void 0 : radioGroup.fill) || "",
         borderColor: (radioGroup == null ? void 0 : radioGroup.fill) || "",
@@ -29109,7 +29522,7 @@ var _sfc_main39 = defineComponent({
       return openBlock(), createElementBlock("label", {
         class: normalizeClass([
           unref(ns).b("button"),
-          unref(ns).is("active", unref(modelValue) === _ctx.label),
+          unref(ns).is("active", unref(modelValue) === unref(actualValue)),
           unref(ns).is("disabled", unref(disabled)),
           unref(ns).is("focus", unref(focus)),
           unref(ns).bm("button", unref(size3))
@@ -29120,7 +29533,7 @@ var _sfc_main39 = defineComponent({
           ref: radioRef,
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(modelValue) ? modelValue.value = $event : null),
           class: normalizeClass(unref(ns).be("button", "original-radio")),
-          value: _ctx.label,
+          value: unref(actualValue),
           type: "radio",
           name: _ctx.name || ((_a2 = unref(radioGroup)) == null ? void 0 : _a2.name),
           disabled: unref(disabled),
@@ -29128,12 +29541,12 @@ var _sfc_main39 = defineComponent({
           onBlur: _cache[2] || (_cache[2] = ($event) => focus.value = false),
           onClick: _cache[3] || (_cache[3] = withModifiers(() => {
           }, ["stop"]))
-        }, null, 42, _hoisted_115), [
+        }, null, 42, _hoisted_116), [
           [vModelRadio, unref(modelValue)]
         ]),
         createBaseVNode("span", {
           class: normalizeClass(unref(ns).be("button", "inner")),
-          style: normalizeStyle(unref(modelValue) === _ctx.label ? unref(activeStyle) : {}),
+          style: normalizeStyle(unref(modelValue) === unref(actualValue) ? unref(activeStyle) : {}),
           onKeydown: _cache[4] || (_cache[4] = withModifiers(() => {
           }, ["stop"]))
         }, [
@@ -29157,7 +29570,7 @@ var radioGroupProps = buildProps({
   disabled: Boolean,
   modelValue: {
     type: [String, Number, Boolean],
-    default: ""
+    default: void 0
   },
   fill: {
     type: String,
@@ -29178,12 +29591,13 @@ var radioGroupProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var radioGroupEmits = radioEmits;
 
 // node_modules/element-plus/es/components/radio/src/radio-group2.mjs
-var _hoisted_116 = ["id", "aria-label", "aria-labelledby"];
+var _hoisted_117 = ["id", "aria-label", "aria-labelledby"];
 var __default__34 = defineComponent({
   name: "ElRadioGroup"
 });
@@ -29211,7 +29625,7 @@ var _sfc_main40 = defineComponent({
         firstLabel.tabIndex = 0;
       }
     });
-    const name = computed2(() => {
+    const name = computed(() => {
       return props.name || radioId.value;
     });
     provide(radioGroupKey, reactive({
@@ -29224,6 +29638,13 @@ var _sfc_main40 = defineComponent({
         formItem == null ? void 0 : formItem.validate("change").catch((err) => debugWarn(err));
       }
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-radio-group",
+      ref: "https://element-plus.org/en-US/component/radio.html"
+    }, computed(() => !!props.label));
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         id: unref(groupId),
@@ -29231,11 +29652,11 @@ var _sfc_main40 = defineComponent({
         ref: radioGroupRef,
         class: normalizeClass(unref(ns).b("group")),
         role: "radiogroup",
-        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || "radio-group" : void 0,
+        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || _ctx.ariaLabel || "radio-group" : void 0,
         "aria-labelledby": unref(isLabeledByFormItem) ? unref(formItem).labelId : void 0
       }, [
         renderSlot(_ctx.$slots, "default")
-      ], 10, _hoisted_116);
+      ], 10, _hoisted_117);
     };
   }
 });
@@ -29293,18 +29714,18 @@ var _sfc_main41 = defineComponent({
   setup(props, { emit }) {
     const panel = inject(CASCADER_PANEL_INJECTION_KEY);
     const ns = useNamespace("cascader-node");
-    const isHoverMenu = computed2(() => panel.isHoverMenu);
-    const multiple = computed2(() => panel.config.multiple);
-    const checkStrictly = computed2(() => panel.config.checkStrictly);
-    const checkedNodeId = computed2(() => {
+    const isHoverMenu = computed(() => panel.isHoverMenu);
+    const multiple = computed(() => panel.config.multiple);
+    const checkStrictly = computed(() => panel.config.checkStrictly);
+    const checkedNodeId = computed(() => {
       var _a2;
       return (_a2 = panel.checkedNodes[0]) == null ? void 0 : _a2.uid;
     });
-    const isDisabled = computed2(() => props.node.isDisabled);
-    const isLeaf2 = computed2(() => props.node.isLeaf);
-    const expandable = computed2(() => checkStrictly.value && !isLeaf2.value || !isDisabled.value);
-    const inExpandingPath = computed2(() => isInPath(panel.expandingNode));
-    const inCheckedPath = computed2(() => checkStrictly.value && panel.checkedNodes.some(isInPath));
+    const isDisabled = computed(() => props.node.isDisabled);
+    const isLeaf2 = computed(() => props.node.isLeaf);
+    const expandable = computed(() => checkStrictly.value && !isLeaf2.value || !isDisabled.value);
+    const inExpandingPath = computed(() => isInPath(panel.expandingNode));
+    const inCheckedPath = computed(() => checkStrictly.value && panel.checkedNodes.some(isInPath));
     const isInPath = (node) => {
       var _a2;
       const { level, uid: uid2 } = props.node;
@@ -29386,7 +29807,7 @@ var _sfc_main41 = defineComponent({
     };
   }
 });
-var _hoisted_117 = ["id", "aria-haspopup", "aria-owns", "aria-expanded", "tabindex"];
+var _hoisted_118 = ["id", "aria-haspopup", "aria-owns", "aria-expanded", "tabindex"];
 var _hoisted_210 = createBaseVNode("span", null, null, -1);
 function _sfc_render2(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_checkbox = resolveComponent("el-checkbox");
@@ -29469,7 +29890,7 @@ function _sfc_render2(_ctx, _cache, $props, $setup, $data, $options) {
         _: 1
       }, 8, ["class"]))
     ], 64)) : createCommentVNode("v-if", true)
-  ], 42, _hoisted_117);
+  ], 42, _hoisted_118);
 }
 var ElCascaderNode = _export_sfc(_sfc_main41, [["render", _sfc_render2], ["__file", "node.vue"]]);
 
@@ -29501,9 +29922,9 @@ var _sfc_main42 = defineComponent({
     let hoverTimer = null;
     const panel = inject(CASCADER_PANEL_INJECTION_KEY);
     const hoverZone = ref(null);
-    const isEmpty3 = computed2(() => !props.nodes.length);
-    const isLoading = computed2(() => !panel.initialLoaded);
-    const menuId = computed2(() => `${id.value}-${props.index}`);
+    const isEmpty3 = computed(() => !props.nodes.length);
+    const isLoading = computed(() => !panel.initialLoaded);
+    const menuId = computed(() => `${id.value}-${props.index}`);
     const handleExpand = (e) => {
       activeNode = e.target;
     };
@@ -29802,7 +30223,7 @@ var DefaultProps = {
   hoverThreshold: 500
 };
 var useCascaderConfig = (props) => {
-  return computed2(() => ({
+  return computed(() => ({
     ...DefaultProps,
     ...props.props
   }));
@@ -29867,8 +30288,8 @@ var _sfc_main43 = defineComponent({
     const menus = ref([]);
     const expandingNode = ref(null);
     const checkedNodes = ref([]);
-    const isHoverMenu = computed2(() => config.value.expandTrigger === "hover");
-    const renderLabelFn = computed2(() => props.renderLabel || slots.default);
+    const isHoverMenu = computed(() => config.value.expandTrigger === "hover");
+    const renderLabelFn = computed(() => props.renderLabel || slots.default);
     const initStore = () => {
       const { options } = props;
       const cfg = config.value;
@@ -29997,11 +30418,7 @@ var _sfc_main43 = defineComponent({
         expandingNode.value = null;
       }
       oldNodes.forEach((node) => node.doCheck(false));
-      if (props.props.multiple) {
-        reactive(newNodes).forEach((node) => node.doCheck(true));
-      } else {
-        newNodes.forEach((node) => node.doCheck(true));
-      }
+      reactive(newNodes).forEach((node) => node.doCheck(true));
       checkedNodes.value = newNodes;
       nextTick(scrollToExpandingNode);
     };
@@ -30156,7 +30573,7 @@ var _sfc_main44 = defineComponent({
     const props = __props;
     const tagSize = useFormSize();
     const ns = useNamespace("tag");
-    const containerKls = computed2(() => {
+    const containerKls = computed(() => {
       const { type: type4, hit, effect, closable, round: round3 } = props;
       return [
         ns.b(),
@@ -30280,11 +30697,12 @@ var cascaderProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  }
+  },
+  ...useEmptyValuesProps
 });
 var cascaderEmits = {
-  [UPDATE_MODEL_EVENT]: (val) => !!val || val === null,
-  [CHANGE_EVENT]: (val) => !!val || val === null,
+  [UPDATE_MODEL_EVENT]: (_2) => true,
+  [CHANGE_EVENT]: (_2) => true,
   focus: (evt) => evt instanceof FocusEvent,
   blur: (evt) => evt instanceof FocusEvent,
   visibleChange: (val) => isBoolean2(val),
@@ -30293,9 +30711,9 @@ var cascaderEmits = {
 };
 
 // node_modules/element-plus/es/components/cascader/src/cascader2.mjs
-var _hoisted_118 = { key: 0 };
+var _hoisted_119 = { key: 0 };
 var _hoisted_211 = ["placeholder", "onKeydown"];
-var _hoisted_33 = ["onClick"];
+var _hoisted_34 = ["onClick"];
 var COMPONENT_NAME11 = "ElCascader";
 var __default__36 = defineComponent({
   name: COMPONENT_NAME11
@@ -30329,6 +30747,7 @@ var _sfc_main45 = defineComponent({
     const nsInput = useNamespace("input");
     const { t } = useLocale();
     const { form, formItem } = useFormItem();
+    const { valueOnClear } = useEmptyValues(props);
     const tooltipRef = ref(null);
     const input = ref(null);
     const tagWrapper = ref(null);
@@ -30344,44 +30763,46 @@ var _sfc_main45 = defineComponent({
     const allPresentTags = ref([]);
     const suggestions = ref([]);
     const isOnComposition = ref(false);
-    const cascaderStyle = computed2(() => {
+    const cascaderStyle = computed(() => {
       return attrs.style;
     });
-    const isDisabled = computed2(() => props.disabled || (form == null ? void 0 : form.disabled));
-    const inputPlaceholder = computed2(() => props.placeholder || t("el.cascader.placeholder"));
-    const currentPlaceholder = computed2(() => searchInputValue.value || presentTags.value.length > 0 || isOnComposition.value ? "" : inputPlaceholder.value);
+    const isDisabled = computed(() => props.disabled || (form == null ? void 0 : form.disabled));
+    const inputPlaceholder = computed(() => props.placeholder || t("el.cascader.placeholder"));
+    const currentPlaceholder = computed(() => searchInputValue.value || presentTags.value.length > 0 || isOnComposition.value ? "" : inputPlaceholder.value);
     const realSize = useFormSize();
-    const tagSize = computed2(() => ["small"].includes(realSize.value) ? "small" : "default");
-    const multiple = computed2(() => !!props.props.multiple);
-    const readonly2 = computed2(() => !props.filterable || multiple.value);
-    const searchKeyword = computed2(() => multiple.value ? searchInputValue.value : inputValue.value);
-    const checkedNodes = computed2(() => {
+    const tagSize = computed(() => ["small"].includes(realSize.value) ? "small" : "default");
+    const multiple = computed(() => !!props.props.multiple);
+    const readonly2 = computed(() => !props.filterable || multiple.value);
+    const searchKeyword = computed(() => multiple.value ? searchInputValue.value : inputValue.value);
+    const checkedNodes = computed(() => {
       var _a2;
       return ((_a2 = cascaderPanelRef.value) == null ? void 0 : _a2.checkedNodes) || [];
     });
-    const clearBtnVisible = computed2(() => {
+    const clearBtnVisible = computed(() => {
       if (!props.clearable || isDisabled.value || filtering.value || !inputHover.value)
         return false;
       return !!checkedNodes.value.length;
     });
-    const presentText = computed2(() => {
+    const presentText = computed(() => {
       const { showAllLevels, separator } = props;
       const nodes = checkedNodes.value;
       return nodes.length ? multiple.value ? "" : nodes[0].calcText(showAllLevels, separator) : "";
     });
-    const checkedValue = computed2({
+    const validateState = computed(() => (formItem == null ? void 0 : formItem.validateState) || "");
+    const checkedValue = computed({
       get() {
         return cloneDeep_default(props.modelValue);
       },
       set(val) {
-        emit(UPDATE_MODEL_EVENT, val);
-        emit(CHANGE_EVENT, val);
+        const value = val || valueOnClear.value;
+        emit(UPDATE_MODEL_EVENT, value);
+        emit(CHANGE_EVENT, value);
         if (props.validateEvent) {
           formItem == null ? void 0 : formItem.validate("change").catch((err) => debugWarn(err));
         }
       }
     });
-    const cascaderKls = computed2(() => {
+    const cascaderKls = computed(() => {
       return [
         nsCascader.b(),
         nsCascader.m(realSize.value),
@@ -30389,17 +30810,17 @@ var _sfc_main45 = defineComponent({
         attrs.class
       ];
     });
-    const cascaderIconKls = computed2(() => {
+    const cascaderIconKls = computed(() => {
       return [
         nsInput.e("icon"),
         "icon-arrow-down",
         nsCascader.is("reverse", popperVisible.value)
       ];
     });
-    const inputClass = computed2(() => {
+    const inputClass = computed(() => {
       return nsCascader.is("focus", popperVisible.value || filterFocus.value);
     });
-    const contentRef = computed2(() => {
+    const contentRef = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = tooltipRef.value) == null ? void 0 : _a2.popperRef) == null ? void 0 : _b.contentRef;
     });
@@ -30756,7 +31177,10 @@ var _sfc_main45 = defineComponent({
               key: 0,
               ref_key: "tagWrapper",
               ref: tagWrapper,
-              class: normalizeClass(unref(nsCascader).e("tags"))
+              class: normalizeClass([
+                unref(nsCascader).e("tags"),
+                unref(nsCascader).is("validate", Boolean(unref(validateState)))
+              ])
             }, [
               (openBlock(true), createElementBlock(Fragment, null, renderList(presentTags.value, (tag) => {
                 return openBlock(), createBlock(unref(ElTag), {
@@ -30769,7 +31193,7 @@ var _sfc_main45 = defineComponent({
                   onClose: ($event) => deleteTag(tag)
                 }, {
                   default: withCtx(() => [
-                    tag.isCollapseTag === false ? (openBlock(), createElementBlock("span", _hoisted_118, toDisplayString(tag.text), 1)) : (openBlock(), createBlock(unref(ElTooltip), {
+                    tag.isCollapseTag === false ? (openBlock(), createElementBlock("span", _hoisted_119, toDisplayString(tag.text), 1)) : (openBlock(), createBlock(unref(ElTooltip), {
                       key: 1,
                       disabled: popperVisible.value || !_ctx.collapseTagsTooltip,
                       "fallback-placements": ["bottom", "top", "right", "left"],
@@ -30877,7 +31301,7 @@ var _sfc_main45 = defineComponent({
                     ]),
                     _: 1
                   })) : createCommentVNode("v-if", true)
-                ], 10, _hoisted_33);
+                ], 10, _hoisted_34);
               }), 128)) : renderSlot(_ctx.$slots, "empty", { key: 1 }, () => [
                 createBaseVNode("li", {
                   class: normalizeClass(unref(nsCascader).e("empty-text"))
@@ -30931,7 +31355,7 @@ var _sfc_main46 = defineComponent({
   setup(__props, { emit }) {
     const props = __props;
     const ns = useNamespace("check-tag");
-    const containerKls = computed2(() => [
+    const containerKls = computed(() => [
       ns.b(),
       ns.is("checked", props.checked),
       ns.m(props.type || "primary")
@@ -30999,11 +31423,11 @@ var _sfc_main47 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("row");
-    const gutter = computed2(() => props.gutter);
+    const gutter = computed(() => props.gutter);
     provide(rowContextKey, {
       gutter
     });
-    const style = computed2(() => {
+    const style = computed(() => {
       const styles = {};
       if (!props.gutter) {
         return styles;
@@ -31011,7 +31435,7 @@ var _sfc_main47 = defineComponent({
       styles.marginRight = styles.marginLeft = `-${props.gutter / 2}px`;
       return styles;
     });
-    const rowKls = computed2(() => [
+    const rowKls = computed(() => [
       ns.b(),
       ns.is(`justify-${props.justify}`, props.justify !== "start"),
       ns.is(`align-${props.align}`, !!props.align)
@@ -31087,16 +31511,16 @@ var _sfc_main48 = defineComponent({
   props: colProps,
   setup(__props) {
     const props = __props;
-    const { gutter } = inject(rowContextKey, { gutter: computed2(() => 0) });
+    const { gutter } = inject(rowContextKey, { gutter: computed(() => 0) });
     const ns = useNamespace("col");
-    const style = computed2(() => {
+    const style = computed(() => {
       const styles = {};
       if (gutter.value) {
         styles.paddingLeft = styles.paddingRight = `${gutter.value / 2}px`;
       }
       return styles;
     });
-    const colKls = computed2(() => {
+    const colKls = computed(() => {
       const classes = [];
       const pos = ["span", "offset", "pull", "push"];
       pos.forEach((prop) => {
@@ -31193,7 +31617,7 @@ var useCollapse = (props, emit) => {
 };
 var useCollapseDOM = () => {
   const ns = useNamespace("collapse");
-  const rootKls = computed2(() => ns.b());
+  const rootKls = computed(() => ns.b());
   return {
     rootKls
   };
@@ -31338,12 +31762,12 @@ var useCollapseItem = (props) => {
   const focusing = ref(false);
   const isClick = ref(false);
   const idInjection = useIdInjection();
-  const id = computed2(() => idInjection.current++);
-  const name = computed2(() => {
+  const id = computed(() => idInjection.current++);
+  const name = computed(() => {
     var _a2;
     return (_a2 = props.name) != null ? _a2 : `${namespace.value}-id-${idInjection.prefix}-${unref(id)}`;
   });
-  const isActive = computed2(() => collapse == null ? void 0 : collapse.activeNames.value.includes(unref(name)));
+  const isActive = computed(() => collapse == null ? void 0 : collapse.activeNames.value.includes(unref(name)));
   const handleFocus = () => {
     setTimeout(() => {
       if (!isClick.value) {
@@ -31374,24 +31798,24 @@ var useCollapseItem = (props) => {
 };
 var useCollapseItemDOM = (props, { focusing, isActive, id }) => {
   const ns = useNamespace("collapse");
-  const rootKls = computed2(() => [
+  const rootKls = computed(() => [
     ns.b("item"),
     ns.is("active", unref(isActive)),
     ns.is("disabled", props.disabled)
   ]);
-  const headKls = computed2(() => [
+  const headKls = computed(() => [
     ns.be("item", "header"),
     ns.is("active", unref(isActive)),
     { focusing: unref(focusing) && !props.disabled }
   ]);
-  const arrowKls = computed2(() => [
+  const arrowKls = computed(() => [
     ns.be("item", "arrow"),
     ns.is("active", unref(isActive))
   ]);
-  const itemWrapperKls = computed2(() => ns.be("item", "wrap"));
-  const itemContentKls = computed2(() => ns.be("item", "content"));
-  const scopedContentId = computed2(() => ns.b(`content-${unref(id)}`));
-  const scopedHeadId = computed2(() => ns.b(`head-${unref(id)}`));
+  const itemWrapperKls = computed(() => ns.be("item", "wrap"));
+  const itemContentKls = computed(() => ns.be("item", "content"));
+  const scopedContentId = computed(() => ns.b(`content-${unref(id)}`));
+  const scopedHeadId = computed(() => ns.b(`head-${unref(id)}`));
   return {
     arrowKls,
     headKls,
@@ -31404,7 +31828,7 @@ var useCollapseItemDOM = (props, { focusing, isActive, id }) => {
 };
 
 // node_modules/element-plus/es/components/collapse/src/collapse-item2.mjs
-var _hoisted_119 = ["id", "aria-expanded", "aria-controls", "aria-describedby", "tabindex"];
+var _hoisted_120 = ["id", "aria-expanded", "aria-controls", "aria-describedby", "tabindex"];
 var _hoisted_212 = ["id", "aria-hidden", "aria-labelledby"];
 var __default__42 = defineComponent({
   name: "ElCollapseItem"
@@ -31462,7 +31886,7 @@ var _sfc_main51 = defineComponent({
             ]),
             _: 1
           }, 8, ["class"])
-        ], 42, _hoisted_119),
+        ], 42, _hoisted_120),
         createVNode(unref(_CollapseTransition), null, {
           default: withCtx(() => [
             withDirectives(createBaseVNode("div", {
@@ -31642,11 +32066,11 @@ var useAlphaSliderDOM = (props, {
   });
   watch(() => props.color.get("alpha"), () => update2());
   watch(() => props.color.value, () => update2());
-  const rootKls = computed2(() => [ns.b(), ns.is("vertical", props.vertical)]);
-  const barKls = computed2(() => ns.e("bar"));
-  const thumbKls = computed2(() => ns.e("thumb"));
-  const barStyle = computed2(() => ({ background: background.value }));
-  const thumbStyle = computed2(() => ({
+  const rootKls = computed(() => [ns.b(), ns.is("vertical", props.vertical)]);
+  const barKls = computed(() => ns.e("bar"));
+  const thumbKls = computed(() => ns.e("thumb"));
+  const barStyle = computed(() => ({ background: background.value }));
+  const thumbStyle = computed(() => ({
     left: addUnit(thumbLeft.value),
     top: addUnit(thumbTop.value)
   }));
@@ -31714,7 +32138,7 @@ var _sfc_main53 = defineComponent({
     const bar = ref();
     const thumbLeft = ref(0);
     const thumbTop = ref(0);
-    const hueValue = computed2(() => {
+    const hueValue = computed(() => {
       return props.color.get("hue");
     });
     watch(() => hueValue.value, () => {
@@ -31820,7 +32244,7 @@ function _sfc_render5(_ctx, _cache, $props, $setup, $data, $options) {
 }
 var HueSlider = _export_sfc(_sfc_main53, [["render", _sfc_render5], ["__file", "hue-slider.vue"]]);
 
-// node_modules/element-plus/es/components/color-picker/src/color-picker.mjs
+// node_modules/element-plus/es/components/color-picker/src/color-picker2.mjs
 var colorPickerProps = buildProps({
   modelValue: String,
   id: String,
@@ -31840,13 +32264,15 @@ var colorPickerProps = buildProps({
     type: [String, Number],
     default: 0
   },
+  teleported: useTooltipContentProps.teleported,
   predefine: {
     type: definePropType(Array)
   },
   validateEvent: {
     type: Boolean,
     default: true
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var colorPickerEmits = {
   [UPDATE_MODEL_EVENT]: (val) => isString(val) || isNil_default(val),
@@ -32153,6 +32579,10 @@ var _sfc_main54 = defineComponent({
     color: {
       type: Object,
       required: true
+    },
+    enableAlpha: {
+      type: Boolean,
+      required: true
     }
   },
   setup(props) {
@@ -32175,7 +32605,7 @@ var _sfc_main54 = defineComponent({
     function parseColors(colors, color) {
       return colors.map((value) => {
         const c2 = new Color();
-        c2.enableAlpha = true;
+        c2.enableAlpha = props.enableAlpha;
         c2.format = "rgba";
         c2.fromString(value);
         c2.selected = c2.value === color.value;
@@ -32189,7 +32619,7 @@ var _sfc_main54 = defineComponent({
     };
   }
 });
-var _hoisted_120 = ["onClick"];
+var _hoisted_121 = ["onClick"];
 function _sfc_render6(_ctx, _cache, $props, $setup, $data, $options) {
   return openBlock(), createElementBlock("div", {
     class: normalizeClass(_ctx.ns.b())
@@ -32210,7 +32640,7 @@ function _sfc_render6(_ctx, _cache, $props, $setup, $data, $options) {
           createBaseVNode("div", {
             style: normalizeStyle({ backgroundColor: item.value })
           }, null, 4)
-        ], 10, _hoisted_120);
+        ], 10, _hoisted_121);
       }), 128))
     ], 2)
   ], 2);
@@ -32232,7 +32662,7 @@ var _sfc_main55 = defineComponent({
     const cursorTop = ref(0);
     const cursorLeft = ref(0);
     const background = ref("hsl(0, 100%, 50%)");
-    const colorValue = computed2(() => {
+    const colorValue = computed(() => {
       const hue = props.color.get("hue");
       const value = props.color.get("value");
       return { hue, value };
@@ -32288,9 +32718,9 @@ var _sfc_main55 = defineComponent({
     };
   }
 });
-var _hoisted_121 = createBaseVNode("div", null, null, -1);
+var _hoisted_122 = createBaseVNode("div", null, null, -1);
 var _hoisted_213 = [
-  _hoisted_121
+  _hoisted_122
 ];
 function _sfc_render7(_ctx, _cache, $props, $setup, $data, $options) {
   return openBlock(), createElementBlock("div", {
@@ -32316,8 +32746,8 @@ function _sfc_render7(_ctx, _cache, $props, $setup, $data, $options) {
 }
 var SvPanel = _export_sfc(_sfc_main55, [["render", _sfc_render7], ["__file", "sv-panel.vue"]]);
 
-// node_modules/element-plus/es/components/color-picker/src/color-picker2.mjs
-var _hoisted_122 = ["onKeydown"];
+// node_modules/element-plus/es/components/color-picker/src/color-picker.mjs
+var _hoisted_123 = ["onKeydown"];
 var _hoisted_214 = ["id", "aria-label", "aria-labelledby", "aria-description", "aria-disabled", "tabindex"];
 var __default__44 = defineComponent({
   name: "ElColorPicker"
@@ -32370,22 +32800,29 @@ var _sfc_main56 = defineComponent({
     const showPicker = ref(false);
     const showPanelColor = ref(false);
     const customInput = ref("");
-    const displayedColor = computed2(() => {
+    const displayedColor = computed(() => {
       if (!props.modelValue && !showPanelColor.value) {
         return "transparent";
       }
       return displayedRgb(color, props.showAlpha);
     });
-    const currentColor = computed2(() => {
+    const currentColor = computed(() => {
       return !props.modelValue && !showPanelColor.value ? "" : color.value;
     });
-    const buttonAriaLabel = computed2(() => {
-      return !isLabeledByFormItem.value ? props.label || t("el.colorpicker.defaultLabel") : void 0;
+    const buttonAriaLabel = computed(() => {
+      return !isLabeledByFormItem.value ? props.label || props.ariaLabel || t("el.colorpicker.defaultLabel") : void 0;
     });
-    const buttonAriaLabelledby = computed2(() => {
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-color-picker",
+      ref: "https://element-plus.org/en-US/component/color-picker.html"
+    }, computed(() => !!props.label));
+    const buttonAriaLabelledby = computed(() => {
       return isLabeledByFormItem.value ? formItem == null ? void 0 : formItem.labelId : void 0;
     });
-    const btnKls = computed2(() => {
+    const btnKls = computed(() => {
       return [
         ns.b("picker"),
         ns.is("disabled", colorDisabled.value),
@@ -32550,6 +32987,7 @@ var _sfc_main56 = defineComponent({
         "stop-popper-mouse-event": false,
         effect: "light",
         trigger: "click",
+        teleported: _ctx.teleported,
         transition: `${unref(ns).namespace.value}-zoom-in-top`,
         persistent: "",
         onHide: _cache[2] || (_cache[2] = ($event) => setShowPicker(false))
@@ -32583,9 +33021,10 @@ var _sfc_main56 = defineComponent({
             _ctx.predefine ? (openBlock(), createBlock(Predefine, {
               key: 1,
               ref: "predefine",
+              "enable-alpha": _ctx.showAlpha,
               color: unref(color),
               colors: _ctx.predefine
-            }, null, 8, ["color", "colors"])) : createCommentVNode("v-if", true),
+            }, null, 8, ["enable-alpha", "color", "colors"])) : createCommentVNode("v-if", true),
             createBaseVNode("div", {
               class: normalizeClass(unref(ns).be("dropdown", "btns"))
             }, [
@@ -32626,16 +33065,17 @@ var _sfc_main56 = defineComponent({
                 _: 1
               }, 8, ["class"])
             ], 2)
-          ], 40, _hoisted_122)), [
+          ], 40, _hoisted_123)), [
             [unref(ClickOutside), handleClickOutside]
           ])
         ]),
         default: withCtx(() => [
-          createBaseVNode("div", {
+          createBaseVNode("div", mergeProps({
             id: unref(buttonId),
             ref_key: "triggerRef",
-            ref: triggerRef,
-            class: normalizeClass(unref(btnKls)),
+            ref: triggerRef
+          }, _ctx.$attrs, {
+            class: unref(btnKls),
             role: "button",
             "aria-label": unref(buttonAriaLabel),
             "aria-labelledby": unref(buttonAriaLabelledby),
@@ -32645,7 +33085,7 @@ var _sfc_main56 = defineComponent({
             onKeydown: handleKeyDown,
             onFocus: handleFocus,
             onBlur: _cache[1] || (_cache[1] = (...args) => unref(handleBlur) && unref(handleBlur)(...args))
-          }, [
+          }), [
             unref(colorDisabled) ? (openBlock(), createElementBlock("div", {
               key: 0,
               class: normalizeClass(unref(ns).be("picker", "mask"))
@@ -32686,10 +33126,10 @@ var _sfc_main56 = defineComponent({
                 ], 6)
               ], 2)
             ], 2)
-          ], 42, _hoisted_214)
+          ], 16, _hoisted_214)
         ]),
         _: 1
-      }, 8, ["visible", "popper-class", "transition"]);
+      }, 8, ["visible", "popper-class", "teleported", "transition"]);
     };
   }
 });
@@ -32713,7 +33153,7 @@ var _sfc_main57 = defineComponent({
     const props = __props;
     const slots = useSlots();
     const ns = useNamespace("container");
-    const isVertical = computed2(() => {
+    const isVertical = computed(() => {
       if (props.direction === "vertical") {
         return true;
       } else if (props.direction === "horizontal") {
@@ -32755,7 +33195,7 @@ var _sfc_main58 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("aside");
-    const style = computed2(() => props.width ? ns.cssVarBlock({ width: props.width }) : {});
+    const style = computed(() => props.width ? ns.cssVarBlock({ width: props.width }) : {});
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("aside", {
         class: normalizeClass(unref(ns).b()),
@@ -32783,7 +33223,7 @@ var _sfc_main59 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("footer");
-    const style = computed2(() => props.height ? ns.cssVarBlock({ height: props.height }) : {});
+    const style = computed(() => props.height ? ns.cssVarBlock({ height: props.height }) : {});
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("footer", {
         class: normalizeClass(unref(ns).b()),
@@ -32811,7 +33251,7 @@ var _sfc_main60 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("header");
-    const style = computed2(() => {
+    const style = computed(() => {
       return props.height ? ns.cssVarBlock({
         height: props.height
       }) : {};
@@ -32886,7 +33326,15 @@ var datePickerProps = buildProps({
 var import_dayjs11 = __toESM(require_dayjs_min(), 1);
 
 // node_modules/element-plus/es/components/date-picker/src/props/shared.mjs
-var selectionModes = ["date", "dates", "year", "month", "week", "range"];
+var selectionModes = [
+  "date",
+  "dates",
+  "year",
+  "years",
+  "month",
+  "week",
+  "range"
+];
 var datePickerSharedProps = buildProps({
   disabledDate: {
     type: definePropType(Function)
@@ -33051,22 +33499,22 @@ var useBasicDateTable = (props, emit) => {
   let focusWithClick = false;
   const firstDayOfWeek = props.date.$locale().weekStart || 7;
   const WEEKS_CONSTANT = props.date.locale("en").localeData().weekdaysShort().map((_2) => _2.toLowerCase());
-  const offsetDay = computed2(() => {
+  const offsetDay = computed(() => {
     return firstDayOfWeek > 3 ? 7 - firstDayOfWeek : -firstDayOfWeek;
   });
-  const startDate = computed2(() => {
+  const startDate = computed(() => {
     const startDayOfMonth = props.date.startOf("month");
     return startDayOfMonth.subtract(startDayOfMonth.day() || 7, "day");
   });
-  const WEEKS = computed2(() => {
+  const WEEKS = computed(() => {
     return WEEKS_CONSTANT.concat(WEEKS_CONSTANT).slice(firstDayOfWeek, firstDayOfWeek + 7);
   });
-  const hasCurrent = computed2(() => {
+  const hasCurrent = computed(() => {
     return flatten_default(unref(rows)).some((row) => {
       return row.isCurrent;
     });
   });
-  const days = computed2(() => {
+  const days = computed(() => {
     const startOfMonth = props.date.startOf("month");
     const startOfMonthDay = startOfMonth.day() || 7;
     const dateCountOfMonth = startOfMonth.daysInMonth();
@@ -33077,7 +33525,7 @@ var useBasicDateTable = (props, emit) => {
       dateCountOfLastMonth
     };
   });
-  const selectedDate = computed2(() => {
+  const selectedDate = computed(() => {
     return props.selectionMode === "dates" ? castArray2(props.parsedValue) : [];
   });
   const setDateText = (cell, { count, rowIndex, columnIndex }) => {
@@ -33108,7 +33556,7 @@ var useBasicDateTable = (props, emit) => {
     const _selectedDate = unref(selectedDate);
     const shouldIncrement = setDateText(cell, { count, rowIndex, columnIndex });
     const cellDate = cell.dayjs.toDate();
-    cell.selected = _selectedDate.find((d2) => d2.valueOf() === cell.dayjs.valueOf());
+    cell.selected = _selectedDate.find((d2) => d2.isSame(cell.dayjs, "day"));
     cell.isSelected = !!cell.selected;
     cell.isCurrent = isCurrent(cell);
     cell.disabled = disabledDate2 == null ? void 0 : disabledDate2(cellDate);
@@ -33125,7 +33573,7 @@ var useBasicDateTable = (props, emit) => {
       row[end2].end = isActive;
     }
   };
-  const rows = computed2(() => {
+  const rows = computed(() => {
     const { minDate, maxDate, rangeState, showWeekNumber } = props;
     const offset3 = unref(offsetDay);
     const rows_ = unref(tableRows);
@@ -33325,12 +33773,12 @@ var useBasicDateTableDOM = (props, {
 }) => {
   const ns = useNamespace("date-table");
   const { t } = useLocale();
-  const tableKls = computed2(() => [
+  const tableKls = computed(() => [
     ns.b(),
     { "is-week-mode": props.selectionMode === "week" }
   ]);
-  const tableLabel = computed2(() => t("el.datepicker.dateTablePrompt"));
-  const weekLabel = computed2(() => t("el.datepicker.week"));
+  const tableLabel = computed(() => t("el.datepicker.dateTablePrompt"));
+  const weekLabel = computed(() => t("el.datepicker.week"));
   const getCellClasses = (cell) => {
     const classes = [];
     if (isNormalDay(cell.type) && !cell.disabled) {
@@ -33410,13 +33858,13 @@ var ElDatePickerCell = defineComponent({
 });
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/basic-date-table.mjs
-var _hoisted_123 = ["aria-label"];
+var _hoisted_124 = ["aria-label"];
 var _hoisted_215 = {
   key: 0,
   scope: "col"
 };
-var _hoisted_34 = ["aria-label"];
-var _hoisted_4 = ["aria-current", "aria-selected", "tabindex"];
+var _hoisted_35 = ["aria-label"];
+var _hoisted_42 = ["aria-current", "aria-selected", "tabindex"];
 var _sfc_main62 = defineComponent({
   __name: "basic-date-table",
   props: basicDateTableProps,
@@ -33468,7 +33916,7 @@ var _sfc_main62 = defineComponent({
                 key,
                 "aria-label": unref(t)("el.datepicker.weeksFull." + week),
                 scope: "col"
-              }, toDisplayString(unref(t)("el.datepicker.weeks." + week)), 9, _hoisted_34);
+              }, toDisplayString(unref(t)("el.datepicker.weeks." + week)), 9, _hoisted_35);
             }), 128))
           ]),
           (openBlock(true), createElementBlock(Fragment, null, renderList(unref(rows), (row, rowKey2) => {
@@ -33488,12 +33936,12 @@ var _sfc_main62 = defineComponent({
                   onFocus: _cache[0] || (_cache[0] = (...args) => unref(handleFocus) && unref(handleFocus)(...args))
                 }, [
                   createVNode(unref(ElDatePickerCell), { cell }, null, 8, ["cell"])
-                ], 42, _hoisted_4);
+                ], 42, _hoisted_42);
               }), 128))
             ], 2);
           }), 128))
         ], 512)
-      ], 42, _hoisted_123);
+      ], 42, _hoisted_124);
     };
   }
 });
@@ -33509,9 +33957,9 @@ var basicMonthTableProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/basic-month-table.mjs
-var _hoisted_124 = ["aria-label"];
+var _hoisted_125 = ["aria-label"];
 var _hoisted_216 = ["aria-selected", "aria-label", "tabindex", "onKeydown"];
-var _hoisted_35 = { class: "cell" };
+var _hoisted_36 = { class: "cell" };
 var _sfc_main63 = defineComponent({
   __name: "basic-month-table",
   props: basicMonthTableProps,
@@ -33535,7 +33983,7 @@ var _sfc_main63 = defineComponent({
     ]);
     const lastRow = ref();
     const lastColumn = ref();
-    const rows = computed2(() => {
+    const rows = computed(() => {
       var _a2, _b;
       const rows2 = tableRows.value;
       const now2 = (0, import_dayjs9.default)().locale(lang.value).startOf("month");
@@ -33694,14 +34142,14 @@ var _sfc_main63 = defineComponent({
                   ]
                 }, [
                   createBaseVNode("div", null, [
-                    createBaseVNode("span", _hoisted_35, toDisplayString(unref(t)("el.datepicker.months." + months.value[cell.text])), 1)
+                    createBaseVNode("span", _hoisted_36, toDisplayString(unref(t)("el.datepicker.months." + months.value[cell.text])), 1)
                   ])
                 ], 42, _hoisted_216);
               }), 128))
             ]);
           }), 128))
         ], 512)
-      ], 42, _hoisted_124);
+      ], 42, _hoisted_125);
     };
   }
 });
@@ -33715,14 +34163,15 @@ var { date: date4, disabledDate, parsedValue } = datePickerSharedProps;
 var basicYearTableProps = buildProps({
   date: date4,
   disabledDate,
-  parsedValue
+  parsedValue,
+  selectionMode: selectionModeWithDefault("year")
 });
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/basic-year-table.mjs
-var _hoisted_125 = ["aria-label"];
+var _hoisted_126 = ["aria-label"];
 var _hoisted_217 = ["aria-selected", "tabindex", "onKeydown"];
-var _hoisted_36 = { class: "cell" };
-var _hoisted_42 = { key: 1 };
+var _hoisted_37 = { class: "cell" };
+var _hoisted_43 = { key: 1 };
 var _sfc_main64 = defineComponent({
   __name: "basic-year-table",
   props: basicYearTableProps,
@@ -33739,7 +34188,7 @@ var _sfc_main64 = defineComponent({
     const { t, lang } = useLocale();
     const tbodyRef = ref();
     const currentCellRef = ref();
-    const startYear = computed2(() => {
+    const startYear = computed(() => {
       return Math.floor(props.date.year() / 10) * 10;
     });
     const focus = () => {
@@ -33755,7 +34204,7 @@ var _sfc_main64 = defineComponent({
       return kls;
     };
     const isSelectedCell = (year) => {
-      return year === startYear.value && props.date.year() < startYear.value && props.date.year() > startYear.value + 9 || castArray2(props.date).findIndex((date5) => date5.year() === year) >= 0;
+      return year === startYear.value && props.date.year() < startYear.value && props.date.year() > startYear.value + 9 || castArray2(props.date).findIndex((date5) => date5.year() === year) >= 0 || castArray2(props.parsedValue).findIndex((date5) => (date5 == null ? void 0 : date5.year()) === year) >= 0;
     };
     const handleYearTableClick = (event) => {
       const clickTarget = event.target;
@@ -33764,7 +34213,16 @@ var _sfc_main64 = defineComponent({
         if (hasClass(target2, "disabled"))
           return;
         const year = target2.textContent || target2.innerText;
-        emit("pick", Number(year));
+        if (props.selectionMode === "years") {
+          if (event.type === "keydown") {
+            emit("pick", castArray2(props.parsedValue), false);
+            return;
+          }
+          const newValue = hasClass(target2, "current") ? castArray2(props.parsedValue).filter((d2) => (d2 == null ? void 0 : d2.year()) !== Number(year)) : castArray2(props.parsedValue).concat([(0, import_dayjs10.default)(year)]);
+          emit("pick", newValue);
+        } else {
+          emit("pick", Number(year));
+        }
       }
     };
     watch(() => props.date, async () => {
@@ -33806,25 +34264,27 @@ var _sfc_main64 = defineComponent({
                       withKeys(withModifiers(handleYearTableClick, ["prevent", "stop"]), ["enter"])
                     ]
                   }, [
-                    createBaseVNode("span", _hoisted_36, toDisplayString(unref(startYear) + i * 4 + j), 1)
-                  ], 42, _hoisted_217)) : (openBlock(), createElementBlock("td", _hoisted_42))
+                    createBaseVNode("div", null, [
+                      createBaseVNode("span", _hoisted_37, toDisplayString(unref(startYear) + i * 4 + j), 1)
+                    ])
+                  ], 42, _hoisted_217)) : (openBlock(), createElementBlock("td", _hoisted_43))
                 ], 64);
               }), 64))
             ]);
           }), 64))
         ], 512)
-      ], 10, _hoisted_125);
+      ], 10, _hoisted_126);
     };
   }
 });
 var YearTable = _export_sfc(_sfc_main64, [["__file", "basic-year-table.vue"]]);
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/panel-date-pick.mjs
-var _hoisted_126 = ["onClick"];
+var _hoisted_127 = ["onClick"];
 var _hoisted_218 = ["aria-label"];
-var _hoisted_37 = ["aria-label"];
-var _hoisted_43 = ["aria-label"];
-var _hoisted_5 = ["aria-label"];
+var _hoisted_38 = ["aria-label"];
+var _hoisted_44 = ["aria-label"];
+var _hoisted_52 = ["aria-label"];
 var _sfc_main65 = defineComponent({
   __name: "panel-date-pick",
   props: panelDatePickProps,
@@ -33845,13 +34305,13 @@ var _sfc_main65 = defineComponent({
     const innerDate = ref((0, import_dayjs11.default)().locale(lang.value));
     const isChangeToNow = ref(false);
     let isShortcut = false;
-    const defaultTimeD = computed2(() => {
+    const defaultTimeD = computed(() => {
       return (0, import_dayjs11.default)(defaultTime).locale(lang.value);
     });
-    const month = computed2(() => {
+    const month = computed(() => {
       return innerDate.value.month();
     });
-    const year = computed2(() => {
+    const year = computed(() => {
       return innerDate.value.year();
     });
     const selectableRange = ref([]);
@@ -33913,7 +34373,7 @@ var _sfc_main65 = defineComponent({
       handlePanelChange("year");
     };
     const currentView = ref("date");
-    const yearLabel = computed2(() => {
+    const yearLabel = computed(() => {
       const yearTranslation = t("el.datepicker.year");
       if (currentView.value === "year") {
         const startYear = Math.floor(year.value / 10) * 10;
@@ -33939,16 +34399,16 @@ var _sfc_main65 = defineComponent({
         });
       }
     };
-    const selectionMode = computed2(() => {
+    const selectionMode = computed(() => {
       const { type: type4 } = props;
-      if (["week", "month", "year", "dates"].includes(type4))
+      if (["week", "month", "year", "years", "dates"].includes(type4))
         return type4;
       return "date";
     });
-    const keyboardMode = computed2(() => {
+    const keyboardMode = computed(() => {
       return selectionMode.value === "date" ? currentView.value : selectionMode.value;
     });
-    const hasShortcuts = computed2(() => !!shortcuts.length);
+    const hasShortcuts = computed(() => !!shortcuts.length);
     const handleMonthPick = async (month2) => {
       innerDate.value = innerDate.value.startOf("month").month(month2);
       if (selectionMode.value === "month") {
@@ -33963,10 +34423,12 @@ var _sfc_main65 = defineComponent({
       }
       handlePanelChange("month");
     };
-    const handleYearPick = async (year2) => {
+    const handleYearPick = async (year2, keepOpen) => {
       if (selectionMode.value === "year") {
         innerDate.value = innerDate.value.startOf("year").year(year2);
         emit(innerDate.value, false);
+      } else if (selectionMode.value === "years") {
+        emit(year2, keepOpen != null ? keepOpen : true);
       } else {
         innerDate.value = innerDate.value.year(year2);
         currentView.value = "month";
@@ -33983,11 +34445,15 @@ var _sfc_main65 = defineComponent({
       await nextTick();
       handleFocusPicker();
     };
-    const showTime = computed2(() => props.type === "datetime" || props.type === "datetimerange");
-    const footerVisible = computed2(() => {
-      return showTime.value || selectionMode.value === "dates";
+    const showTime = computed(() => props.type === "datetime" || props.type === "datetimerange");
+    const footerVisible = computed(() => {
+      const showDateFooter = showTime.value || selectionMode.value === "dates";
+      const showYearFooter = selectionMode.value === "years";
+      const isDateView = currentView.value === "date";
+      const isYearView = currentView.value === "year";
+      return showDateFooter && isDateView || showYearFooter && isYearView;
     });
-    const disabledConfirm = computed2(() => {
+    const disabledConfirm = computed(() => {
       if (!disabledDate2)
         return false;
       if (!props.parsedValue)
@@ -33998,7 +34464,7 @@ var _sfc_main65 = defineComponent({
       return disabledDate2(props.parsedValue.toDate());
     });
     const onConfirm = () => {
-      if (selectionMode.value === "dates") {
+      if (selectionMode.value === "dates" || selectionMode.value === "years") {
         emit(props.parsedValue);
       } else {
         let result2 = props.parsedValue;
@@ -34011,7 +34477,7 @@ var _sfc_main65 = defineComponent({
         emit(result2);
       }
     };
-    const disabledNow = computed2(() => {
+    const disabledNow = computed(() => {
       if (!disabledDate2)
         return false;
       return disabledDate2((0, import_dayjs11.default)().locale(lang.value).toDate());
@@ -34025,20 +34491,20 @@ var _sfc_main65 = defineComponent({
         emit(innerDate.value);
       }
     };
-    const timeFormat = computed2(() => {
+    const timeFormat = computed(() => {
       return props.timeFormat || extractTimeFormat(props.format);
     });
-    const dateFormat = computed2(() => {
+    const dateFormat = computed(() => {
       return props.dateFormat || extractDateFormat(props.format);
     });
-    const visibleTime = computed2(() => {
+    const visibleTime = computed(() => {
       if (userInputTime.value)
         return userInputTime.value;
       if (!props.parsedValue && !defaultValue.value)
         return;
       return (props.parsedValue || innerDate.value).format(timeFormat.value);
     });
-    const visibleDate = computed2(() => {
+    const visibleDate = computed(() => {
       if (userInputDate.value)
         return userInputDate.value;
       if (!props.parsedValue && !defaultValue.value)
@@ -34097,10 +34563,7 @@ var _sfc_main65 = defineComponent({
       return import_dayjs11.default.isDayjs(date5) && date5.isValid() && (disabledDate2 ? !disabledDate2(date5.toDate()) : true);
     };
     const formatToString = (value) => {
-      if (selectionMode.value === "dates") {
-        return value.map((_2) => _2.format(props.format));
-      }
-      return value.format(props.format);
+      return isArray(value) ? value.map((_2) => _2.format(props.format)) : value.format(props.format);
     };
     const parseUserInput = (value) => {
       return (0, import_dayjs11.default)(value, props.format).locale(lang.value);
@@ -34203,6 +34666,9 @@ var _sfc_main65 = defineComponent({
       if (["month", "year"].includes(val)) {
         currentView.value = val;
         return;
+      } else if (val === "years") {
+        currentView.value = "year";
+        return;
       }
       currentView.value = "date";
     }, { immediate: true });
@@ -34216,7 +34682,7 @@ var _sfc_main65 = defineComponent({
     }, { immediate: true });
     watch(() => props.parsedValue, (val) => {
       if (val) {
-        if (selectionMode.value === "dates")
+        if (selectionMode.value === "dates" || selectionMode.value === "years")
           return;
         if (Array.isArray(val))
           return;
@@ -34256,7 +34722,7 @@ var _sfc_main65 = defineComponent({
                 type: "button",
                 class: normalizeClass(unref(ppNs).e("shortcut")),
                 onClick: ($event) => handleShortcutClick(shortcut)
-              }, toDisplayString(shortcut.text), 11, _hoisted_126);
+              }, toDisplayString(shortcut.text), 11, _hoisted_127);
             }), 128))
           ], 2)) : createCommentVNode("v-if", true),
           createBaseVNode("div", {
@@ -34334,7 +34800,7 @@ var _sfc_main65 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_37), [
+                ], 10, _hoisted_38), [
                   [vShow, currentView.value === "date"]
                 ])
               ], 2),
@@ -34374,7 +34840,7 @@ var _sfc_main65 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_43), [
+                ], 10, _hoisted_44), [
                   [vShow, currentView.value === "date"]
                 ]),
                 createBaseVNode("button", {
@@ -34389,7 +34855,7 @@ var _sfc_main65 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_5)
+                ], 10, _hoisted_52)
               ], 2)
             ], 2), [
               [vShow, currentView.value !== "time"]
@@ -34413,11 +34879,12 @@ var _sfc_main65 = defineComponent({
                 key: 1,
                 ref_key: "currentViewRef",
                 ref: currentViewRef,
+                "selection-mode": unref(selectionMode),
                 date: innerDate.value,
                 "disabled-date": unref(disabledDate2),
                 "parsed-value": _ctx.parsedValue,
                 onPick: handleYearPick
-              }, null, 8, ["date", "disabled-date", "parsed-value"])) : createCommentVNode("v-if", true),
+              }, null, 8, ["selection-mode", "date", "disabled-date", "parsed-value"])) : createCommentVNode("v-if", true),
               currentView.value === "month" ? (openBlock(), createBlock(MonthTable, {
                 key: 2,
                 ref_key: "currentViewRef",
@@ -34445,7 +34912,7 @@ var _sfc_main65 = defineComponent({
             ]),
             _: 1
           }, 8, ["class", "disabled"]), [
-            [vShow, unref(selectionMode) !== "dates"]
+            [vShow, unref(selectionMode) !== "dates" && unref(selectionMode) !== "years"]
           ]),
           createVNode(unref(ElButton), {
             plain: "",
@@ -34460,7 +34927,7 @@ var _sfc_main65 = defineComponent({
             _: 1
           }, 8, ["class", "disabled"])
         ], 2), [
-          [vShow, unref(footerVisible) && currentView.value === "date"]
+          [vShow, unref(footerVisible)]
         ])
       ], 2);
     };
@@ -34581,14 +35048,14 @@ var useRangePicker = (props, {
 };
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/panel-date-range.mjs
-var _hoisted_127 = ["onClick"];
+var _hoisted_128 = ["onClick"];
 var _hoisted_219 = ["aria-label"];
-var _hoisted_38 = ["aria-label"];
-var _hoisted_44 = ["disabled", "aria-label"];
-var _hoisted_52 = ["disabled", "aria-label"];
-var _hoisted_6 = ["disabled", "aria-label"];
-var _hoisted_7 = ["disabled", "aria-label"];
-var _hoisted_8 = ["aria-label"];
+var _hoisted_39 = ["aria-label"];
+var _hoisted_45 = ["disabled", "aria-label"];
+var _hoisted_53 = ["disabled", "aria-label"];
+var _hoisted_62 = ["disabled", "aria-label"];
+var _hoisted_72 = ["disabled", "aria-label"];
+var _hoisted_82 = ["aria-label"];
 var _hoisted_9 = ["aria-label"];
 var unit = "month";
 var _sfc_main66 = defineComponent({
@@ -34603,7 +35070,8 @@ var _sfc_main66 = defineComponent({
   setup(__props, { emit }) {
     const props = __props;
     const pickerBase = inject("EP_PICKER_BASE");
-    const { disabledDate: disabledDate2, cellClassName, format: format2, defaultTime, clearable } = pickerBase.props;
+    const { disabledDate: disabledDate2, cellClassName, defaultTime, clearable } = pickerBase.props;
+    const format2 = toRef(pickerBase.props, "format");
     const shortcuts = toRef(pickerBase.props, "shortcuts");
     const defaultValue = toRef(pickerBase.props, "defaultValue");
     const { lang } = useLocale();
@@ -34635,58 +35103,58 @@ var _sfc_main66 = defineComponent({
       min: null,
       max: null
     });
-    const leftLabel = computed2(() => {
+    const leftLabel = computed(() => {
       return `${leftDate.value.year()} ${t("el.datepicker.year")} ${t(`el.datepicker.month${leftDate.value.month() + 1}`)}`;
     });
-    const rightLabel = computed2(() => {
+    const rightLabel = computed(() => {
       return `${rightDate.value.year()} ${t("el.datepicker.year")} ${t(`el.datepicker.month${rightDate.value.month() + 1}`)}`;
     });
-    const leftYear = computed2(() => {
+    const leftYear = computed(() => {
       return leftDate.value.year();
     });
-    const leftMonth = computed2(() => {
+    const leftMonth = computed(() => {
       return leftDate.value.month();
     });
-    const rightYear = computed2(() => {
+    const rightYear = computed(() => {
       return rightDate.value.year();
     });
-    const rightMonth = computed2(() => {
+    const rightMonth = computed(() => {
       return rightDate.value.month();
     });
-    const hasShortcuts = computed2(() => !!shortcuts.value.length);
-    const minVisibleDate = computed2(() => {
+    const hasShortcuts = computed(() => !!shortcuts.value.length);
+    const minVisibleDate = computed(() => {
       if (dateUserInput.value.min !== null)
         return dateUserInput.value.min;
       if (minDate.value)
         return minDate.value.format(dateFormat.value);
       return "";
     });
-    const maxVisibleDate = computed2(() => {
+    const maxVisibleDate = computed(() => {
       if (dateUserInput.value.max !== null)
         return dateUserInput.value.max;
       if (maxDate.value || minDate.value)
         return (maxDate.value || minDate.value).format(dateFormat.value);
       return "";
     });
-    const minVisibleTime = computed2(() => {
+    const minVisibleTime = computed(() => {
       if (timeUserInput.value.min !== null)
         return timeUserInput.value.min;
       if (minDate.value)
         return minDate.value.format(timeFormat.value);
       return "";
     });
-    const maxVisibleTime = computed2(() => {
+    const maxVisibleTime = computed(() => {
       if (timeUserInput.value.max !== null)
         return timeUserInput.value.max;
       if (maxDate.value || minDate.value)
         return (maxDate.value || minDate.value).format(timeFormat.value);
       return "";
     });
-    const timeFormat = computed2(() => {
-      return props.timeFormat || extractTimeFormat(format2);
+    const timeFormat = computed(() => {
+      return props.timeFormat || extractTimeFormat(format2.value);
     });
-    const dateFormat = computed2(() => {
-      return props.dateFormat || extractDateFormat(format2);
+    const dateFormat = computed(() => {
+      return props.dateFormat || extractDateFormat(format2.value);
     });
     const isValidValue3 = (date5) => {
       return isValidRange2(date5) && (disabledDate2 ? !disabledDate2(date5[0].toDate()) && !disabledDate2(date5[1].toDate()) : true);
@@ -34742,18 +35210,18 @@ var _sfc_main66 = defineComponent({
     const handlePanelChange = (mode) => {
       emit("panel-change", [leftDate.value.toDate(), rightDate.value.toDate()], mode);
     };
-    const enableMonthArrow = computed2(() => {
+    const enableMonthArrow = computed(() => {
       const nextMonth = (leftMonth.value + 1) % 12;
       const yearOffset = leftMonth.value + 1 >= 12 ? 1 : 0;
       return props.unlinkPanels && new Date(leftYear.value + yearOffset, nextMonth) < new Date(rightYear.value, rightMonth.value);
     });
-    const enableYearArrow = computed2(() => {
+    const enableYearArrow = computed(() => {
       return props.unlinkPanels && rightYear.value * 12 + rightMonth.value - (leftYear.value * 12 + leftMonth.value + 1) >= 12;
     });
-    const btnDisabled = computed2(() => {
+    const btnDisabled = computed(() => {
       return !(minDate.value && maxDate.value && !rangeState.value.selecting && isValidRange2([minDate.value, maxDate.value]));
     });
-    const showTime = computed2(() => props.type === "datetime" || props.type === "datetimerange");
+    const showTime = computed(() => props.type === "datetime" || props.type === "datetimerange");
     const formatEmit = (emitDayjs, index) => {
       if (!emitDayjs)
         return;
@@ -34820,16 +35288,10 @@ var _sfc_main66 = defineComponent({
         if (type4 === "min") {
           minTimePickerVisible.value = true;
           minDate.value = (minDate.value || leftDate.value).hour(parsedValueD.hour()).minute(parsedValueD.minute()).second(parsedValueD.second());
-          if (!maxDate.value || maxDate.value.isBefore(minDate.value)) {
-            maxDate.value = minDate.value;
-          }
         } else {
           maxTimePickerVisible.value = true;
           maxDate.value = (maxDate.value || rightDate.value).hour(parsedValueD.hour()).minute(parsedValueD.minute()).second(parsedValueD.second());
           rightDate.value = maxDate.value;
-          if (maxDate.value && maxDate.value.isBefore(minDate.value)) {
-            minDate.value = maxDate.value;
-          }
         }
       }
     };
@@ -34838,9 +35300,15 @@ var _sfc_main66 = defineComponent({
       if (type4 === "min") {
         leftDate.value = minDate.value;
         minTimePickerVisible.value = false;
+        if (!maxDate.value || maxDate.value.isBefore(minDate.value)) {
+          maxDate.value = minDate.value;
+        }
       } else {
         rightDate.value = maxDate.value;
         maxTimePickerVisible.value = false;
+        if (maxDate.value && maxDate.value.isBefore(minDate.value)) {
+          minDate.value = maxDate.value;
+        }
       }
     };
     const handleMinTimePick = (value, visible, first) => {
@@ -34879,13 +35347,15 @@ var _sfc_main66 = defineComponent({
         unlinkPanels: props.unlinkPanels
       })[0];
       rightDate.value = leftDate.value.add(1, "month");
+      maxDate.value = void 0;
+      minDate.value = void 0;
       emit("pick", null);
     };
     const formatToString = (value) => {
-      return isArray(value) ? value.map((_2) => _2.format(format2)) : value.format(format2);
+      return isArray(value) ? value.map((_2) => _2.format(format2.value)) : value.format(format2.value);
     };
     const parseUserInput = (value) => {
-      return isArray(value) ? value.map((_2) => (0, import_dayjs13.default)(_2, format2).locale(lang.value)) : (0, import_dayjs13.default)(value, format2).locale(lang.value);
+      return isArray(value) ? value.map((_2) => (0, import_dayjs13.default)(_2, format2.value).locale(lang.value)) : (0, import_dayjs13.default)(value, format2.value).locale(lang.value);
     };
     function onParsedValueChanged(minDate2, maxDate2) {
       if (props.unlinkPanels && maxDate2) {
@@ -34932,7 +35402,7 @@ var _sfc_main66 = defineComponent({
                 type: "button",
                 class: normalizeClass(unref(ppNs).e("shortcut")),
                 onClick: ($event) => unref(handleShortcutClick)(shortcut)
-              }, toDisplayString(shortcut.text), 11, _hoisted_127);
+              }, toDisplayString(shortcut.text), 11, _hoisted_128);
             }), 128))
           ], 2)) : createCommentVNode("v-if", true),
           createBaseVNode("div", {
@@ -35068,7 +35538,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_38),
+                ], 10, _hoisted_39),
                 _ctx.unlinkPanels ? (openBlock(), createElementBlock("button", {
                   key: 0,
                   type: "button",
@@ -35083,7 +35553,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_44)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_45)) : createCommentVNode("v-if", true),
                 _ctx.unlinkPanels ? (openBlock(), createElementBlock("button", {
                   key: 1,
                   type: "button",
@@ -35101,7 +35571,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_52)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_53)) : createCommentVNode("v-if", true),
                 createBaseVNode("div", null, toDisplayString(unref(leftLabel)), 1)
               ], 2),
               createVNode(DateTable2, {
@@ -35137,7 +35607,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_6)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_62)) : createCommentVNode("v-if", true),
                 _ctx.unlinkPanels ? (openBlock(), createElementBlock("button", {
                   key: 1,
                   type: "button",
@@ -35155,7 +35625,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_7)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_72)) : createCommentVNode("v-if", true),
                 createBaseVNode("button", {
                   type: "button",
                   "aria-label": unref(t)(`el.datepicker.nextYear`),
@@ -35168,7 +35638,7 @@ var _sfc_main66 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_8),
+                ], 10, _hoisted_82),
                 createBaseVNode("button", {
                   type: "button",
                   class: normalizeClass([unref(ppNs).e("icon-btn"), "arrow-right"]),
@@ -35272,16 +35742,16 @@ var useMonthRangeHeader = ({
   const rightPrevYear = () => {
     rightDate.value = rightDate.value.subtract(1, "year");
   };
-  const leftLabel = computed2(() => {
+  const leftLabel = computed(() => {
     return `${leftDate.value.year()} ${t("el.datepicker.year")}`;
   });
-  const rightLabel = computed2(() => {
+  const rightLabel = computed(() => {
     return `${rightDate.value.year()} ${t("el.datepicker.year")}`;
   });
-  const leftYear = computed2(() => {
+  const leftYear = computed(() => {
     return leftDate.value.year();
   });
-  const rightYear = computed2(() => {
+  const rightYear = computed(() => {
     return rightDate.value.year() === leftDate.value.year() ? leftDate.value.year() + 1 : rightDate.value.year();
   });
   return {
@@ -35297,9 +35767,9 @@ var useMonthRangeHeader = ({
 };
 
 // node_modules/element-plus/es/components/date-picker/src/date-picker-com/panel-month-range.mjs
-var _hoisted_128 = ["onClick"];
+var _hoisted_129 = ["onClick"];
 var _hoisted_220 = ["disabled"];
-var _hoisted_39 = ["disabled"];
+var _hoisted_310 = ["disabled"];
 var unit2 = "year";
 var __default__50 = defineComponent({
   name: "DatePickerMonthRange"
@@ -35312,7 +35782,8 @@ var _sfc_main67 = defineComponent({
     const props = __props;
     const { lang } = useLocale();
     const pickerBase = inject("EP_PICKER_BASE");
-    const { shortcuts, disabledDate: disabledDate2, format: format2 } = pickerBase.props;
+    const { shortcuts, disabledDate: disabledDate2 } = pickerBase.props;
+    const format2 = toRef(pickerBase.props, "format");
     const defaultValue = toRef(pickerBase.props, "defaultValue");
     const leftDate = ref((0, import_dayjs14.default)().locale(lang.value));
     const rightDate = ref((0, import_dayjs14.default)().locale(lang.value).add(1, unit2));
@@ -35333,7 +35804,7 @@ var _sfc_main67 = defineComponent({
       unit: unit2,
       onParsedValueChanged
     });
-    const hasShortcuts = computed2(() => !!shortcuts.length);
+    const hasShortcuts = computed(() => !!shortcuts.length);
     const {
       leftPrevYear,
       rightNextYear,
@@ -35348,7 +35819,7 @@ var _sfc_main67 = defineComponent({
       leftDate,
       rightDate
     });
-    const enableYearArrow = computed2(() => {
+    const enableYearArrow = computed(() => {
       return props.unlinkPanels && rightYear.value > leftYear.value + 1;
     });
     const handleRangePick = (val, close2 = true) => {
@@ -35365,7 +35836,7 @@ var _sfc_main67 = defineComponent({
       handleRangeConfirm();
     };
     const formatToString = (days) => {
-      return days.map((day) => day.format(format2));
+      return days.map((day) => day.format(format2.value));
     };
     function onParsedValueChanged(minDate2, maxDate2) {
       if (props.unlinkPanels && maxDate2) {
@@ -35403,7 +35874,7 @@ var _sfc_main67 = defineComponent({
                 type: "button",
                 class: normalizeClass(unref(ppNs).e("shortcut")),
                 onClick: ($event) => unref(handleShortcutClick)(shortcut)
-              }, toDisplayString(shortcut.text), 11, _hoisted_128);
+              }, toDisplayString(shortcut.text), 11, _hoisted_129);
             }), 128))
           ], 2)) : createCommentVNode("v-if", true),
           createBaseVNode("div", {
@@ -35477,7 +35948,7 @@ var _sfc_main67 = defineComponent({
                     ]),
                     _: 1
                   })
-                ], 10, _hoisted_39)) : createCommentVNode("v-if", true),
+                ], 10, _hoisted_310)) : createCommentVNode("v-if", true),
                 createBaseVNode("button", {
                   type: "button",
                   class: normalizeClass([unref(ppNs).e("icon-btn"), "d-arrow-right"]),
@@ -35694,7 +36165,7 @@ var descriptionsRowProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/descriptions/src/descriptions-row2.mjs
-var _hoisted_129 = { key: 1 };
+var _hoisted_130 = { key: 1 };
 var __default__51 = defineComponent({
   name: "ElDescriptionsRow"
 });
@@ -35725,7 +36196,7 @@ var _sfc_main68 = defineComponent({
             }, null, 8, ["cell"]);
           }), 128))
         ])
-      ], 64)) : (openBlock(), createElementBlock("tr", _hoisted_129, [
+      ], 64)) : (openBlock(), createElementBlock("tr", _hoisted_130, [
         (openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.row, (cell, _index) => {
           return openBlock(), createElementBlock(Fragment, {
             key: `tr3-${_index}`
@@ -35794,7 +36265,7 @@ var _sfc_main69 = defineComponent({
     const descriptionsSize = useFormSize();
     const slots = useSlots();
     provide(descriptionsKey, props);
-    const descriptionKls = computed2(() => [ns.b(), ns.m(descriptionsSize.value)]);
+    const descriptionKls = computed(() => [ns.b(), ns.m(descriptionsSize.value)]);
     const filledNode = (node, span, count, isLast = false) => {
       if (!node.props) {
         node.props = {};
@@ -36026,9 +36497,9 @@ var dialogContentEmits = {
 };
 
 // node_modules/element-plus/es/components/dialog/src/dialog-content2.mjs
-var _hoisted_130 = ["aria-level"];
+var _hoisted_131 = ["aria-level"];
 var _hoisted_221 = ["aria-label"];
-var _hoisted_310 = ["id"];
+var _hoisted_311 = ["id"];
 var __default__53 = defineComponent({ name: "ElDialogContent" });
 var _sfc_main70 = defineComponent({
   ...__default__53,
@@ -36040,7 +36511,7 @@ var _sfc_main70 = defineComponent({
     const { Close } = CloseComponents;
     const { dialogRef, headerRef, bodyId, ns, style } = inject(dialogInjectionKey);
     const { focusTrapRef } = inject(FOCUS_TRAP_INJECTION_KEY);
-    const dialogKls = computed2(() => [
+    const dialogKls = computed(() => [
       ns.b(),
       ns.is("fullscreen", props.fullscreen),
       ns.is("draggable", props.draggable),
@@ -36048,8 +36519,8 @@ var _sfc_main70 = defineComponent({
       { [ns.m("center")]: props.center }
     ]);
     const composedDialogRef = composeRefs(focusTrapRef, dialogRef);
-    const draggable2 = computed2(() => props.draggable);
-    const overflow = computed2(() => props.overflow);
+    const draggable2 = computed(() => props.draggable);
+    const overflow = computed(() => props.overflow);
     useDraggable(dialogRef, headerRef, draggable2, overflow);
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -36068,7 +36539,7 @@ var _sfc_main70 = defineComponent({
               role: "heading",
               "aria-level": _ctx.ariaLevel,
               class: normalizeClass(unref(ns).e("title"))
-            }, toDisplayString(_ctx.title), 11, _hoisted_130)
+            }, toDisplayString(_ctx.title), 11, _hoisted_131)
           ]),
           _ctx.showClose ? (openBlock(), createElementBlock("button", {
             key: 0,
@@ -36092,7 +36563,7 @@ var _sfc_main70 = defineComponent({
           class: normalizeClass(unref(ns).e("body"))
         }, [
           renderSlot(_ctx.$slots, "default")
-        ], 10, _hoisted_310),
+        ], 10, _hoisted_311),
         _ctx.$slots.footer ? (openBlock(), createElementBlock("footer", {
           key: 0,
           class: normalizeClass(unref(ns).e("footer"))
@@ -36187,7 +36658,7 @@ var useDialog = (props, targetRef) => {
   let openTimer = void 0;
   let closeTimer = void 0;
   const namespace = useGlobalConfig("namespace", defaultNamespace);
-  const style = computed2(() => {
+  const style = computed(() => {
     const style2 = {};
     const varPrefix = `--${namespace.value}-dialog`;
     if (!props.fullscreen) {
@@ -36200,7 +36671,7 @@ var useDialog = (props, targetRef) => {
     }
     return style2;
   });
-  const overlayDialogStyle = computed2(() => {
+  const overlayDialogStyle = computed(() => {
     if (props.alignCenter) {
       return { display: "flex" };
     }
@@ -36344,7 +36815,7 @@ var useDialog = (props, targetRef) => {
 };
 
 // node_modules/element-plus/es/components/dialog/src/dialog2.mjs
-var _hoisted_131 = ["aria-label", "aria-labelledby", "aria-describedby"];
+var _hoisted_132 = ["aria-label", "aria-labelledby", "aria-describedby"];
 var __default__54 = defineComponent({
   name: "ElDialog",
   inheritAttrs: false
@@ -36362,7 +36833,7 @@ var _sfc_main71 = defineComponent({
       replacement: "the header slot",
       version: "3.0.0",
       ref: "https://element-plus.org/en-US/component/dialog.html#slots"
-    }, computed2(() => !!slots.title));
+    }, computed(() => !!slots.title));
     const ns = useNamespace("dialog");
     const dialogRef = ref();
     const headerRef = ref();
@@ -36394,7 +36865,7 @@ var _sfc_main71 = defineComponent({
       style
     });
     const overlayEvent = useSameTarget(onModalClick);
-    const draggable2 = computed2(() => props.draggable && !props.fullscreen);
+    const draggable2 = computed(() => props.draggable && !props.fullscreen);
     expose({
       visible,
       dialogContentRef
@@ -36480,7 +36951,7 @@ var _sfc_main71 = defineComponent({
                     ]),
                     _: 3
                   }, 8, ["trapped", "onFocusAfterTrapped", "onFocusAfterReleased", "onFocusoutPrevented", "onReleaseRequested"])
-                ], 46, _hoisted_131)
+                ], 46, _hoisted_132)
               ]),
               _: 3
             }, 8, ["mask", "overlay-class", "z-index"]), [
@@ -36526,7 +36997,7 @@ var _sfc_main72 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("divider");
-    const dividerStyle = computed2(() => {
+    const dividerStyle = computed(() => {
       return ns.cssVar({
         "border-style": props.borderStyle
       });
@@ -36580,10 +37051,10 @@ var drawerProps = buildProps({
 var drawerEmits = dialogEmits;
 
 // node_modules/element-plus/es/components/drawer/src/drawer2.mjs
-var _hoisted_132 = ["aria-label", "aria-labelledby", "aria-describedby"];
+var _hoisted_133 = ["aria-label", "aria-labelledby", "aria-describedby"];
 var _hoisted_222 = ["id", "aria-level"];
-var _hoisted_311 = ["aria-label"];
-var _hoisted_45 = ["id"];
+var _hoisted_312 = ["aria-label"];
+var _hoisted_46 = ["id"];
 var __default__56 = defineComponent({
   name: "ElDrawer",
   inheritAttrs: false
@@ -36601,7 +37072,7 @@ var _sfc_main73 = defineComponent({
       replacement: "the header slot",
       version: "3.0.0",
       ref: "https://element-plus.org/en-US/component/drawer.html#slots"
-    }, computed2(() => !!slots.title));
+    }, computed(() => !!slots.title));
     const drawerRef = ref();
     const focusStartRef = ref();
     const ns = useNamespace("drawer");
@@ -36614,6 +37085,7 @@ var _sfc_main73 = defineComponent({
       rendered,
       titleId,
       bodyId,
+      zIndex: zIndex2,
       onModalClick,
       onOpenAutoFocus,
       onCloseAutoFocus,
@@ -36621,8 +37093,8 @@ var _sfc_main73 = defineComponent({
       onCloseRequested,
       handleClose
     } = useDialog(props, drawerRef);
-    const isHorizontal2 = computed2(() => props.direction === "rtl" || props.direction === "ltr");
-    const drawerSize = computed2(() => addUnit(props.size));
+    const isHorizontal2 = computed(() => props.direction === "rtl" || props.direction === "ltr");
+    const drawerSize = computed(() => addUnit(props.size));
     expose({
       handleClose,
       afterEnter,
@@ -36644,7 +37116,7 @@ var _sfc_main73 = defineComponent({
             withDirectives(createVNode(unref(ElOverlay), {
               mask: _ctx.modal,
               "overlay-class": _ctx.modalClass,
-              "z-index": _ctx.zIndex,
+              "z-index": unref(zIndex2),
               onClick: unref(onModalClick)
             }, {
               default: withCtx(() => [
@@ -36714,7 +37186,7 @@ var _sfc_main73 = defineComponent({
                             ]),
                             _: 1
                           }, 8, ["class"])
-                        ], 10, _hoisted_311)) : createCommentVNode("v-if", true)
+                        ], 10, _hoisted_312)) : createCommentVNode("v-if", true)
                       ], 2)) : createCommentVNode("v-if", true),
                       unref(rendered) ? (openBlock(), createElementBlock("div", {
                         key: 1,
@@ -36722,14 +37194,14 @@ var _sfc_main73 = defineComponent({
                         class: normalizeClass(unref(ns).e("body"))
                       }, [
                         renderSlot(_ctx.$slots, "default")
-                      ], 10, _hoisted_45)) : createCommentVNode("v-if", true),
+                      ], 10, _hoisted_46)) : createCommentVNode("v-if", true),
                       _ctx.$slots.footer ? (openBlock(), createElementBlock("div", {
                         key: 2,
                         class: normalizeClass(unref(ns).e("footer"))
                       }, [
                         renderSlot(_ctx.$slots, "footer")
                       ], 2)) : createCommentVNode("v-if", true)
-                    ], 16, _hoisted_132)
+                    ], 16, _hoisted_133)
                   ]),
                   _: 3
                 }, 8, ["trapped", "focus-trap-el", "focus-start-el", "onFocusAfterTrapped", "onFocusAfterReleased", "onFocusoutPrevented", "onReleaseRequested"])
@@ -36921,7 +37393,7 @@ var _sfc_main76 = defineComponent({
     const isClickFocus = ref(false);
     const rovingFocusGroupRef = ref(null);
     const { getItems } = inject(COLLECTION_INJECTION_KEY, void 0);
-    const rovingFocusGroupRootStyle = computed2(() => {
+    const rovingFocusGroupRootStyle = computed(() => {
       return [
         {
           outline: "none"
@@ -36973,7 +37445,7 @@ var _sfc_main76 = defineComponent({
     provide(ROVING_FOCUS_GROUP_INJECTION_KEY, {
       currentTabbedId: readonly(currentTabbedId),
       loop: toRef(props, "loop"),
-      tabIndex: computed2(() => {
+      tabIndex: computed(() => {
         return unref(isBackingOut) ? -1 : 0;
       }),
       rovingFocusGroupRef,
@@ -37095,10 +37567,10 @@ var _sfc_main78 = defineComponent({
         });
       }
     });
-    const isCurrentTab = computed2(() => currentTabbedId.value === unref(id));
+    const isCurrentTab = computed(() => currentTabbedId.value === unref(id));
     provide(ROVING_FOCUS_GROUP_ITEM_INJECTION_KEY, {
       rovingFocusGroupItemRef,
-      tabIndex: computed2(() => unref(isCurrentTab) ? 0 : -1),
+      tabIndex: computed(() => unref(isCurrentTab) ? 0 : -1),
       handleMousedown,
       handleFocus,
       handleKeydown
@@ -37252,13 +37724,13 @@ var _sfc_main79 = defineComponent({
     const currentTabId = ref(null);
     const isUsingKeyboard = ref(false);
     const triggerKeys = [EVENT_CODE.enter, EVENT_CODE.space, EVENT_CODE.down];
-    const wrapStyle = computed2(() => ({
+    const wrapStyle = computed(() => ({
       maxHeight: addUnit(props.maxHeight)
     }));
-    const dropdownTriggerKls = computed2(() => [ns.m(dropdownSize.value)]);
-    const trigger = computed2(() => castArray_default(props.trigger));
+    const dropdownTriggerKls = computed(() => [ns.m(dropdownSize.value)]);
+    const trigger = computed(() => castArray_default(props.trigger));
     const defaultTriggerId = useId().value;
-    const triggerId = computed2(() => {
+    const triggerId = computed(() => {
       return props.id || defaultTriggerId;
     });
     watch([triggeringElementRef, trigger], ([triggeringElement, trigger2], [prevTriggeringElement]) => {
@@ -37327,7 +37799,7 @@ var _sfc_main79 = defineComponent({
     }
     provide(DROPDOWN_INJECTION_KEY, {
       contentRef,
-      role: computed2(() => props.role),
+      role: computed(() => props.role),
       triggerId,
       isUsingKeyboard,
       onItemEnter,
@@ -37533,7 +38005,7 @@ var _sfc_main80 = defineComponent({
       handleMousedown
     } = inject(ROVING_FOCUS_GROUP_ITEM_INJECTION_KEY, void 0);
     const itemRef = composeRefs(dropdownCollectionItemRef, rovingFocusCollectionItemRef, rovingFocusGroupItemRef);
-    const role = computed2(() => {
+    const role = computed(() => {
       if (menuRole.value === "menu") {
         return "menuitem";
       } else if (menuRole.value === "navigation") {
@@ -37564,7 +38036,7 @@ var _sfc_main80 = defineComponent({
     };
   }
 });
-var _hoisted_133 = ["aria-disabled", "tabindex", "role"];
+var _hoisted_134 = ["aria-disabled", "tabindex", "role"];
 function _sfc_render14(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_icon = resolveComponent("el-icon");
   return openBlock(), createElementBlock(Fragment, null, [
@@ -37592,7 +38064,7 @@ function _sfc_render14(_ctx, _cache, $props, $setup, $data, $options) {
         _: 1
       })) : createCommentVNode("v-if", true),
       renderSlot(_ctx.$slots, "default")
-    ], 16, _hoisted_133)
+    ], 16, _hoisted_134)
   ], 64);
 }
 var ElDropdownItemImpl = _export_sfc(_sfc_main80, [["render", _sfc_render14], ["__file", "dropdown-item-impl.vue"]]);
@@ -37600,7 +38072,7 @@ var ElDropdownItemImpl = _export_sfc(_sfc_main80, [["render", _sfc_render14], ["
 // node_modules/element-plus/es/components/dropdown/src/useDropdown.mjs
 var useDropdown = () => {
   const elDropdown = inject("elDropdown", {});
-  const _elDropdownSize = computed2(() => elDropdown == null ? void 0 : elDropdown.dropdownSize);
+  const _elDropdownSize = computed(() => elDropdown == null ? void 0 : elDropdown.dropdownSize);
   return {
     elDropdown,
     _elDropdownSize
@@ -37622,7 +38094,7 @@ var _sfc_main81 = defineComponent({
     const { elDropdown } = useDropdown();
     const _instance = getCurrentInstance();
     const itemRef = ref(null);
-    const textContent = computed2(() => {
+    const textContent = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = unref(itemRef)) == null ? void 0 : _a2.textContent) != null ? _b : "";
     });
@@ -37667,7 +38139,7 @@ var _sfc_main81 = defineComponent({
       }
       (_c = elDropdown.commandHandler) == null ? void 0 : _c.call(elDropdown, props.command, _instance, e);
     });
-    const propsAndAttrs = computed2(() => {
+    const propsAndAttrs = computed(() => {
       return { ...props, ...attrs };
     });
     return {
@@ -37732,7 +38204,7 @@ var _sfc_main82 = defineComponent({
       onMousedown
     } = inject(ROVING_FOCUS_GROUP_INJECTION_KEY, void 0);
     const { collectionRef: rovingFocusGroupCollectionRef } = inject(COLLECTION_INJECTION_KEY, void 0);
-    const dropdownKls = computed2(() => {
+    const dropdownKls = computed(() => {
       return [ns.b("menu"), ns.bm("menu", size3 == null ? void 0 : size3.value)];
     });
     const dropdownListWrapperRef = composeRefs(contentRef, dropdownCollectionRef, focusTrapRef, rovingFocusGroupRef, rovingFocusGroupCollectionRef);
@@ -37778,7 +38250,7 @@ var _sfc_main82 = defineComponent({
     };
   }
 });
-var _hoisted_134 = ["role", "aria-labelledby"];
+var _hoisted_135 = ["role", "aria-labelledby"];
 function _sfc_render16(_ctx, _cache, $props, $setup, $data, $options) {
   return openBlock(), createElementBlock("ul", {
     ref: _ctx.dropdownListWrapperRef,
@@ -37793,7 +38265,7 @@ function _sfc_render16(_ctx, _cache, $props, $setup, $data, $options) {
     onMousedown: _cache[3] || (_cache[3] = withModifiers((...args) => _ctx.onMousedown && _ctx.onMousedown(...args), ["self"]))
   }, [
     renderSlot(_ctx.$slots, "default")
-  ], 46, _hoisted_134);
+  ], 46, _hoisted_135);
 }
 var DropdownMenu = _export_sfc(_sfc_main82, [["render", _sfc_render16], ["__file", "dropdown-menu.vue"]]);
 
@@ -37806,19 +38278,19 @@ var ElDropdownItem = withNoopInstall(DropdownItem);
 var ElDropdownMenu = withNoopInstall(DropdownMenu);
 
 // node_modules/element-plus/es/components/empty/src/img-empty.mjs
-var _hoisted_135 = {
+var _hoisted_136 = {
   viewBox: "0 0 79 86",
   version: "1.1",
   xmlns: "http://www.w3.org/2000/svg",
   "xmlns:xlink": "http://www.w3.org/1999/xlink"
 };
 var _hoisted_223 = ["id"];
-var _hoisted_312 = ["stop-color"];
-var _hoisted_46 = ["stop-color"];
-var _hoisted_53 = ["id"];
-var _hoisted_62 = ["stop-color"];
-var _hoisted_72 = ["stop-color"];
-var _hoisted_82 = ["id"];
+var _hoisted_313 = ["stop-color"];
+var _hoisted_47 = ["stop-color"];
+var _hoisted_54 = ["id"];
+var _hoisted_63 = ["stop-color"];
+var _hoisted_73 = ["stop-color"];
+var _hoisted_83 = ["id"];
 var _hoisted_92 = {
   id: "Illustrations",
   stroke: "none",
@@ -37835,7 +38307,7 @@ var _hoisted_11 = {
   transform: "translate(1268.000000, 535.000000)"
 };
 var _hoisted_1210 = ["fill"];
-var _hoisted_136 = ["fill"];
+var _hoisted_137 = ["fill"];
 var _hoisted_142 = {
   id: "Group-Copy",
   transform: "translate(34.500000, 31.500000) scale(-1, 1) rotate(-25.000000) translate(-34.500000, -31.500000) translate(7.000000, 10.000000)"
@@ -37861,7 +38333,7 @@ var _sfc_main83 = defineComponent({
     const ns = useNamespace("empty");
     const id = useId();
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("svg", _hoisted_135, [
+      return openBlock(), createElementBlock("svg", _hoisted_136, [
         createBaseVNode("defs", null, [
           createBaseVNode("linearGradient", {
             id: `linearGradient-1-${unref(id)}`,
@@ -37873,11 +38345,11 @@ var _sfc_main83 = defineComponent({
             createBaseVNode("stop", {
               "stop-color": `var(${unref(ns).cssVarBlockName("fill-color-1")})`,
               offset: "0%"
-            }, null, 8, _hoisted_312),
+            }, null, 8, _hoisted_313),
             createBaseVNode("stop", {
               "stop-color": `var(${unref(ns).cssVarBlockName("fill-color-4")})`,
               offset: "100%"
-            }, null, 8, _hoisted_46)
+            }, null, 8, _hoisted_47)
           ], 8, _hoisted_223),
           createBaseVNode("linearGradient", {
             id: `linearGradient-2-${unref(id)}`,
@@ -37889,19 +38361,19 @@ var _sfc_main83 = defineComponent({
             createBaseVNode("stop", {
               "stop-color": `var(${unref(ns).cssVarBlockName("fill-color-1")})`,
               offset: "0%"
-            }, null, 8, _hoisted_62),
+            }, null, 8, _hoisted_63),
             createBaseVNode("stop", {
               "stop-color": `var(${unref(ns).cssVarBlockName("fill-color-6")})`,
               offset: "100%"
-            }, null, 8, _hoisted_72)
-          ], 8, _hoisted_53),
+            }, null, 8, _hoisted_73)
+          ], 8, _hoisted_54),
           createBaseVNode("rect", {
             id: `path-3-${unref(id)}`,
             x: "0",
             y: "0",
             width: "17",
             height: "36"
-          }, null, 8, _hoisted_82)
+          }, null, 8, _hoisted_83)
         ]),
         createBaseVNode("g", _hoisted_92, [
           createBaseVNode("g", _hoisted_10, [
@@ -37916,7 +38388,7 @@ var _sfc_main83 = defineComponent({
                 fill: `var(${unref(ns).cssVarBlockName("fill-color-7")})`,
                 transform: "translate(27.500000, 51.500000) scale(1, -1) translate(-27.500000, -51.500000) ",
                 points: "13 58 53 58 42 45 2 45"
-              }, null, 8, _hoisted_136),
+              }, null, 8, _hoisted_137),
               createBaseVNode("g", _hoisted_142, [
                 createBaseVNode("polygon", {
                   id: "Rectangle-Copy-10",
@@ -37997,7 +38469,7 @@ var emptyProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/empty/src/empty2.mjs
-var _hoisted_137 = ["src"];
+var _hoisted_138 = ["src"];
 var _hoisted_225 = { key: 1 };
 var __default__58 = defineComponent({
   name: "ElEmpty"
@@ -38009,8 +38481,8 @@ var _sfc_main84 = defineComponent({
     const props = __props;
     const { t } = useLocale();
     const ns = useNamespace("empty");
-    const emptyDescription = computed2(() => props.description || t("el.table.emptyText"));
-    const imageStyle = computed2(() => ({
+    const emptyDescription = computed(() => props.description || t("el.table.emptyText"));
+    const imageStyle = computed(() => ({
       width: addUnit(props.imageSize)
     }));
     return (_ctx, _cache) => {
@@ -38025,7 +38497,7 @@ var _sfc_main84 = defineComponent({
             key: 0,
             src: _ctx.image,
             ondragstart: "return false"
-          }, null, 8, _hoisted_137)) : renderSlot(_ctx.$slots, "image", { key: 1 }, () => [
+          }, null, 8, _hoisted_138)) : renderSlot(_ctx.$slots, "image", { key: 1 }, () => [
             createVNode(ImgEmpty)
           ])
         ], 6),
@@ -38095,7 +38567,7 @@ var imageViewerEmits = {
 };
 
 // node_modules/element-plus/es/components/image-viewer/src/image-viewer2.mjs
-var _hoisted_138 = ["src", "crossorigin"];
+var _hoisted_139 = ["src", "crossorigin"];
 var __default__59 = defineComponent({
   name: "ElImageViewer"
 });
@@ -38133,30 +38605,30 @@ var _sfc_main85 = defineComponent({
       enableTransition: false
     });
     const zIndex2 = ref((_a2 = props.zIndex) != null ? _a2 : nextZIndex());
-    const isSingle = computed2(() => {
+    const isSingle = computed(() => {
       const { urlList } = props;
       return urlList.length <= 1;
     });
-    const isFirst = computed2(() => {
+    const isFirst = computed(() => {
       return activeIndex.value === 0;
     });
-    const isLast = computed2(() => {
+    const isLast = computed(() => {
       return activeIndex.value === props.urlList.length - 1;
     });
-    const currentImg = computed2(() => {
+    const currentImg = computed(() => {
       return props.urlList[activeIndex.value];
     });
-    const arrowPrevKls = computed2(() => [
+    const arrowPrevKls = computed(() => [
       ns.e("btn"),
       ns.e("prev"),
       ns.is("disabled", !props.infinite && isFirst.value)
     ]);
-    const arrowNextKls = computed2(() => [
+    const arrowNextKls = computed(() => [
       ns.e("btn"),
       ns.e("next"),
       ns.is("disabled", !props.infinite && isLast.value)
     ]);
-    const imgStyle = computed2(() => {
+    const imgStyle = computed(() => {
       const { scale, deg, offsetX, offsetY, enableTransition } = transform2.value;
       let translateX = offsetX / scale;
       let translateY = offsetY / scale;
@@ -38468,7 +38940,7 @@ var _sfc_main85 = defineComponent({
                     onLoad: handleImgLoad,
                     onError: handleImgError,
                     onMousedown: handleMouseDown
-                  }, null, 46, _hoisted_138)), [
+                  }, null, 46, _hoisted_139)), [
                     [vShow, i === activeIndex.value]
                   ]);
                 }), 128))
@@ -38552,7 +39024,7 @@ var imageEmits = {
 };
 
 // node_modules/element-plus/es/components/image/src/image2.mjs
-var _hoisted_139 = ["src", "loading", "crossorigin"];
+var _hoisted_140 = ["src", "loading", "crossorigin"];
 var _hoisted_226 = { key: 0 };
 var __default__60 = defineComponent({
   name: "ElImage",
@@ -38578,24 +39050,24 @@ var _sfc_main86 = defineComponent({
     const supportLoading = isClient && "loading" in HTMLImageElement.prototype;
     let stopScrollListener;
     let stopWheelListener;
-    const imageKls = computed2(() => [
+    const imageKls = computed(() => [
       ns.e("inner"),
       preview.value && ns.e("preview"),
       isLoading.value && ns.is("loading")
     ]);
-    const containerStyle = computed2(() => rawAttrs.style);
-    const imageStyle = computed2(() => {
+    const containerStyle = computed(() => rawAttrs.style);
+    const imageStyle = computed(() => {
       const { fit } = props;
       if (isClient && fit) {
         return { objectFit: fit };
       }
       return {};
     });
-    const preview = computed2(() => {
+    const preview = computed(() => {
       const { previewSrcList } = props;
       return Array.isArray(previewSrcList) && previewSrcList.length > 0;
     });
-    const imageIndex = computed2(() => {
+    const imageIndex = computed(() => {
       const { previewSrcList, initialIndex } = props;
       let previewIndex = initialIndex;
       if (initialIndex > previewSrcList.length - 1) {
@@ -38603,7 +39075,7 @@ var _sfc_main86 = defineComponent({
       }
       return previewIndex;
     });
-    const isManual = computed2(() => {
+    const isManual = computed(() => {
       if (props.loading === "eager")
         return false;
       return !supportLoading && props.loading === "lazy" || props.lazy;
@@ -38725,7 +39197,7 @@ var _sfc_main86 = defineComponent({
             onClick: clickHandler,
             onLoad: handleLoad,
             onError: handleError
-          }), null, 16, _hoisted_139)) : createCommentVNode("v-if", true),
+          }), null, 16, _hoisted_140)) : createCommentVNode("v-if", true),
           isLoading.value ? (openBlock(), createElementBlock("div", {
             key: 1,
             class: normalizeClass(unref(ns).e("wrapper"))
@@ -38817,7 +39289,8 @@ var inputNumberProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var inputNumberEmits = {
   [CHANGE_EVENT]: (cur, prev) => prev !== cur,
@@ -38828,7 +39301,7 @@ var inputNumberEmits = {
 };
 
 // node_modules/element-plus/es/components/input-number/src/input-number2.mjs
-var _hoisted_140 = ["aria-label", "onKeydown"];
+var _hoisted_141 = ["aria-label", "onKeydown"];
 var _hoisted_227 = ["aria-label", "onKeydown"];
 var __default__61 = defineComponent({
   name: "ElInputNumber"
@@ -38847,9 +39320,9 @@ var _sfc_main87 = defineComponent({
       userInput: null
     });
     const { formItem } = useFormItem();
-    const minDisabled = computed2(() => isNumber3(props.modelValue) && props.modelValue <= props.min);
-    const maxDisabled = computed2(() => isNumber3(props.modelValue) && props.modelValue >= props.max);
-    const numPrecision = computed2(() => {
+    const minDisabled = computed(() => isNumber3(props.modelValue) && props.modelValue <= props.min);
+    const maxDisabled = computed(() => isNumber3(props.modelValue) && props.modelValue >= props.max);
+    const numPrecision = computed(() => {
       const stepPrecision = getPrecision(props.step);
       if (!isUndefined2(props.precision)) {
         if (stepPrecision > props.precision) {
@@ -38860,12 +39333,12 @@ var _sfc_main87 = defineComponent({
         return Math.max(getPrecision(props.modelValue), stepPrecision);
       }
     });
-    const controlsAtRight = computed2(() => {
+    const controlsAtRight = computed(() => {
       return props.controls && props.controlsPosition === "right";
     });
     const inputNumberSize = useFormSize();
     const inputNumberDisabled = useFormDisabled();
-    const displayValue = computed2(() => {
+    const displayValue = computed(() => {
       if (data.userInput !== null) {
         return data.userInput;
       }
@@ -38969,11 +39442,13 @@ var _sfc_main87 = defineComponent({
         emit(UPDATE_MODEL_EVENT, newVal);
         return;
       }
-      if (oldVal === newVal)
+      if (oldVal === newVal && value)
         return;
       data.userInput = null;
       emit(UPDATE_MODEL_EVENT, newVal);
-      emit(CHANGE_EVENT, newVal, oldVal);
+      if (oldVal !== newVal) {
+        emit(CHANGE_EVENT, newVal, oldVal);
+      }
       if (props.validateEvent) {
         (_a2 = formItem == null ? void 0 : formItem.validate) == null ? void 0 : _a2.call(formItem, "change").catch((err) => debugWarn(err));
       }
@@ -39017,6 +39492,10 @@ var _sfc_main87 = defineComponent({
         data.currentValue = props.modelValue;
       }
     };
+    const handleWheel = (e) => {
+      if (document.activeElement === e.target)
+        e.preventDefault();
+    };
     watch(() => props.modelValue, (value, oldValue) => {
       const newValue = verifyValue(value, true);
       if (data.userInput === null && newValue !== oldValue) {
@@ -39047,12 +39526,20 @@ var _sfc_main87 = defineComponent({
         }
         emit(UPDATE_MODEL_EVENT, val);
       }
+      innerInput.addEventListener("wheel", handleWheel, { passive: false });
     });
     onUpdated(() => {
       var _a2, _b;
       const innerInput = (_a2 = input.value) == null ? void 0 : _a2.input;
       innerInput == null ? void 0 : innerInput.setAttribute("aria-valuenow", `${(_b = data.currentValue) != null ? _b : ""}`);
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-input-number",
+      ref: "https://element-plus.org/en-US/component/input-number.html"
+    }, computed(() => !!props.label));
     expose({
       focus,
       blur
@@ -39066,7 +39553,7 @@ var _sfc_main87 = defineComponent({
           unref(ns).is("without-controls", !_ctx.controls),
           unref(ns).is("controls-right", unref(controlsAtRight))
         ]),
-        onDragstart: _cache[1] || (_cache[1] = withModifiers(() => {
+        onDragstart: _cache[0] || (_cache[0] = withModifiers(() => {
         }, ["prevent"]))
       }, [
         _ctx.controls ? withDirectives((openBlock(), createElementBlock("span", {
@@ -39076,13 +39563,15 @@ var _sfc_main87 = defineComponent({
           class: normalizeClass([unref(ns).e("decrease"), unref(ns).is("disabled", unref(minDisabled))]),
           onKeydown: withKeys(decrease, ["enter"])
         }, [
-          createVNode(unref(ElIcon), null, {
-            default: withCtx(() => [
-              unref(controlsAtRight) ? (openBlock(), createBlock(unref(arrow_down_default), { key: 0 })) : (openBlock(), createBlock(unref(minus_default), { key: 1 }))
-            ]),
-            _: 1
-          })
-        ], 42, _hoisted_140)), [
+          renderSlot(_ctx.$slots, "decrease-icon", {}, () => [
+            createVNode(unref(ElIcon), null, {
+              default: withCtx(() => [
+                unref(controlsAtRight) ? (openBlock(), createBlock(unref(arrow_down_default), { key: 0 })) : (openBlock(), createBlock(unref(minus_default), { key: 1 }))
+              ]),
+              _: 1
+            })
+          ])
+        ], 42, _hoisted_141)), [
           [unref(vRepeatClick), decrease]
         ]) : createCommentVNode("v-if", true),
         _ctx.controls ? withDirectives((openBlock(), createElementBlock("span", {
@@ -39092,12 +39581,14 @@ var _sfc_main87 = defineComponent({
           class: normalizeClass([unref(ns).e("increase"), unref(ns).is("disabled", unref(maxDisabled))]),
           onKeydown: withKeys(increase, ["enter"])
         }, [
-          createVNode(unref(ElIcon), null, {
-            default: withCtx(() => [
-              unref(controlsAtRight) ? (openBlock(), createBlock(unref(arrow_up_default), { key: 0 })) : (openBlock(), createBlock(unref(plus_default), { key: 1 }))
-            ]),
-            _: 1
-          })
+          renderSlot(_ctx.$slots, "increase-icon", {}, () => [
+            createVNode(unref(ElIcon), null, {
+              default: withCtx(() => [
+                unref(controlsAtRight) ? (openBlock(), createBlock(unref(arrow_up_default), { key: 0 })) : (openBlock(), createBlock(unref(plus_default), { key: 1 }))
+              ]),
+              _: 1
+            })
+          ])
         ], 42, _hoisted_227)), [
           [unref(vRepeatClick), increase]
         ]) : createCommentVNode("v-if", true),
@@ -39115,10 +39606,8 @@ var _sfc_main87 = defineComponent({
           max: _ctx.max,
           min: _ctx.min,
           name: _ctx.name,
-          label: _ctx.label,
+          "aria-label": _ctx.label || _ctx.ariaLabel,
           "validate-event": false,
-          onWheel: _cache[0] || (_cache[0] = withModifiers(() => {
-          }, ["prevent"])),
           onKeydown: [
             withKeys(withModifiers(increase, ["prevent"]), ["up"]),
             withKeys(withModifiers(decrease, ["prevent"]), ["down"])
@@ -39127,7 +39616,7 @@ var _sfc_main87 = defineComponent({
           onFocus: handleFocus,
           onInput: handleInput,
           onChange: handleInputChange
-        }, null, 8, ["id", "step", "model-value", "placeholder", "readonly", "disabled", "size", "max", "min", "name", "label", "onKeydown"])
+        }, null, 8, ["id", "step", "model-value", "placeholder", "readonly", "disabled", "size", "max", "min", "name", "aria-label", "onKeydown"])
       ], 34);
     };
   }
@@ -39163,7 +39652,7 @@ var linkEmits = {
 };
 
 // node_modules/element-plus/es/components/link/src/link2.mjs
-var _hoisted_141 = ["href", "target"];
+var _hoisted_143 = ["href", "target"];
 var __default__62 = defineComponent({
   name: "ElLink"
 });
@@ -39174,7 +39663,7 @@ var _sfc_main88 = defineComponent({
   setup(__props, { emit }) {
     const props = __props;
     const ns = useNamespace("link");
-    const linkKls = computed2(() => [
+    const linkKls = computed(() => [
       ns.b(),
       ns.m(props.type),
       ns.is("disabled", props.disabled),
@@ -39204,7 +39693,7 @@ var _sfc_main88 = defineComponent({
           renderSlot(_ctx.$slots, "default")
         ], 2)) : createCommentVNode("v-if", true),
         _ctx.$slots.icon ? renderSlot(_ctx.$slots, "icon", { key: 2 }) : createCommentVNode("v-if", true)
-      ], 10, _hoisted_141);
+      ], 10, _hoisted_143);
     };
   }
 });
@@ -39396,7 +39885,7 @@ var ElMenuCollapseTransition = _export_sfc(_sfc_main89, [["render", _sfc_render1
 
 // node_modules/element-plus/es/components/menu/src/use-menu.mjs
 function useMenu(instance, currentIndex) {
-  const indexPath = computed2(() => {
+  const indexPath = computed(() => {
     let parent2 = instance.parent;
     const path = [currentIndex.value];
     while (parent2.type.name !== "ElMenu") {
@@ -39407,7 +39896,7 @@ function useMenu(instance, currentIndex) {
     }
     return path;
   });
-  const parentMenu = computed2(() => {
+  const parentMenu = computed(() => {
     let parent2 = instance.parent;
     while (parent2 && !["ElMenu", "ElSubMenu"].includes(parent2.type.name)) {
       parent2 = parent2.parent;
@@ -39422,7 +39911,7 @@ function useMenu(instance, currentIndex) {
 
 // node_modules/element-plus/es/components/menu/src/use-menu-color.mjs
 function useMenuColor(props) {
-  const menuBarColor = computed2(() => {
+  const menuBarColor = computed(() => {
     const color = props.backgroundColor;
     if (!color) {
       return "";
@@ -39436,7 +39925,7 @@ function useMenuColor(props) {
 // node_modules/element-plus/es/components/menu/src/use-menu-css-var.mjs
 var useMenuCssVar = (props, level) => {
   const ns = useNamespace("menu");
-  return computed2(() => {
+  return computed(() => {
     return ns.cssVarBlock({
       "text-color": props.textColor || "",
       "hover-text-color": props.textColor || "",
@@ -39458,10 +39947,6 @@ var subMenuProps = buildProps({
   hideTimeout: Number,
   popperClass: String,
   disabled: Boolean,
-  popperAppendToBody: {
-    type: Boolean,
-    default: void 0
-  },
   teleported: {
     type: Boolean,
     default: void 0
@@ -39485,15 +39970,8 @@ var SubMenu2 = defineComponent({
   name: COMPONENT_NAME13,
   props: subMenuProps,
   setup(props, { slots, expose }) {
-    useDeprecated({
-      from: "popper-append-to-body",
-      replacement: "teleported",
-      scope: COMPONENT_NAME13,
-      version: "2.3.0",
-      ref: "https://element-plus.org/en-US/component/menu.html#submenu-attributes"
-    }, computed2(() => props.popperAppendToBody !== void 0));
     const instance = getCurrentInstance();
-    const { indexPath, parentMenu } = useMenu(instance, computed2(() => props.index));
+    const { indexPath, parentMenu } = useMenu(instance, computed(() => props.index));
     const nsMenu = useNamespace("menu");
     const nsSubMenu = useNamespace("sub-menu");
     const rootMenu = inject("rootMenu");
@@ -39508,20 +39986,19 @@ var SubMenu2 = defineComponent({
     const mouseInChild = ref(false);
     const verticalTitleRef = ref();
     const vPopper = ref(null);
-    const currentPlacement = computed2(() => mode.value === "horizontal" && isFirstLevel.value ? "bottom-start" : "right-start");
-    const subMenuTitleIcon = computed2(() => {
+    const currentPlacement = computed(() => mode.value === "horizontal" && isFirstLevel.value ? "bottom-start" : "right-start");
+    const subMenuTitleIcon = computed(() => {
       return mode.value === "horizontal" && isFirstLevel.value || mode.value === "vertical" && !rootMenu.props.collapse ? props.expandCloseIcon && props.expandOpenIcon ? opened.value ? props.expandOpenIcon : props.expandCloseIcon : arrow_down_default : props.collapseCloseIcon && props.collapseOpenIcon ? opened.value ? props.collapseOpenIcon : props.collapseCloseIcon : arrow_right_default;
     });
-    const isFirstLevel = computed2(() => {
+    const isFirstLevel = computed(() => {
       return subMenu.level === 0;
     });
-    const appendToBody = computed2(() => {
-      var _a2;
-      const value = (_a2 = props.teleported) != null ? _a2 : props.popperAppendToBody;
+    const appendToBody = computed(() => {
+      const value = props.teleported;
       return value === void 0 ? isFirstLevel.value : value;
     });
-    const menuTransitionName = computed2(() => rootMenu.props.collapse ? `${nsMenu.namespace.value}-zoom-in-left` : `${nsMenu.namespace.value}-zoom-in-top`);
-    const fallbackPlacements = computed2(() => mode.value === "horizontal" && isFirstLevel.value ? [
+    const menuTransitionName = computed(() => rootMenu.props.collapse ? `${nsMenu.namespace.value}-zoom-in-left` : `${nsMenu.namespace.value}-zoom-in-top`);
+    const fallbackPlacements = computed(() => mode.value === "horizontal" && isFirstLevel.value ? [
       "bottom-start",
       "bottom-end",
       "top-start",
@@ -39538,8 +40015,8 @@ var SubMenu2 = defineComponent({
       "top-start",
       "top-end"
     ]);
-    const opened = computed2(() => rootMenu.openedMenus.includes(props.index));
-    const active = computed2(() => {
+    const opened = computed(() => rootMenu.openedMenus.includes(props.index));
+    const active = computed(() => {
       let isActive = false;
       Object.values(items.value).forEach((item2) => {
         if (item2.active) {
@@ -39553,26 +40030,26 @@ var SubMenu2 = defineComponent({
       });
       return isActive;
     });
-    const mode = computed2(() => rootMenu.props.mode);
+    const mode = computed(() => rootMenu.props.mode);
     const item = reactive({
       index: props.index,
       indexPath,
       active
     });
     const ulStyle = useMenuCssVar(rootMenu.props, subMenu.level + 1);
-    const subMenuPopperOffset = computed2(() => {
+    const subMenuPopperOffset = computed(() => {
       var _a2;
       return (_a2 = props.popperOffset) != null ? _a2 : rootMenu.props.popperOffset;
     });
-    const subMenuPopperClass = computed2(() => {
+    const subMenuPopperClass = computed(() => {
       var _a2;
       return (_a2 = props.popperClass) != null ? _a2 : rootMenu.props.popperClass;
     });
-    const subMenuShowTimeout = computed2(() => {
+    const subMenuShowTimeout = computed(() => {
       var _a2;
       return (_a2 = props.showTimeout) != null ? _a2 : rootMenu.props.showTimeout;
     });
-    const subMenuHideTimeout = computed2(() => {
+    const subMenuHideTimeout = computed(() => {
       var _a2;
       return (_a2 = props.hideTimeout) != null ? _a2 : rootMenu.props.hideTimeout;
     });
@@ -39820,7 +40297,7 @@ var Menu2 = defineComponent({
     const activeIndex = ref(props.defaultActive);
     const items = ref({});
     const subMenus = ref({});
-    const isMenuPopup = computed2(() => {
+    const isMenuPopup = computed(() => {
       return props.mode === "horizontal" || props.mode === "vertical" && props.collapse;
     });
     const initMenu = () => {
@@ -39930,6 +40407,8 @@ var Menu2 = defineComponent({
     };
     let isFirstTimeRender = true;
     const handleResize = () => {
+      if (sliceIndex.value === calcSliceIndex())
+        return;
       const callback = () => {
         sliceIndex.value = -1;
         nextTick(() => {
@@ -40102,7 +40581,7 @@ var _sfc_main90 = defineComponent({
     const subMenu = inject(`subMenu:${parentMenu.value.uid}`);
     if (!subMenu)
       throwError(COMPONENT_NAME14, "can not inject sub menu");
-    const active = computed2(() => props.index === rootMenu.activeIndex);
+    const active = computed(() => props.index === rootMenu.activeIndex);
     const item = reactive({
       index: props.index,
       indexPath,
@@ -40174,12 +40653,12 @@ function _sfc_render18(_ctx, _cache, $props, $setup, $data, $options) {
 }
 var MenuItem2 = _export_sfc(_sfc_main90, [["render", _sfc_render18], ["__file", "menu-item.vue"]]);
 
-// node_modules/element-plus/es/components/menu/src/menu-item-group2.mjs
+// node_modules/element-plus/es/components/menu/src/menu-item-group.mjs
 var menuItemGroupProps = {
   title: String
 };
 
-// node_modules/element-plus/es/components/menu/src/menu-item-group.mjs
+// node_modules/element-plus/es/components/menu/src/menu-item-group2.mjs
 var COMPONENT_NAME15 = "ElMenuItemGroup";
 var _sfc_main91 = defineComponent({
   name: COMPONENT_NAME15,
@@ -40236,7 +40715,7 @@ var pageHeaderEmits = {
 };
 
 // node_modules/element-plus/es/components/page-header/src/page-header2.mjs
-var _hoisted_143 = ["aria-label"];
+var _hoisted_144 = ["aria-label"];
 var __default__63 = defineComponent({
   name: "ElPageHeader"
 });
@@ -40248,7 +40727,7 @@ var _sfc_main92 = defineComponent({
     const slots = useSlots();
     const { t } = useLocale();
     const ns = useNamespace("page-header");
-    const kls = computed2(() => {
+    const kls = computed(() => {
       return [
         ns.b(),
         {
@@ -40296,7 +40775,7 @@ var _sfc_main92 = defineComponent({
                     _: 1
                   })) : createCommentVNode("v-if", true)
                 ])
-              ], 10, _hoisted_143)) : createCommentVNode("v-if", true),
+              ], 10, _hoisted_144)) : createCommentVNode("v-if", true),
               createBaseVNode("div", {
                 class: normalizeClass(unref(ns).e("title"))
               }, [
@@ -40358,7 +40837,7 @@ var paginationPrevEmits = {
 };
 
 // node_modules/element-plus/es/components/pagination/src/components/prev2.mjs
-var _hoisted_144 = ["disabled", "aria-label", "aria-disabled"];
+var _hoisted_145 = ["disabled", "aria-label", "aria-disabled"];
 var _hoisted_228 = { key: 0 };
 var __default__64 = defineComponent({
   name: "ElPaginationPrev"
@@ -40370,7 +40849,7 @@ var _sfc_main93 = defineComponent({
   setup(__props) {
     const props = __props;
     const { t } = useLocale();
-    const internalDisabled = computed2(() => props.disabled || props.currentPage <= 1);
+    const internalDisabled = computed(() => props.disabled || props.currentPage <= 1);
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("button", {
         type: "button",
@@ -40386,7 +40865,7 @@ var _sfc_main93 = defineComponent({
           ]),
           _: 1
         }))
-      ], 8, _hoisted_144);
+      ], 8, _hoisted_145);
     };
   }
 });
@@ -40412,7 +40891,7 @@ var paginationNextProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/pagination/src/components/next2.mjs
-var _hoisted_145 = ["disabled", "aria-label", "aria-disabled"];
+var _hoisted_146 = ["disabled", "aria-label", "aria-disabled"];
 var _hoisted_229 = { key: 0 };
 var __default__65 = defineComponent({
   name: "ElPaginationNext"
@@ -40424,7 +40903,7 @@ var _sfc_main94 = defineComponent({
   setup(__props) {
     const props = __props;
     const { t } = useLocale();
-    const internalDisabled = computed2(() => props.disabled || props.currentPage === props.pageCount || props.pageCount === 0);
+    const internalDisabled = computed(() => props.disabled || props.currentPage === props.pageCount || props.pageCount === 0);
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("button", {
         type: "button",
@@ -40440,7 +40919,7 @@ var _sfc_main94 = defineComponent({
           ]),
           _: 1
         }))
-      ], 8, _hoisted_145);
+      ], 8, _hoisted_146);
     };
   }
 });
@@ -40454,14 +40933,14 @@ var selectKey = Symbol("ElSelect");
 function useOption(props, states) {
   const select = inject(selectKey);
   const selectGroup = inject(selectGroupKey, { disabled: false });
-  const itemSelected = computed2(() => {
+  const itemSelected = computed(() => {
     if (select.props.multiple) {
       return contains(select.props.modelValue, props.value);
     } else {
       return contains([select.props.modelValue], props.value);
     }
   });
-  const limitReached = computed2(() => {
+  const limitReached = computed(() => {
     if (select.props.multiple) {
       const modelValue = select.props.modelValue || [];
       return !itemSelected.value && modelValue.length >= select.props.multipleLimit && select.props.multipleLimit > 0;
@@ -40469,13 +40948,13 @@ function useOption(props, states) {
       return false;
     }
   });
-  const currentLabel = computed2(() => {
+  const currentLabel = computed(() => {
     return props.label || (isObject(props.value) ? "" : props.value);
   });
-  const currentValue = computed2(() => {
+  const currentValue = computed(() => {
     return props.value || props.label || "";
   });
-  const isDisabled = computed2(() => {
+  const isDisabled = computed(() => {
     return props.disabled || states.groupDisabled || limitReached.value;
   });
   const instance = getCurrentInstance();
@@ -40545,7 +41024,7 @@ var _sfc_main95 = defineComponent({
   setup(props) {
     const ns = useNamespace("select");
     const id = useId();
-    const containerKls = computed2(() => [
+    const containerKls = computed(() => [
       ns.be("dropdown", "item"),
       ns.is("disabled", unref(isDisabled)),
       ns.is("selected", unref(itemSelected)),
@@ -40604,7 +41083,7 @@ var _sfc_main95 = defineComponent({
     };
   }
 });
-var _hoisted_146 = ["id", "aria-disabled", "aria-selected"];
+var _hoisted_147 = ["id", "aria-disabled", "aria-selected"];
 function _sfc_render20(_ctx, _cache, $props, $setup, $data, $options) {
   return withDirectives((openBlock(), createElementBlock("li", {
     id: _ctx.id,
@@ -40618,7 +41097,7 @@ function _sfc_render20(_ctx, _cache, $props, $setup, $data, $options) {
     renderSlot(_ctx.$slots, "default", {}, () => [
       createBaseVNode("span", null, toDisplayString(_ctx.currentLabel), 1)
     ])
-  ], 42, _hoisted_146)), [
+  ], 42, _hoisted_147)), [
     [vShow, _ctx.visible]
   ]);
 }
@@ -40631,9 +41110,9 @@ var _sfc_main96 = defineComponent({
   setup() {
     const select = inject(selectKey);
     const ns = useNamespace("select");
-    const popperClass = computed2(() => select.props.popperClass);
-    const isMultiple = computed2(() => select.props.multiple);
-    const isFitInputWidth = computed2(() => select.props.fitInputWidth);
+    const popperClass = computed(() => select.props.popperClass);
+    const isMultiple = computed(() => select.props.multiple);
+    const isFitInputWidth = computed(() => select.props.fitInputWidth);
     const minWidth = ref("");
     function updateMinWidth() {
       var _a2;
@@ -40724,13 +41203,6 @@ var useSelect = (props, emit) => {
     menuVisibleOnFocus: false,
     isBeforeHide: false
   });
-  useDeprecated({
-    from: "suffixTransition",
-    replacement: "override style scheme",
-    version: "2.3.0",
-    scope: "props",
-    ref: "https://element-plus.org/en-US/component/select.html#select-attributes"
-  }, computed2(() => props.suffixTransition === false));
   const selectRef = ref(null);
   const selectionRef = ref(null);
   const tooltipRef = ref(null);
@@ -40765,20 +41237,20 @@ var useSelect = (props, emit) => {
   const { inputId } = useFormItemInputId(props, {
     formItemContext: formItem
   });
-  const selectDisabled = computed2(() => props.disabled || (form == null ? void 0 : form.disabled));
-  const hasModelValue = computed2(() => {
-    return props.multiple ? isArray(props.modelValue) && props.modelValue.length > 0 : props.modelValue !== void 0 && props.modelValue !== null && props.modelValue !== "";
+  const { valueOnClear, isEmptyValue: isEmptyValue2 } = useEmptyValues(props);
+  const selectDisabled = computed(() => props.disabled || (form == null ? void 0 : form.disabled));
+  const hasModelValue = computed(() => {
+    return props.multiple ? isArray(props.modelValue) && props.modelValue.length > 0 : !isEmptyValue2(props.modelValue);
   });
-  const showClose = computed2(() => {
-    const criteria = props.clearable && !selectDisabled.value && states.inputHovering && hasModelValue.value;
-    return criteria;
+  const showClose = computed(() => {
+    return props.clearable && !selectDisabled.value && states.inputHovering && hasModelValue.value;
   });
-  const iconComponent = computed2(() => props.remote && props.filterable && !props.remoteShowSuffix ? "" : props.suffixIcon);
-  const iconReverse = computed2(() => nsSelect.is("reverse", iconComponent.value && expanded.value && props.suffixTransition));
-  const validateState = computed2(() => (formItem == null ? void 0 : formItem.validateState) || "");
-  const validateIcon = computed2(() => ValidateComponentsMap[validateState.value]);
-  const debounce$1 = computed2(() => props.remote ? 300 : 0);
-  const emptyText = computed2(() => {
+  const iconComponent = computed(() => props.remote && props.filterable && !props.remoteShowSuffix ? "" : props.suffixIcon);
+  const iconReverse = computed(() => nsSelect.is("reverse", iconComponent.value && expanded.value));
+  const validateState = computed(() => (formItem == null ? void 0 : formItem.validateState) || "");
+  const validateIcon = computed(() => ValidateComponentsMap[validateState.value]);
+  const debounce$1 = computed(() => props.remote ? 300 : 0);
+  const emptyText = computed(() => {
     if (props.loading) {
       return props.loadingText || t("el.select.loading");
     } else {
@@ -40793,8 +41265,8 @@ var useSelect = (props, emit) => {
     }
     return null;
   });
-  const filteredOptionsCount = computed2(() => optionsArray.value.filter((option) => option.visible).length);
-  const optionsArray = computed2(() => {
+  const filteredOptionsCount = computed(() => optionsArray.value.filter((option) => option.visible).length);
+  const optionsArray = computed(() => {
     const list = Array.from(states.options.values());
     const newList = [];
     states.optionValues.forEach((item) => {
@@ -40805,8 +41277,8 @@ var useSelect = (props, emit) => {
     });
     return newList.length >= list.length ? newList : list;
   });
-  const cachedOptionsArray = computed2(() => Array.from(states.cachedOptions.values()));
-  const showNewOption = computed2(() => {
+  const cachedOptionsArray = computed(() => Array.from(states.cachedOptions.values()));
+  const showNewOption = computed(() => {
     const hasExistingOption = optionsArray.value.filter((option) => {
       return !option.created;
     }).some((option) => {
@@ -40820,12 +41292,13 @@ var useSelect = (props, emit) => {
     if (props.filterable && props.remote && isFunction(props.remoteMethod))
       return;
     optionsArray.value.forEach((option) => {
-      option.updateOption(states.inputValue);
+      var _a2;
+      (_a2 = option.updateOption) == null ? void 0 : _a2.call(option, states.inputValue);
     });
   };
   const selectSize = useFormSize();
-  const collapseTagSize = computed2(() => ["small"].includes(selectSize.value) ? "small" : "default");
-  const dropdownMenuVisible = computed2({
+  const collapseTagSize = computed(() => ["small"].includes(selectSize.value) ? "small" : "default");
+  const dropdownMenuVisible = computed({
     get() {
       return expanded.value && emptyText.value !== false;
     },
@@ -40833,17 +41306,18 @@ var useSelect = (props, emit) => {
       expanded.value = val;
     }
   });
-  const shouldShowPlaceholder = computed2(() => {
+  const shouldShowPlaceholder = computed(() => {
     if (isArray(props.modelValue)) {
       return props.modelValue.length === 0 && !states.inputValue;
     }
     return props.filterable ? !states.inputValue : true;
   });
-  const currentPlaceholder = computed2(() => {
+  const currentPlaceholder = computed(() => {
     var _a2;
     const _placeholder = (_a2 = props.placeholder) != null ? _a2 : t("el.select.placeholder");
     return props.multiple || !hasModelValue.value ? _placeholder : states.selectedLabel;
   });
+  const mouseEnterEventName = computed(() => isIOS ? null : "mouseenter");
   watch(() => props.modelValue, (val, oldVal) => {
     if (props.multiple) {
       if (props.filterable && !props.reserveKeyword) {
@@ -40949,7 +41423,9 @@ var useSelect = (props, emit) => {
         option = {
           value,
           currentLabel: cachedOption.currentLabel,
-          isDisabled: cachedOption.isDisabled
+          get isDisabled() {
+            return cachedOption.isDisabled;
+          }
         };
         break;
       }
@@ -40969,15 +41445,7 @@ var useSelect = (props, emit) => {
         return getValueKey(item) === getValueKey(states.selected);
       });
     } else {
-      if (states.selected.length > 0) {
-        states.hoveringIndex = Math.min(...states.selected.map((selected) => {
-          return optionsArray.value.findIndex((item) => {
-            return getValueKey(item) === getValueKey(selected);
-          });
-        }));
-      } else {
-        states.hoveringIndex = -1;
-      }
+      states.hoveringIndex = optionsArray.value.findIndex((item) => states.selected.some((selected) => getValueKey(selected) === getValueKey(item)));
     }
   };
   const resetSelectionWidth = () => {
@@ -41030,9 +41498,11 @@ var useSelect = (props, emit) => {
       const lastNotDisabledIndex = getLastNotDisabledIndex(value);
       if (lastNotDisabledIndex < 0)
         return;
+      const removeTagValue = value[lastNotDisabledIndex];
       value.splice(lastNotDisabledIndex, 1);
       emit(UPDATE_MODEL_EVENT, value);
       emitChange(value);
+      emit("remove-tag", removeTagValue);
     }
   };
   const deleteTag = (event, tag) => {
@@ -41049,8 +41519,8 @@ var useSelect = (props, emit) => {
   };
   const deleteSelected = (event) => {
     event.stopPropagation();
-    const value = props.multiple ? [] : "";
-    if (!isString(value)) {
+    const value = props.multiple ? [] : valueOnClear.value;
+    if (props.multiple) {
       for (const item of states.selected) {
         if (item.isDisabled)
           value.push(item.value);
@@ -41139,11 +41609,12 @@ var useSelect = (props, emit) => {
     handleCompositionUpdate,
     handleCompositionEnd
   } = useInput((e) => onInput(e));
-  const popperRef = computed2(() => {
+  const popperRef = computed(() => {
     var _a2, _b;
     return (_b = (_a2 = tooltipRef.value) == null ? void 0 : _a2.popperRef) == null ? void 0 : _b.contentRef;
   });
   const handleMenuEnter = () => {
+    states.isBeforeHide = false;
     nextTick(() => scrollToOption(states.selected));
   };
   const focus = () => {
@@ -41173,6 +41644,8 @@ var useSelect = (props, emit) => {
   const toggleMenu = () => {
     if (selectDisabled.value)
       return;
+    if (isIOS)
+      states.inputHovering = true;
     if (states.menuVisibleOnFocus) {
       states.menuVisibleOnFocus = false;
     } else {
@@ -41191,14 +41664,14 @@ var useSelect = (props, emit) => {
   const getValueKey = (item) => {
     return isObject(item.value) ? get_default(item.value, props.valueKey) : item.value;
   };
-  const optionsAllDisabled = computed2(() => optionsArray.value.filter((option) => option.visible).every((option) => option.disabled));
-  const showTagList = computed2(() => {
+  const optionsAllDisabled = computed(() => optionsArray.value.filter((option) => option.visible).every((option) => option.disabled));
+  const showTagList = computed(() => {
     if (!props.multiple) {
       return [];
     }
     return props.collapseTags ? states.selected.slice(0, props.maxCollapseTags) : states.selected;
   });
-  const collapseTagList = computed2(() => {
+  const collapseTagList = computed(() => {
     if (!props.multiple) {
       return [];
     }
@@ -41236,15 +41709,15 @@ var useSelect = (props, emit) => {
     const style = window.getComputedStyle(selectionRef.value);
     return Number.parseFloat(style.gap || "6px");
   };
-  const tagStyle = computed2(() => {
+  const tagStyle = computed(() => {
     const gapWidth = getGapWidth();
     const maxWidth = collapseItemRef.value && props.maxCollapseTags === 1 ? states.selectionWidth - states.collapseItemWidth - gapWidth : states.selectionWidth;
     return { maxWidth: `${maxWidth}px` };
   });
-  const collapseTagStyle = computed2(() => {
+  const collapseTagStyle = computed(() => {
     return { maxWidth: `${states.selectionWidth}px` };
   });
-  const inputStyle = computed2(() => ({
+  const inputStyle = computed(() => ({
     width: `${Math.max(states.calculatorWidth, MINIMUM_INPUT_WIDTH)}px`
   }));
   if (props.multiple && !isArray(props.modelValue)) {
@@ -41287,6 +41760,7 @@ var useSelect = (props, emit) => {
     hasModelValue,
     shouldShowPlaceholder,
     currentPlaceholder,
+    mouseEnterEventName,
     showClose,
     iconComponent,
     iconReverse,
@@ -41457,19 +41931,17 @@ var SelectProps = buildProps({
     default: true
   },
   remoteShowSuffix: Boolean,
-  suffixTransition: {
-    type: Boolean,
-    default: true
-  },
   placement: {
     type: definePropType(String),
     values: Ee,
     default: "bottom-start"
   },
-  ariaLabel: {
-    type: String,
-    default: void 0
-  }
+  fallbackPlacements: {
+    type: definePropType(Array),
+    default: ["bottom-start", "top-start", "right", "left"]
+  },
+  ...useEmptyValuesProps,
+  ...useAriaProps(["ariaLabel"])
 });
 
 // node_modules/element-plus/es/components/select/src/select2.mjs
@@ -41515,8 +41987,9 @@ var _sfc_main97 = defineComponent({
     };
   }
 });
-var _hoisted_147 = ["id", "disabled", "autocomplete", "readonly", "aria-activedescendant", "aria-controls", "aria-expanded", "aria-label"];
+var _hoisted_148 = ["id", "name", "disabled", "autocomplete", "readonly", "aria-activedescendant", "aria-controls", "aria-expanded", "aria-label"];
 var _hoisted_230 = ["textContent"];
+var _hoisted_314 = { key: 1 };
 function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_tag = resolveComponent("el-tag");
   const _component_el_tooltip = resolveComponent("el-tooltip");
@@ -41529,9 +42002,9 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
   return withDirectives((openBlock(), createElementBlock("div", {
     ref: "selectRef",
     class: normalizeClass([_ctx.nsSelect.b(), _ctx.nsSelect.m(_ctx.selectSize)]),
-    onMouseenter: _cache[14] || (_cache[14] = ($event) => _ctx.states.inputHovering = true),
-    onMouseleave: _cache[15] || (_cache[15] = ($event) => _ctx.states.inputHovering = false),
-    onClick: _cache[16] || (_cache[16] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["stop"]))
+    [toHandlerKey(_ctx.mouseEnterEventName)]: _cache[16] || (_cache[16] = ($event) => _ctx.states.inputHovering = true),
+    onMouseleave: _cache[17] || (_cache[17] = ($event) => _ctx.states.inputHovering = false),
+    onClick: _cache[18] || (_cache[18] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["prevent", "stop"]))
   }, [
     createVNode(_component_el_tooltip, {
       ref: "tooltipRef",
@@ -41540,7 +42013,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
       teleported: _ctx.teleported,
       "popper-class": [_ctx.nsSelect.e("popper"), _ctx.popperClass],
       "popper-options": _ctx.popperOptions,
-      "fallback-placements": ["bottom-start", "top-start", "right", "left"],
+      "fallback-placements": _ctx.fallbackPlacements,
       effect: _ctx.effect,
       pure: "",
       trigger: "click",
@@ -41549,7 +42022,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
       "gpu-acceleration": false,
       persistent: _ctx.persistent,
       onBeforeShow: _ctx.handleMenuEnter,
-      onHide: _cache[13] || (_cache[13] = ($event) => _ctx.states.isBeforeHide = false)
+      onHide: _cache[15] || (_cache[15] = ($event) => _ctx.states.isBeforeHide = false)
     }, {
       default: withCtx(() => {
         var _a2;
@@ -41595,7 +42068,14 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
                       default: withCtx(() => [
                         createBaseVNode("span", {
                           class: normalizeClass(_ctx.nsSelect.e("tags-text"))
-                        }, toDisplayString(item.currentLabel), 3)
+                        }, [
+                          renderSlot(_ctx.$slots, "label", {
+                            label: item.currentLabel,
+                            value: item.value
+                          }, () => [
+                            createTextVNode(toDisplayString(item.currentLabel), 1)
+                          ])
+                        ], 2)
                       ]),
                       _: 2
                     }, 1032, ["closable", "size", "type", "style", "onClose"])
@@ -41652,7 +42132,14 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
                             default: withCtx(() => [
                               createBaseVNode("span", {
                                 class: normalizeClass(_ctx.nsSelect.e("tags-text"))
-                              }, toDisplayString(item.currentLabel), 3)
+                              }, [
+                                renderSlot(_ctx.$slots, "label", {
+                                  label: item.currentLabel,
+                                  value: item.value
+                                }, () => [
+                                  createTextVNode(toDisplayString(item.currentLabel), 1)
+                                ])
+                              ], 2)
                             ]),
                             _: 2
                           }, 1032, ["closable", "size", "type", "onClose"])
@@ -41660,7 +42147,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
                       }), 128))
                     ], 2)
                   ]),
-                  _: 1
+                  _: 3
                 }, 8, ["disabled", "effect", "teleported"])) : createCommentVNode("v-if", true)
               ]) : createCommentVNode("v-if", true),
               !_ctx.selectDisabled ? (openBlock(), createElementBlock("div", {
@@ -41676,6 +42163,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
                   ref: "inputRef",
                   "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => _ctx.states.inputValue = $event),
                   type: "text",
+                  name: _ctx.name,
                   class: normalizeClass([_ctx.nsSelect.e("input"), _ctx.nsSelect.is(_ctx.selectSize)]),
                   disabled: _ctx.selectDisabled,
                   autocomplete: _ctx.autocomplete,
@@ -41703,7 +42191,7 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
                   onCompositionend: _cache[10] || (_cache[10] = (...args) => _ctx.handleCompositionEnd && _ctx.handleCompositionEnd(...args)),
                   onInput: _cache[11] || (_cache[11] = (...args) => _ctx.onInput && _ctx.onInput(...args)),
                   onClick: _cache[12] || (_cache[12] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["stop"]))
-                }, null, 46, _hoisted_147), [
+                }, null, 46, _hoisted_148), [
                   [vModelText, _ctx.states.inputValue]
                 ]),
                 _ctx.filterable ? (openBlock(), createElementBlock("span", {
@@ -41722,7 +42210,13 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
                   _ctx.nsSelect.is("transparent", !_ctx.hasModelValue || _ctx.expanded && !_ctx.states.inputValue)
                 ])
               }, [
-                createBaseVNode("span", null, toDisplayString(_ctx.currentPlaceholder), 1)
+                _ctx.hasModelValue ? renderSlot(_ctx.$slots, "label", {
+                  key: 0,
+                  label: _ctx.currentPlaceholder,
+                  value: _ctx.modelValue
+                }, () => [
+                  createBaseVNode("span", null, toDisplayString(_ctx.currentPlaceholder), 1)
+                ]) : (openBlock(), createElementBlock("span", _hoisted_314, toDisplayString(_ctx.currentPlaceholder), 1))
               ], 2)) : createCommentVNode("v-if", true)
             ], 2),
             createBaseVNode("div", {
@@ -41766,7 +42260,9 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
           default: withCtx(() => [
             _ctx.$slots.header ? (openBlock(), createElementBlock("div", {
               key: 0,
-              class: normalizeClass(_ctx.nsSelect.be("dropdown", "header"))
+              class: normalizeClass(_ctx.nsSelect.be("dropdown", "header")),
+              onClick: _cache[13] || (_cache[13] = withModifiers(() => {
+              }, ["stop"]))
             }, [
               renderSlot(_ctx.$slots, "header")
             ], 2)) : createCommentVNode("v-if", true),
@@ -41813,7 +42309,9 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
             ], 2)) : createCommentVNode("v-if", true),
             _ctx.$slots.footer ? (openBlock(), createElementBlock("div", {
               key: 3,
-              class: normalizeClass(_ctx.nsSelect.be("dropdown", "footer"))
+              class: normalizeClass(_ctx.nsSelect.be("dropdown", "footer")),
+              onClick: _cache[14] || (_cache[14] = withModifiers(() => {
+              }, ["stop"]))
             }, [
               renderSlot(_ctx.$slots, "footer")
             ], 2)) : createCommentVNode("v-if", true)
@@ -41822,8 +42320,8 @@ function _sfc_render22(_ctx, _cache, $props, $setup, $data, $options) {
         }, 512)
       ]),
       _: 3
-    }, 8, ["visible", "placement", "teleported", "popper-class", "popper-options", "effect", "transition", "persistent", "onBeforeShow"])
-  ], 34)), [
+    }, 8, ["visible", "placement", "teleported", "popper-class", "popper-options", "fallback-placements", "effect", "transition", "persistent", "onBeforeShow"])
+  ], 16)), [
     [_directive_click_outside, _ctx.handleClickOutside, _ctx.popperRef]
   ]);
 }
@@ -41845,21 +42343,24 @@ var _sfc_main98 = defineComponent({
     provide(selectGroupKey, reactive({
       ...toRefs(props)
     }));
-    const visible = computed2(() => children.value.some((option) => option.visible === true));
+    const visible = computed(() => children.value.some((option) => option.visible === true));
+    const isOption = (node) => {
+      var _a2, _b;
+      return ((_a2 = node.type) == null ? void 0 : _a2.name) === "ElOption" && !!((_b = node.component) == null ? void 0 : _b.proxy);
+    };
     const flattedChildren2 = (node) => {
+      const Nodes = castArray_default(node);
       const children2 = [];
-      if (isArray(node.children)) {
-        node.children.forEach((child) => {
-          var _a2, _b;
-          if (child.type && child.type.name === "ElOption" && child.component && child.component.proxy) {
-            children2.push(child.component.proxy);
-          } else if ((_a2 = child.children) == null ? void 0 : _a2.length) {
-            children2.push(...flattedChildren2(child));
-          } else if ((_b = child.component) == null ? void 0 : _b.subTree) {
-            children2.push(...flattedChildren2(child.component.subTree));
-          }
-        });
-      }
+      Nodes.forEach((child) => {
+        var _a2, _b;
+        if (isOption(child)) {
+          children2.push(child.component.proxy);
+        } else if ((_a2 = child.children) == null ? void 0 : _a2.length) {
+          children2.push(...flattedChildren2(child.children));
+        } else if ((_b = child.component) == null ? void 0 : _b.subTree) {
+          children2.push(...flattedChildren2(child.component.subTree));
+        }
+      });
       return children2;
     };
     const updateChildren = () => {
@@ -41958,7 +42459,7 @@ var _sfc_main99 = defineComponent({
     watch(() => props.pageSize, (newVal) => {
       innerPageSize.value = newVal;
     });
-    const innerPageSizes = computed2(() => props.pageSizes);
+    const innerPageSizes = computed(() => props.pageSizes);
     function handleChange(val) {
       var _a2;
       if (val !== innerPageSize.value) {
@@ -42005,7 +42506,7 @@ var paginationJumperProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/pagination/src/components/jumper2.mjs
-var _hoisted_148 = ["disabled"];
+var _hoisted_149 = ["disabled"];
 var __default__67 = defineComponent({
   name: "ElPaginationJumper"
 });
@@ -42017,7 +42518,7 @@ var _sfc_main100 = defineComponent({
     const ns = useNamespace("pagination");
     const { pageCount, disabled, currentPage, changeEvent } = usePagination();
     const userInput = ref();
-    const innerValue = computed2(() => {
+    const innerValue = computed(() => {
       var _a2;
       return (_a2 = userInput.value) != null ? _a2 : currentPage == null ? void 0 : currentPage.value;
     });
@@ -42045,15 +42546,15 @@ var _sfc_main100 = defineComponent({
           disabled: unref(disabled),
           "model-value": unref(innerValue),
           "validate-event": false,
-          label: unref(t)("el.pagination.page"),
+          "aria-label": unref(t)("el.pagination.page"),
           type: "number",
           "onUpdate:modelValue": handleInput,
           onChange: handleChange
-        }, null, 8, ["size", "class", "max", "disabled", "model-value", "label"]),
+        }, null, 8, ["size", "class", "max", "disabled", "model-value", "aria-label"]),
         createBaseVNode("span", {
           class: normalizeClass([unref(ns).e("classifier")])
         }, toDisplayString(unref(t)("el.pagination.pageClassifier")), 3)
-      ], 10, _hoisted_148);
+      ], 10, _hoisted_149);
     };
   }
 });
@@ -42068,7 +42569,7 @@ var paginationTotalProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/pagination/src/components/total2.mjs
-var _hoisted_149 = ["disabled"];
+var _hoisted_150 = ["disabled"];
 var __default__68 = defineComponent({
   name: "ElPaginationTotal"
 });
@@ -42085,7 +42586,7 @@ var _sfc_main101 = defineComponent({
         disabled: unref(disabled)
       }, toDisplayString(unref(t)("el.pagination.total", {
         total: _ctx.total
-      })), 11, _hoisted_149);
+      })), 11, _hoisted_150);
     };
   }
 });
@@ -42109,12 +42610,12 @@ var paginationPagerProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/pagination/src/components/pager2.mjs
-var _hoisted_150 = ["onKeyup"];
+var _hoisted_151 = ["onKeyup"];
 var _hoisted_231 = ["aria-current", "aria-label", "tabindex"];
-var _hoisted_313 = ["tabindex", "aria-label"];
-var _hoisted_47 = ["aria-current", "aria-label", "tabindex"];
-var _hoisted_54 = ["tabindex", "aria-label"];
-var _hoisted_63 = ["aria-current", "aria-label", "tabindex"];
+var _hoisted_315 = ["tabindex", "aria-label"];
+var _hoisted_48 = ["aria-current", "aria-label", "tabindex"];
+var _hoisted_55 = ["tabindex", "aria-label"];
+var _hoisted_64 = ["aria-current", "aria-label", "tabindex"];
 var __default__69 = defineComponent({
   name: "ElPaginationPager"
 });
@@ -42133,7 +42634,7 @@ var _sfc_main102 = defineComponent({
     const quickNextHover = ref(false);
     const quickPrevFocus = ref(false);
     const quickNextFocus = ref(false);
-    const pagers = computed2(() => {
+    const pagers = computed(() => {
       const pagerCount = props.pagerCount;
       const halfPagerCount = (pagerCount - 1) / 2;
       const currentPage = Number(props.currentPage);
@@ -42170,19 +42671,19 @@ var _sfc_main102 = defineComponent({
       }
       return array4;
     });
-    const prevMoreKls = computed2(() => [
+    const prevMoreKls = computed(() => [
       "more",
       "btn-quickprev",
       nsIcon.b(),
       nsPager.is("disabled", props.disabled)
     ]);
-    const nextMoreKls = computed2(() => [
+    const nextMoreKls = computed(() => [
       "more",
       "btn-quicknext",
       nsIcon.b(),
       nsPager.is("disabled", props.disabled)
     ]);
-    const tabindex = computed2(() => props.disabled ? -1 : 0);
+    const tabindex = computed(() => props.disabled ? -1 : 0);
     watchEffect(() => {
       const halfPagerCount = (props.pagerCount - 1) / 2;
       showPrevMore.value = false;
@@ -42278,7 +42779,7 @@ var _sfc_main102 = defineComponent({
           onBlur: _cache[3] || (_cache[3] = ($event) => quickPrevFocus.value = false)
         }, [
           (quickPrevHover.value || quickPrevFocus.value) && !_ctx.disabled ? (openBlock(), createBlock(unref(d_arrow_left_default), { key: 0 })) : (openBlock(), createBlock(unref(more_filled_default), { key: 1 }))
-        ], 42, _hoisted_313)) : createCommentVNode("v-if", true),
+        ], 42, _hoisted_315)) : createCommentVNode("v-if", true),
         (openBlock(true), createElementBlock(Fragment, null, renderList(unref(pagers), (pager) => {
           return openBlock(), createElementBlock("li", {
             key: pager,
@@ -42289,7 +42790,7 @@ var _sfc_main102 = defineComponent({
             "aria-current": _ctx.currentPage === pager,
             "aria-label": unref(t)("el.pagination.currentPage", { pager }),
             tabindex: unref(tabindex)
-          }, toDisplayString(pager), 11, _hoisted_47);
+          }, toDisplayString(pager), 11, _hoisted_48);
         }), 128)),
         showNextMore.value ? (openBlock(), createElementBlock("li", {
           key: 2,
@@ -42302,7 +42803,7 @@ var _sfc_main102 = defineComponent({
           onBlur: _cache[7] || (_cache[7] = ($event) => quickNextFocus.value = false)
         }, [
           (quickNextHover.value || quickNextFocus.value) && !_ctx.disabled ? (openBlock(), createBlock(unref(d_arrow_right_default), { key: 0 })) : (openBlock(), createBlock(unref(more_filled_default), { key: 1 }))
-        ], 42, _hoisted_54)) : createCommentVNode("v-if", true),
+        ], 42, _hoisted_55)) : createCommentVNode("v-if", true),
         _ctx.pageCount > 1 ? (openBlock(), createElementBlock("li", {
           key: 3,
           class: normalizeClass([[
@@ -42312,8 +42813,8 @@ var _sfc_main102 = defineComponent({
           "aria-current": _ctx.currentPage === _ctx.pageCount,
           "aria-label": unref(t)("el.pagination.currentPage", { pager: _ctx.pageCount }),
           tabindex: unref(tabindex)
-        }, toDisplayString(_ctx.pageCount), 11, _hoisted_63)) : createCommentVNode("v-if", true)
-      ], 42, _hoisted_150);
+        }, toDisplayString(_ctx.pageCount), 11, _hoisted_64)) : createCommentVNode("v-if", true)
+      ], 42, _hoisted_151);
     };
   }
 });
@@ -42368,6 +42869,7 @@ var paginationProps = buildProps({
     default: true
   },
   small: Boolean,
+  size: useSizeProp,
   background: Boolean,
   disabled: Boolean,
   hideOnSinglePage: Boolean
@@ -42390,9 +42892,17 @@ var Pagination = defineComponent({
     const { t } = useLocale();
     const ns = useNamespace("pagination");
     const vnodeProps = getCurrentInstance().vnode.props || {};
+    const _size = computed(() => props.small ? "small" : props == null ? void 0 : props.size);
+    useDeprecated({
+      from: "small",
+      replacement: "size",
+      version: "3.0.0",
+      scope: "el-pagination",
+      ref: "https://element-plus.org/zh-CN/component/pagination.html"
+    }, computed(() => !!props.small));
     const hasCurrentPageListener = "onUpdate:currentPage" in vnodeProps || "onUpdate:current-page" in vnodeProps || "onCurrentChange" in vnodeProps;
     const hasPageSizeListener = "onUpdate:pageSize" in vnodeProps || "onUpdate:page-size" in vnodeProps || "onSizeChange" in vnodeProps;
-    const assertValidUsage = computed2(() => {
+    const assertValidUsage = computed(() => {
       if (isAbsent(props.total) && isAbsent(props.pageCount))
         return false;
       if (!isAbsent(props.currentPage) && !hasCurrentPageListener)
@@ -42414,7 +42924,7 @@ var Pagination = defineComponent({
     });
     const innerPageSize = ref(isAbsent(props.defaultPageSize) ? 10 : props.defaultPageSize);
     const innerCurrentPage = ref(isAbsent(props.defaultCurrentPage) ? 1 : props.defaultCurrentPage);
-    const pageSizeBridge = computed2({
+    const pageSizeBridge = computed({
       get() {
         return isAbsent(props.pageSize) ? innerPageSize.value : props.pageSize;
       },
@@ -42428,7 +42938,7 @@ var Pagination = defineComponent({
         }
       }
     });
-    const pageCountBridge = computed2(() => {
+    const pageCountBridge = computed(() => {
       let pageCount = 0;
       if (!isAbsent(props.pageCount)) {
         pageCount = props.pageCount;
@@ -42437,7 +42947,7 @@ var Pagination = defineComponent({
       }
       return pageCount;
     });
-    const currentPageBridge = computed2({
+    const currentPageBridge = computed({
       get() {
         return isAbsent(props.currentPage) ? innerCurrentPage.value : props.currentPage;
       },
@@ -42496,7 +43006,7 @@ var Pagination = defineComponent({
     }
     provide(elPaginationKey, {
       pageCount: pageCountBridge,
-      disabled: computed2(() => props.disabled),
+      disabled: computed(() => props.disabled),
       currentPage: currentPageBridge,
       changeEvent: handleCurrentChange2,
       handleSizeChange
@@ -42523,7 +43033,7 @@ var Pagination = defineComponent({
           onClick: prev
         }),
         jumper: h(Jumper, {
-          size: props.small ? "small" : "default"
+          size: _size.value
         }),
         pager: h(Pager, {
           currentPage: currentPageBridge.value,
@@ -42546,7 +43056,7 @@ var Pagination = defineComponent({
           popperClass: props.popperClass,
           disabled: props.disabled,
           teleported: props.teleported,
-          size: props.small ? "small" : "default"
+          size: _size.value
         }),
         slot: (_b = (_a2 = slots == null ? void 0 : slots.default) == null ? void 0 : _a2.call(slots)) != null ? _b : null,
         total: h(Total, { total: isAbsent(props.total) ? 0 : props.total })
@@ -42575,9 +43085,7 @@ var Pagination = defineComponent({
         class: [
           ns.b(),
           ns.is("background", props.background),
-          {
-            [ns.m("small")]: props.small
-          }
+          ns.m(_size.value)
         ]
       }, rootChildren);
     };
@@ -42647,7 +43155,7 @@ var _sfc_main103 = defineComponent({
       var _a2, _b;
       (_b = (_a2 = tooltipRef.value) == null ? void 0 : _a2.onClose) == null ? void 0 : _b.call(_a2);
     };
-    const style = computed2(() => {
+    const style = computed(() => {
       return {
         width: addUnit(props.width)
       };
@@ -42660,8 +43168,8 @@ var _sfc_main103 = defineComponent({
       emit("cancel", e);
       hidePopper();
     };
-    const finalConfirmButtonText = computed2(() => props.confirmButtonText || t("el.popconfirm.confirmButtonText"));
-    const finalCancelButtonText = computed2(() => props.cancelButtonText || t("el.popconfirm.cancelButtonText"));
+    const finalConfirmButtonText = computed(() => props.confirmButtonText || t("el.popconfirm.confirmButtonText"));
+    const finalCancelButtonText = computed(() => props.cancelButtonText || t("el.popconfirm.cancelButtonText"));
     return (_ctx, _cache) => {
       return openBlock(), createBlock(unref(ElTooltip), mergeProps({
         ref_key: "tooltipRef",
@@ -42809,16 +43317,16 @@ var _sfc_main104 = defineComponent({
   emits: popoverEmits,
   setup(__props, { expose, emit }) {
     const props = __props;
-    const onUpdateVisible = computed2(() => {
+    const onUpdateVisible = computed(() => {
       return props[updateEventKeyRaw];
     });
     const ns = useNamespace("popover");
     const tooltipRef = ref();
-    const popperRef = computed2(() => {
+    const popperRef = computed(() => {
       var _a2;
       return (_a2 = unref(tooltipRef)) == null ? void 0 : _a2.popperRef;
     });
-    const style = computed2(() => {
+    const style = computed(() => {
       return [
         {
           width: addUnit(props.width)
@@ -42826,10 +43334,10 @@ var _sfc_main104 = defineComponent({
         props.popperStyle
       ];
     });
-    const kls = computed2(() => {
+    const kls = computed(() => {
       return [ns.b(), props.popperClass, { [ns.m("plain")]: !!props.content }];
     });
-    const gpuAcceleration = computed2(() => {
+    const gpuAcceleration = computed(() => {
       return props.transition === `${ns.namespace.value}-fade-in-linear`;
     });
     const hide2 = () => {
@@ -42991,11 +43499,11 @@ var progressProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/progress/src/progress2.mjs
-var _hoisted_151 = ["aria-valuenow"];
+var _hoisted_153 = ["aria-valuenow"];
 var _hoisted_233 = { viewBox: "0 0 100 100" };
-var _hoisted_314 = ["d", "stroke", "stroke-linecap", "stroke-width"];
-var _hoisted_48 = ["d", "stroke", "opacity", "stroke-linecap", "stroke-width"];
-var _hoisted_55 = { key: 0 };
+var _hoisted_316 = ["d", "stroke", "stroke-linecap", "stroke-width"];
+var _hoisted_49 = ["d", "stroke", "opacity", "stroke-linecap", "stroke-width"];
+var _hoisted_56 = { key: 0 };
 var __default__72 = defineComponent({
   name: "ElProgress"
 });
@@ -43011,19 +43519,27 @@ var _sfc_main105 = defineComponent({
       default: "#20a0ff"
     };
     const ns = useNamespace("progress");
-    const barStyle = computed2(() => ({
-      width: `${props.percentage}%`,
-      animationDuration: `${props.duration}s`,
-      backgroundColor: getCurrentColor(props.percentage)
-    }));
-    const relativeStrokeWidth = computed2(() => (props.strokeWidth / props.width * 100).toFixed(1));
-    const radius = computed2(() => {
+    const barStyle = computed(() => {
+      const barStyle2 = {
+        width: `${props.percentage}%`,
+        animationDuration: `${props.duration}s`
+      };
+      const color = getCurrentColor(props.percentage);
+      if (color.includes("gradient")) {
+        barStyle2.background = color;
+      } else {
+        barStyle2.backgroundColor = color;
+      }
+      return barStyle2;
+    });
+    const relativeStrokeWidth = computed(() => (props.strokeWidth / props.width * 100).toFixed(1));
+    const radius = computed(() => {
       if (["circle", "dashboard"].includes(props.type)) {
         return Number.parseInt(`${50 - Number.parseFloat(relativeStrokeWidth.value) / 2}`, 10);
       }
       return 0;
     });
-    const trackPath = computed2(() => {
+    const trackPath = computed(() => {
       const r = radius.value;
       const isDashboard = props.type === "dashboard";
       return `
@@ -43033,22 +43549,22 @@ var _sfc_main105 = defineComponent({
           a ${r} ${r} 0 1 1 0 ${isDashboard ? "" : "-"}${r * 2}
           `;
     });
-    const perimeter = computed2(() => 2 * Math.PI * radius.value);
-    const rate = computed2(() => props.type === "dashboard" ? 0.75 : 1);
-    const strokeDashoffset = computed2(() => {
+    const perimeter = computed(() => 2 * Math.PI * radius.value);
+    const rate = computed(() => props.type === "dashboard" ? 0.75 : 1);
+    const strokeDashoffset = computed(() => {
       const offset3 = -1 * perimeter.value * (1 - rate.value) / 2;
       return `${offset3}px`;
     });
-    const trailPathStyle = computed2(() => ({
+    const trailPathStyle = computed(() => ({
       strokeDasharray: `${perimeter.value * rate.value}px, ${perimeter.value}px`,
       strokeDashoffset: strokeDashoffset.value
     }));
-    const circlePathStyle = computed2(() => ({
+    const circlePathStyle = computed(() => ({
       strokeDasharray: `${perimeter.value * rate.value * (props.percentage / 100)}px, ${perimeter.value}px`,
       strokeDashoffset: strokeDashoffset.value,
       transition: "stroke-dasharray 0.6s ease 0s, stroke 0.6s ease, opacity ease 0.6s"
     }));
-    const stroke = computed2(() => {
+    const stroke = computed(() => {
       let ret;
       if (props.color) {
         ret = getCurrentColor(props.percentage);
@@ -43057,7 +43573,7 @@ var _sfc_main105 = defineComponent({
       }
       return ret;
     });
-    const statusIcon = computed2(() => {
+    const statusIcon = computed(() => {
       if (props.status === "warning") {
         return warning_filled_default;
       }
@@ -43067,10 +43583,10 @@ var _sfc_main105 = defineComponent({
         return props.status === "success" ? check_default : close_default;
       }
     });
-    const progressTextSize = computed2(() => {
+    const progressTextSize = computed(() => {
       return props.type === "line" ? 12 + props.strokeWidth * 0.4 : props.width * 0.111111 + 2;
     });
-    const content = computed2(() => props.format(props.percentage));
+    const content = computed(() => props.format(props.percentage));
     function getColors(color) {
       const span = 100 / color.length;
       const seriesColors = color.map((seriesColor, index) => {
@@ -43157,7 +43673,7 @@ var _sfc_main105 = defineComponent({
               "stroke-width": unref(relativeStrokeWidth),
               fill: "none",
               style: normalizeStyle(unref(trailPathStyle))
-            }, null, 14, _hoisted_314),
+            }, null, 14, _hoisted_316),
             createBaseVNode("path", {
               class: normalizeClass(unref(ns).be("circle", "path")),
               d: unref(trackPath),
@@ -43167,7 +43683,7 @@ var _sfc_main105 = defineComponent({
               "stroke-linecap": _ctx.strokeLinecap,
               "stroke-width": unref(relativeStrokeWidth),
               style: normalizeStyle(unref(circlePathStyle))
-            }, null, 14, _hoisted_48)
+            }, null, 14, _hoisted_49)
           ]))
         ], 6)),
         (_ctx.showText || _ctx.$slots.default) && !_ctx.textInside ? (openBlock(), createElementBlock("div", {
@@ -43176,7 +43692,7 @@ var _sfc_main105 = defineComponent({
           style: normalizeStyle({ fontSize: `${unref(progressTextSize)}px` })
         }, [
           renderSlot(_ctx.$slots, "default", { percentage: _ctx.percentage }, () => [
-            !_ctx.status ? (openBlock(), createElementBlock("span", _hoisted_55, toDisplayString(unref(content)), 1)) : (openBlock(), createBlock(unref(ElIcon), { key: 1 }, {
+            !_ctx.status ? (openBlock(), createElementBlock("span", _hoisted_56, toDisplayString(unref(content)), 1)) : (openBlock(), createBlock(unref(ElIcon), { key: 1 }, {
               default: withCtx(() => [
                 (openBlock(), createBlock(resolveDynamicComponent(unref(statusIcon))))
               ]),
@@ -43184,7 +43700,7 @@ var _sfc_main105 = defineComponent({
             }))
           ])
         ], 6)) : createCommentVNode("v-if", true)
-      ], 10, _hoisted_151);
+      ], 10, _hoisted_153);
     };
   }
 });
@@ -43269,7 +43785,8 @@ var rateProps = buildProps({
   clearable: {
     type: Boolean,
     default: false
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var rateEmits = {
   [CHANGE_EVENT]: (value) => isNumber3(value),
@@ -43277,7 +43794,7 @@ var rateEmits = {
 };
 
 // node_modules/element-plus/es/components/rate/src/rate2.mjs
-var _hoisted_153 = ["id", "aria-label", "aria-labelledby", "aria-valuenow", "aria-valuetext", "aria-valuemax"];
+var _hoisted_154 = ["id", "aria-label", "aria-labelledby", "aria-valuenow", "aria-valuetext", "aria-valuemax"];
 var _hoisted_234 = ["onMousemove", "onClick"];
 var __default__73 = defineComponent({
   name: "ElRate"
@@ -43308,16 +43825,16 @@ var _sfc_main106 = defineComponent({
     const currentValue = ref(props.modelValue);
     const hoverIndex = ref(-1);
     const pointerAtLeftHalf = ref(true);
-    const rateClasses = computed2(() => [ns.b(), ns.m(rateSize.value)]);
-    const rateDisabled = computed2(() => props.disabled || (formContext == null ? void 0 : formContext.disabled));
-    const rateStyles = computed2(() => {
+    const rateClasses = computed(() => [ns.b(), ns.m(rateSize.value)]);
+    const rateDisabled = computed(() => props.disabled || (formContext == null ? void 0 : formContext.disabled));
+    const rateStyles = computed(() => {
       return ns.cssVarBlock({
         "void-color": props.voidColor,
         "disabled-void-color": props.disabledVoidColor,
         "fill-color": activeColor.value
       });
     });
-    const text = computed2(() => {
+    const text = computed(() => {
       let result2 = "";
       if (props.showScore) {
         result2 = props.scoreTemplate.replace(/\{\s*value\s*\}/, rateDisabled.value ? `${props.modelValue}` : `${currentValue.value}`);
@@ -43326,17 +43843,17 @@ var _sfc_main106 = defineComponent({
       }
       return result2;
     });
-    const valueDecimal = computed2(() => props.modelValue * 100 - Math.floor(props.modelValue) * 100);
-    const colorMap = computed2(() => isArray(props.colors) ? {
+    const valueDecimal = computed(() => props.modelValue * 100 - Math.floor(props.modelValue) * 100);
+    const colorMap = computed(() => isArray(props.colors) ? {
       [props.lowThreshold]: props.colors[0],
       [props.highThreshold]: { value: props.colors[1], excluded: true },
       [props.max]: props.colors[2]
     } : props.colors);
-    const activeColor = computed2(() => {
+    const activeColor = computed(() => {
       const color = getValueFromMap(currentValue.value, colorMap.value);
       return isObject(color) ? "" : color;
     });
-    const decimalStyle = computed2(() => {
+    const decimalStyle = computed(() => {
       let width = "";
       if (rateDisabled.value) {
         width = `${valueDecimal.value}%`;
@@ -43348,7 +43865,7 @@ var _sfc_main106 = defineComponent({
         width
       };
     });
-    const componentMap = computed2(() => {
+    const componentMap = computed(() => {
       let icons = isArray(props.icons) ? [...props.icons] : { ...props.icons };
       icons = markRaw(icons);
       return isArray(icons) ? {
@@ -43360,9 +43877,9 @@ var _sfc_main106 = defineComponent({
         [props.max]: icons[2]
       } : icons;
     });
-    const decimalIconComponent = computed2(() => getValueFromMap(props.modelValue, componentMap.value));
-    const voidComponent = computed2(() => rateDisabled.value ? isString(props.disabledVoidIcon) ? props.disabledVoidIcon : markRaw(props.disabledVoidIcon) : isString(props.voidIcon) ? props.voidIcon : markRaw(props.voidIcon));
-    const activeComponent = computed2(() => getValueFromMap(currentValue.value, componentMap.value));
+    const decimalIconComponent = computed(() => getValueFromMap(props.modelValue, componentMap.value));
+    const voidComponent = computed(() => rateDisabled.value ? isString(props.disabledVoidIcon) ? props.disabledVoidIcon : markRaw(props.disabledVoidIcon) : isString(props.voidIcon) ? props.voidIcon : markRaw(props.voidIcon));
+    const activeComponent = computed(() => getValueFromMap(currentValue.value, componentMap.value));
     function showDecimalIcon(item) {
       const showWhenDisabled = rateDisabled.value && valueDecimal.value > 0 && item - 1 < props.modelValue && item > props.modelValue;
       const showWhenAllowHalf = props.allowHalf && pointerAtLeftHalf.value && item - 0.5 <= currentValue.value && item > currentValue.value;
@@ -43452,6 +43969,13 @@ var _sfc_main106 = defineComponent({
     if (!props.modelValue) {
       emit(UPDATE_MODEL_EVENT, 0);
     }
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-rate",
+      ref: "https://element-plus.org/en-US/component/rate.html"
+    }, computed(() => !!props.label));
     expose({
       setCurrentValue,
       resetCurrentValue
@@ -43462,7 +43986,7 @@ var _sfc_main106 = defineComponent({
         id: unref(inputId),
         class: normalizeClass([unref(rateClasses), unref(ns).is("disabled", unref(rateDisabled))]),
         role: "slider",
-        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || "rating" : void 0,
+        "aria-label": !unref(isLabeledByFormItem) ? _ctx.label || _ctx.ariaLabel || "rating" : void 0,
         "aria-labelledby": unref(isLabeledByFormItem) ? (_a2 = unref(formItemContext)) == null ? void 0 : _a2.labelId : void 0,
         "aria-valuenow": currentValue.value,
         "aria-valuetext": unref(text) || void 0,
@@ -43520,7 +44044,7 @@ var _sfc_main106 = defineComponent({
           class: normalizeClass(unref(ns).e("text")),
           style: normalizeStyle({ color: _ctx.textColor })
         }, toDisplayString(unref(text)), 7)) : createCommentVNode("v-if", true)
-      ], 46, _hoisted_153);
+      ], 46, _hoisted_154);
     };
   }
 });
@@ -43568,7 +44092,7 @@ var _sfc_main107 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("result");
-    const resultIcon = computed2(() => {
+    const resultIcon = computed(() => {
       const icon = props.icon;
       const iconClass = icon && IconMap[icon] ? IconMap[icon] : "icon-info";
       const iconComponent = IconComponentMap[iconClass] || IconComponentMap["icon-info"];
@@ -43677,7 +44201,7 @@ function memoizeOne(resultFn, isEqual3) {
 var useCache = () => {
   const vm = getCurrentInstance();
   const props = vm.proxy.$props;
-  return computed2(() => {
+  return computed(() => {
     const _getItemStyleCache = (_2, __, ___) => ({});
     return props.perfMode ? memoize_default(_getItemStyleCache) : memoizeOne(_getItemStyleCache);
   });
@@ -43937,7 +44461,7 @@ var ScrollBar = defineComponent({
   props: virtualizedScrollbarProps,
   emits: ["scroll", "start-move", "stop-move"],
   setup(props, { emit }) {
-    const GAP2 = computed2(() => props.startGap + props.endGap);
+    const GAP2 = computed(() => props.startGap + props.endGap);
     const nsVirtualScrollbar = useNamespace("virtual-scrollbar");
     const nsScrollbar = useNamespace("scrollbar");
     const trackRef = ref();
@@ -43948,9 +44472,9 @@ var ScrollBar = defineComponent({
       isDragging: false,
       traveled: 0
     });
-    const bar = computed2(() => BAR_MAP[props.layout]);
-    const trackSize = computed2(() => props.clientSize - unref(GAP2));
-    const trackStyle = computed2(() => ({
+    const bar = computed(() => BAR_MAP[props.layout]);
+    const trackSize = computed(() => props.clientSize - unref(GAP2));
+    const trackStyle = computed(() => ({
       position: "absolute",
       width: `${HORIZONTAL === props.layout ? trackSize.value : props.scrollbarSize}px`,
       height: `${HORIZONTAL === props.layout ? props.scrollbarSize : trackSize.value}px`,
@@ -43959,7 +44483,7 @@ var ScrollBar = defineComponent({
       bottom: "2px",
       borderRadius: "4px"
     }));
-    const thumbSize = computed2(() => {
+    const thumbSize = computed(() => {
       const ratio = props.ratio;
       const clientSize = props.clientSize;
       if (ratio >= 100) {
@@ -43971,7 +44495,7 @@ var ScrollBar = defineComponent({
       const SCROLLBAR_MAX_SIZE = clientSize / 3;
       return Math.floor(Math.min(Math.max(ratio * clientSize, SCROLLBAR_MIN_SIZE), SCROLLBAR_MAX_SIZE));
     });
-    const thumbStyle = computed2(() => {
+    const thumbStyle = computed(() => {
       if (!Number.isFinite(thumbSize.value)) {
         return {
           display: "none"
@@ -43985,7 +44509,7 @@ var ScrollBar = defineComponent({
       }, props.layout);
       return style;
     });
-    const totalSteps = computed2(() => Math.floor(props.clientSize - thumbSize.value - unref(GAP2)));
+    const totalSteps = computed(() => Math.floor(props.clientSize - thumbSize.value - unref(GAP2)));
     const attachEvents2 = () => {
       window.addEventListener("mousemove", onMouseMove);
       window.addEventListener("mouseup", onMouseUp);
@@ -44113,7 +44637,7 @@ var createList = ({
         isScrollbarDragging: false,
         scrollbarAlwaysOn: props.scrollbarAlwaysOn
       });
-      const itemsToRender = computed2(() => {
+      const itemsToRender = computed(() => {
         const { total: total2, cache: cache2 } = props;
         const { isScrolling, scrollDir, scrollOffset } = unref(states);
         if (total2 === 0) {
@@ -44130,9 +44654,9 @@ var createList = ({
           stopIndex
         ];
       });
-      const estimatedTotalSize = computed2(() => getEstimatedTotalSize2(props, unref(dynamicSizeCache)));
-      const _isHorizontal = computed2(() => isHorizontal(props.layout));
-      const windowStyle = computed2(() => [
+      const estimatedTotalSize = computed(() => getEstimatedTotalSize2(props, unref(dynamicSizeCache)));
+      const _isHorizontal = computed(() => isHorizontal(props.layout));
+      const windowStyle = computed(() => [
         {
           position: "relative",
           [`overflow-${_isHorizontal.value ? "x" : "y"}`]: "scroll",
@@ -44146,7 +44670,7 @@ var createList = ({
         },
         props.style
       ]);
-      const innerStyle = computed2(() => {
+      const innerStyle = computed(() => {
         const size3 = unref(estimatedTotalSize);
         const horizontal = unref(_isHorizontal);
         return {
@@ -44155,11 +44679,11 @@ var createList = ({
           width: horizontal ? `${size3}px` : "100%"
         };
       });
-      const clientSize = computed2(() => _isHorizontal.value ? props.width : props.height);
+      const clientSize = computed(() => _isHorizontal.value ? props.width : props.height);
       const { onWheel } = useWheel({
-        atStartEdge: computed2(() => states.value.scrollOffset <= 0),
-        atEndEdge: computed2(() => states.value.scrollOffset >= estimatedTotalSize.value),
-        layout: computed2(() => props.layout)
+        atStartEdge: computed(() => states.value.scrollOffset <= 0),
+        atEndEdge: computed(() => states.value.scrollOffset >= estimatedTotalSize.value),
+        layout: computed(() => props.layout)
       }, (offset3) => {
         var _a2, _b;
         ;
@@ -44497,7 +45021,7 @@ var FixedSizeList = createList({
 });
 
 // node_modules/element-plus/es/components/virtual-list/src/components/dynamic-size-list.mjs
-var SCOPE4 = "ElDynamicSizeList";
+var SCOPE5 = "ElDynamicSizeList";
 var getItemFromCache = (props, index, listCache) => {
   const { itemSize: itemSize3 } = props;
   const { items, lastVisitedIndex } = listCache;
@@ -44638,7 +45162,7 @@ var DynamicSizeList = createList({
   validateProps: ({ itemSize: itemSize3 }) => {
     if (true) {
       if (typeof itemSize3 !== "function") {
-        throwError(SCOPE4, `
+        throwError(SCOPE5, `
           itemSize is required as function, but the given value was ${typeof itemSize3}
         `);
       }
@@ -44727,9 +45251,9 @@ var createGrid = ({
         yAxisScrollDir: FORWARD
       });
       const getItemStyleCache = useCache();
-      const parsedHeight = computed2(() => Number.parseInt(`${props.height}`, 10));
-      const parsedWidth = computed2(() => Number.parseInt(`${props.width}`, 10));
-      const columnsToRender = computed2(() => {
+      const parsedHeight = computed(() => Number.parseInt(`${props.height}`, 10));
+      const parsedWidth = computed(() => Number.parseInt(`${props.width}`, 10));
+      const columnsToRender = computed(() => {
         const { totalColumn, totalRow, columnCache } = props;
         const { isScrolling, xAxisScrollDir, scrollLeft } = unref(states);
         if (totalColumn === 0 || totalRow === 0) {
@@ -44746,7 +45270,7 @@ var createGrid = ({
           stopIndex
         ];
       });
-      const rowsToRender = computed2(() => {
+      const rowsToRender = computed(() => {
         const { totalColumn, totalRow, rowCache } = props;
         const { isScrolling, yAxisScrollDir, scrollTop } = unref(states);
         if (totalColumn === 0 || totalRow === 0) {
@@ -44763,9 +45287,9 @@ var createGrid = ({
           stopIndex
         ];
       });
-      const estimatedTotalHeight = computed2(() => getEstimatedTotalHeight2(props, unref(cache2)));
-      const estimatedTotalWidth = computed2(() => getEstimatedTotalWidth2(props, unref(cache2)));
-      const windowStyle = computed2(() => {
+      const estimatedTotalHeight = computed(() => getEstimatedTotalHeight2(props, unref(cache2)));
+      const estimatedTotalWidth = computed(() => getEstimatedTotalWidth2(props, unref(cache2)));
+      const windowStyle = computed(() => {
         var _a2;
         return [
           {
@@ -44782,7 +45306,7 @@ var createGrid = ({
           (_a2 = props.style) != null ? _a2 : {}
         ];
       });
-      const innerStyle = computed2(() => {
+      const innerStyle = computed(() => {
         const width = `${unref(estimatedTotalWidth)}px`;
         const height = `${unref(estimatedTotalHeight)}px`;
         return {
@@ -44879,10 +45403,10 @@ var createGrid = ({
         });
       };
       const { onWheel } = useGridWheel({
-        atXStartEdge: computed2(() => states.value.scrollLeft <= 0),
-        atXEndEdge: computed2(() => states.value.scrollLeft >= estimatedTotalWidth.value - unref(parsedWidth)),
-        atYStartEdge: computed2(() => states.value.scrollTop <= 0),
-        atYEndEdge: computed2(() => states.value.scrollTop >= estimatedTotalHeight.value - unref(parsedHeight))
+        atXStartEdge: computed(() => states.value.scrollLeft <= 0),
+        atXEndEdge: computed(() => states.value.scrollLeft >= estimatedTotalWidth.value - unref(parsedWidth)),
+        atYStartEdge: computed(() => states.value.scrollTop <= 0),
+        atYEndEdge: computed(() => states.value.scrollTop >= estimatedTotalHeight.value - unref(parsedHeight))
       }, (x2, y) => {
         var _a2, _b, _c, _d;
         (_b = (_a2 = hScrollbar.value) == null ? void 0 : _a2.onMouseUp) == null ? void 0 : _b.call(_a2);
@@ -45118,7 +45642,7 @@ var createGrid = ({
 };
 
 // node_modules/element-plus/es/components/virtual-list/src/components/fixed-size-grid.mjs
-var SCOPE5 = "ElFixedSizeGrid";
+var SCOPE6 = "ElFixedSizeGrid";
 var FixedSizeGrid = createGrid({
   name: "ElFixedSizeGrid",
   getColumnPosition: ({ columnWidth }, index) => [
@@ -45228,13 +45752,13 @@ var FixedSizeGrid = createGrid({
   validateProps: ({ columnWidth, rowHeight }) => {
     if (true) {
       if (!isNumber3(columnWidth)) {
-        throwError(SCOPE5, `
+        throwError(SCOPE6, `
           "columnWidth" must be passed as number,
             instead ${typeof columnWidth} was given.
         `);
       }
       if (!isNumber3(rowHeight)) {
-        throwError(SCOPE5, `
+        throwError(SCOPE6, `
           "columnWidth" must be passed as number,
             instead ${typeof rowHeight} was given.
         `);
@@ -45245,7 +45769,7 @@ var FixedSizeGrid = createGrid({
 
 // node_modules/element-plus/es/components/virtual-list/src/components/dynamic-size-grid.mjs
 var { max: max3, min: min3, floor: floor3 } = Math;
-var SCOPE6 = "ElDynamicSizeGrid";
+var SCOPE7 = "ElDynamicSizeGrid";
 var ACCESS_SIZER_KEY_MAP = {
   column: "columnWidth",
   row: "rowHeight"
@@ -45469,13 +45993,13 @@ var DynamicSizeGrid = createGrid({
   validateProps: ({ columnWidth, rowHeight }) => {
     if (true) {
       if (!isFunction(columnWidth)) {
-        throwError(SCOPE6, `
+        throwError(SCOPE7, `
           "columnWidth" must be passed as function,
             instead ${typeof columnWidth} was given.
         `);
       }
       if (!isFunction(rowHeight)) {
-        throwError(SCOPE6, `
+        throwError(SCOPE7, `
           "rowHeight" must be passed as function,
             instead ${typeof rowHeight} was given.
         `);
@@ -45502,20 +46026,10 @@ var _sfc_main108 = defineComponent({
   }
 });
 function _sfc_render24(_ctx, _cache, $props, $setup, $data, $options) {
-  return _ctx.item.isTitle ? (openBlock(), createElementBlock("div", {
-    key: 0,
+  return openBlock(), createElementBlock("div", {
     class: normalizeClass(_ctx.ns.be("group", "title")),
     style: normalizeStyle([_ctx.style, { lineHeight: `${_ctx.height}px` }])
-  }, toDisplayString(_ctx.item.label), 7)) : (openBlock(), createElementBlock("div", {
-    key: 1,
-    class: normalizeClass(_ctx.ns.be("group", "split")),
-    style: normalizeStyle(_ctx.style)
-  }, [
-    createBaseVNode("span", {
-      class: normalizeClass(_ctx.ns.be("group", "split-dash")),
-      style: normalizeStyle({ top: `${_ctx.height / 2}px` })
-    }, null, 6)
-  ], 6));
+  }, toDisplayString(_ctx.item.label), 7);
 }
 var GroupItem = _export_sfc(_sfc_main108, [["render", _sfc_render24], ["__file", "group-item.vue"]]);
 
@@ -45543,7 +46057,7 @@ var defaultProps = {
   options: "options"
 };
 function useProps(props) {
-  const aliasProps = computed2(() => ({ ...defaultProps, ...props.props }));
+  const aliasProps = computed(() => ({ ...defaultProps, ...props.props }));
   const getLabel = (option) => get_default(option, aliasProps.value.label);
   const getValue3 = (option) => get_default(option, aliasProps.value.value);
   const getDisabled = (option) => get_default(option, aliasProps.value.disabled);
@@ -45655,11 +46169,13 @@ var SelectProps2 = buildProps({
     values: Ee,
     default: "bottom-start"
   },
+  fallbackPlacements: {
+    type: definePropType(Array),
+    default: ["bottom-start", "top-start", "right", "left"]
+  },
   tagType: { ...tagProps.type, default: "info" },
-  ariaLabel: {
-    type: String,
-    default: void 0
-  }
+  ...useEmptyValuesProps,
+  ...useAriaProps(["ariaLabel"])
 });
 var OptionProps = buildProps({
   data: Array,
@@ -45695,7 +46211,7 @@ var _sfc_main109 = defineComponent({
     };
   }
 });
-var _hoisted_154 = ["aria-selected"];
+var _hoisted_155 = ["aria-selected"];
 function _sfc_render25(_ctx, _cache, $props, $setup, $data, $options) {
   return openBlock(), createElementBlock("li", {
     "aria-selected": _ctx.selected,
@@ -45717,7 +46233,7 @@ function _sfc_render25(_ctx, _cache, $props, $setup, $data, $options) {
     }, () => [
       createBaseVNode("span", null, toDisplayString(_ctx.getLabel(_ctx.item)), 1)
     ])
-  ], 46, _hoisted_154);
+  ], 46, _hoisted_155);
 }
 var OptionItem = _export_sfc(_sfc_main109, [["render", _sfc_render25], ["__file", "option-item.vue"]]);
 
@@ -45746,13 +46262,13 @@ var ElSelectMenu2 = defineComponent({
     } = useProps(select.props);
     const cachedHeights = ref([]);
     const listRef = ref();
-    const size3 = computed2(() => props.data.length);
+    const size3 = computed(() => props.data.length);
     watch(() => size3.value, () => {
       var _a2, _b;
       (_b = (_a2 = select.tooltipRef.value).updatePopper) == null ? void 0 : _b.call(_a2);
     });
-    const isSized = computed2(() => isUndefined2(select.props.estimatedOptionHeight));
-    const listProps = computed2(() => {
+    const isSized = computed(() => isUndefined2(select.props.estimatedOptionHeight));
+    const listProps = computed(() => {
       if (isSized.value) {
         return {
           itemSize: select.props.itemHeight
@@ -45925,18 +46441,13 @@ var ElSelectMenu2 = defineComponent({
         multiple,
         scrollbarAlwaysOn
       } = select.props;
-      if (slots.loading || slots.empty) {
-        return createVNode("div", {
-          "class": ns.b("dropdown"),
-          "style": {
-            width: `${width}px`
-          }
-        }, [((_a2 = slots.loading) == null ? void 0 : _a2.call(slots)) || ((_b = slots.empty) == null ? void 0 : _b.call(slots))]);
-      }
       const List = unref(isSized) ? FixedSizeList : DynamicSizeList;
       return createVNode("div", {
-        "class": [ns.b("dropdown"), ns.is("multiple", multiple)]
-      }, [(_c = slots.header) == null ? void 0 : _c.call(slots), createVNode(List, mergeProps({
+        "class": [ns.b("dropdown"), ns.is("multiple", multiple)],
+        "style": {
+          width: `${width}px`
+        }
+      }, [(_a2 = slots.header) == null ? void 0 : _a2.call(slots), ((_b = slots.loading) == null ? void 0 : _b.call(slots)) || ((_c = slots.empty) == null ? void 0 : _c.call(slots)) || createVNode(List, mergeProps({
         "ref": listRef
       }, unref(listProps), {
         "className": ns.be("dropdown", "list"),
@@ -45958,12 +46469,12 @@ function useAllowCreate(props, states) {
   const { aliasProps, getLabel, getValue: getValue3 } = useProps(props);
   const createOptionCount = ref(0);
   const cachedSelectedOption = ref(null);
-  const enableAllowCreateMode = computed2(() => {
+  const enableAllowCreateMode = computed(() => {
     return props.allowCreate && props.filterable;
   });
   function hasExistingOption(query) {
-    const hasValue = (option) => getValue3(option) === query;
-    return props.options && props.options.some(hasValue) || states.createdOptions.some(hasValue);
+    const hasOption = (option) => getLabel(option) === query;
+    return props.options && props.options.some(hasOption) || states.createdOptions.some(hasOption);
   }
   function selectNewOption(option) {
     if (!enableAllowCreateMode.value) {
@@ -46039,7 +46550,8 @@ var useSelect2 = (props, emit) => {
   const { inputId } = useFormItemInputId(props, {
     formItemContext: elFormItem
   });
-  const { getLabel, getValue: getValue3, getDisabled, getOptions } = useProps(props);
+  const { aliasProps, getLabel, getValue: getValue3, getDisabled, getOptions } = useProps(props);
+  const { valueOnClear, isEmptyValue: isEmptyValue2 } = useEmptyValues(props);
   const states = reactive({
     inputValue: "",
     cachedOptions: [],
@@ -46055,7 +46567,6 @@ var useSelect2 = (props, emit) => {
     menuVisibleOnFocus: false,
     isBeforeHide: false
   });
-  const selectedIndex = ref(-1);
   const popperSize = ref(-1);
   const selectRef = ref(null);
   const selectionRef = ref(null);
@@ -46087,24 +46598,23 @@ var useSelect2 = (props, emit) => {
   const allOptions = ref([]);
   const filteredOptions = ref([]);
   const expanded = ref(false);
-  const selectDisabled = computed2(() => props.disabled || (elForm == null ? void 0 : elForm.disabled));
-  const popupHeight = computed2(() => {
+  const selectDisabled = computed(() => props.disabled || (elForm == null ? void 0 : elForm.disabled));
+  const popupHeight = computed(() => {
     const totalHeight = filteredOptions.value.length * props.itemHeight;
     return totalHeight > props.height ? props.height : totalHeight;
   });
-  const hasModelValue = computed2(() => {
-    return props.multiple ? isArray(props.modelValue) && props.modelValue.length > 0 : props.modelValue !== void 0 && props.modelValue !== null && props.modelValue !== "";
+  const hasModelValue = computed(() => {
+    return props.multiple ? isArray(props.modelValue) && props.modelValue.length > 0 : !isEmptyValue2(props.modelValue);
   });
-  const showClearBtn = computed2(() => {
-    const criteria = props.clearable && !selectDisabled.value && states.inputHovering && hasModelValue.value;
-    return criteria;
+  const showClearBtn = computed(() => {
+    return props.clearable && !selectDisabled.value && states.inputHovering && hasModelValue.value;
   });
-  const iconComponent = computed2(() => props.remote && props.filterable ? "" : arrow_down_default);
-  const iconReverse = computed2(() => iconComponent.value && nsSelect.is("reverse", expanded.value));
-  const validateState = computed2(() => (elFormItem == null ? void 0 : elFormItem.validateState) || "");
-  const validateIcon = computed2(() => ValidateComponentsMap[validateState.value]);
-  const debounce$1 = computed2(() => props.remote ? 300 : 0);
-  const emptyText = computed2(() => {
+  const iconComponent = computed(() => props.remote && props.filterable ? "" : arrow_down_default);
+  const iconReverse = computed(() => iconComponent.value && nsSelect.is("reverse", expanded.value));
+  const validateState = computed(() => (elFormItem == null ? void 0 : elFormItem.validateState) || "");
+  const validateIcon = computed(() => ValidateComponentsMap[validateState.value]);
+  const debounce$1 = computed(() => props.remote ? 300 : 0);
+  const emptyText = computed(() => {
     if (props.loading) {
       return props.loadingText || t("el.select.loading");
     } else {
@@ -46138,9 +46648,8 @@ var useSelect2 = (props, emit) => {
         if (filtered.length > 0) {
           all.push({
             label: getLabel(item),
-            isTitle: true,
             type: "Group"
-          }, ...filtered, { type: "Group" });
+          }, ...filtered);
         }
       } else if (props.remote || isValidOption(item)) {
         all.push(item);
@@ -46152,16 +46661,23 @@ var useSelect2 = (props, emit) => {
     allOptions.value = filterOptions("");
     filteredOptions.value = filterOptions(states.inputValue);
   };
-  const filteredOptionsValueMap = computed2(() => {
+  const allOptionsValueMap = computed(() => {
+    const valueMap = /* @__PURE__ */ new Map();
+    allOptions.value.forEach((option, index) => {
+      valueMap.set(getValueKey(getValue3(option)), { option, index });
+    });
+    return valueMap;
+  });
+  const filteredOptionsValueMap = computed(() => {
     const valueMap = /* @__PURE__ */ new Map();
     filteredOptions.value.forEach((option, index) => {
       valueMap.set(getValueKey(getValue3(option)), { option, index });
     });
     return valueMap;
   });
-  const optionsAllDisabled = computed2(() => filteredOptions.value.every((option) => getDisabled(option)));
+  const optionsAllDisabled = computed(() => filteredOptions.value.every((option) => getDisabled(option)));
   const selectSize = useFormSize();
-  const collapseTagSize = computed2(() => selectSize.value === "small" ? "small" : "default");
+  const collapseTagSize = computed(() => selectSize.value === "small" ? "small" : "default");
   const calculatePopperSize = () => {
     var _a2;
     popperSize.value = ((_a2 = selectRef.value) == null ? void 0 : _a2.offsetWidth) || 200;
@@ -46172,33 +46688,33 @@ var useSelect2 = (props, emit) => {
     const style = window.getComputedStyle(selectionRef.value);
     return Number.parseFloat(style.gap || "6px");
   };
-  const tagStyle = computed2(() => {
+  const tagStyle = computed(() => {
     const gapWidth = getGapWidth();
     const maxWidth = collapseItemRef.value && props.maxCollapseTags === 1 ? states.selectionWidth - states.collapseItemWidth - gapWidth : states.selectionWidth;
     return { maxWidth: `${maxWidth}px` };
   });
-  const collapseTagStyle = computed2(() => {
+  const collapseTagStyle = computed(() => {
     return { maxWidth: `${states.selectionWidth}px` };
   });
-  const inputStyle = computed2(() => ({
+  const inputStyle = computed(() => ({
     width: `${Math.max(states.calculatorWidth, MINIMUM_INPUT_WIDTH2)}px`
   }));
-  const shouldShowPlaceholder = computed2(() => {
+  const shouldShowPlaceholder = computed(() => {
     if (isArray(props.modelValue)) {
       return props.modelValue.length === 0 && !states.inputValue;
     }
     return props.filterable ? !states.inputValue : true;
   });
-  const currentPlaceholder = computed2(() => {
+  const currentPlaceholder = computed(() => {
     var _a2;
     const _placeholder = (_a2 = props.placeholder) != null ? _a2 : t("el.select.placeholder");
     return props.multiple || !hasModelValue.value ? _placeholder : states.selectedLabel;
   });
-  const popperRef = computed2(() => {
+  const popperRef = computed(() => {
     var _a2, _b;
     return (_b = (_a2 = tooltipRef.value) == null ? void 0 : _a2.popperRef) == null ? void 0 : _b.contentRef;
   });
-  const indexRef = computed2(() => {
+  const indexRef = computed(() => {
     if (props.multiple) {
       const len = props.modelValue.length;
       if (props.modelValue.length > 0 && filteredOptionsValueMap.value.has(props.modelValue[len - 1])) {
@@ -46213,7 +46729,7 @@ var useSelect2 = (props, emit) => {
     }
     return -1;
   });
-  const dropdownMenuVisible = computed2({
+  const dropdownMenuVisible = computed({
     get() {
       return expanded.value && emptyText.value !== false;
     },
@@ -46221,13 +46737,13 @@ var useSelect2 = (props, emit) => {
       expanded.value = val;
     }
   });
-  const showTagList = computed2(() => {
+  const showTagList = computed(() => {
     if (!props.multiple) {
       return [];
     }
     return props.collapseTags ? states.cachedOptions.slice(0, props.maxCollapseTags) : states.cachedOptions;
   });
-  const collapseTagList = computed2(() => {
+  const collapseTagList = computed(() => {
     if (!props.multiple) {
       return [];
     }
@@ -46291,7 +46807,7 @@ var useSelect2 = (props, emit) => {
   const update2 = (val) => {
     emit(UPDATE_MODEL_EVENT, val);
     emitChange(val);
-    states.previousValue = String(val);
+    states.previousValue = props.multiple ? String(val) : val;
   };
   const getValueIndex = (arr = [], value) => {
     if (!isObject(value)) {
@@ -46331,7 +46847,7 @@ var useSelect2 = (props, emit) => {
     var _a2, _b;
     (_b = (_a2 = tagTooltipRef.value) == null ? void 0 : _a2.updatePopper) == null ? void 0 : _b.call(_a2);
   };
-  const onSelect = (option, idx) => {
+  const onSelect = (option) => {
     if (props.multiple) {
       let selectedOptions = props.modelValue.slice();
       const index = getValueIndex(selectedOptions, getValue3(option));
@@ -46355,7 +46871,6 @@ var useSelect2 = (props, emit) => {
         states.inputValue = "";
       }
     } else {
-      selectedIndex.value = idx;
       states.selectedLabel = getLabel(option);
       update2(getValue3(option));
       expanded.value = false;
@@ -46409,11 +46924,13 @@ var useSelect2 = (props, emit) => {
       const lastNotDisabledIndex = getLastNotDisabledIndex(selected);
       if (lastNotDisabledIndex < 0)
         return;
+      const removeTagValue = selected[lastNotDisabledIndex];
       selected.splice(lastNotDisabledIndex, 1);
       const option = states.cachedOptions[lastNotDisabledIndex];
       states.cachedOptions.splice(lastNotDisabledIndex, 1);
       removeNewOption(option);
       update2(selected);
+      emit("remove-tag", removeTagValue);
     }
   };
   const handleClear = () => {
@@ -46421,7 +46938,7 @@ var useSelect2 = (props, emit) => {
     if (isArray(props.modelValue)) {
       emptyValue = [];
     } else {
-      emptyValue = void 0;
+      emptyValue = valueOnClear.value;
     }
     if (props.multiple) {
       states.cachedOptions = [];
@@ -46469,7 +46986,7 @@ var useSelect2 = (props, emit) => {
     if (!expanded.value) {
       return toggleMenu();
     } else if (~states.hoveringIndex && filteredOptions.value[states.hoveringIndex]) {
-      onSelect(filteredOptions.value[states.hoveringIndex], states.hoveringIndex);
+      onSelect(filteredOptions.value[states.hoveringIndex]);
     }
   };
   const onHoverOption = (idx) => {
@@ -46481,15 +46998,7 @@ var useSelect2 = (props, emit) => {
         return getValueKey(item) === getValueKey(props.modelValue);
       });
     } else {
-      if (props.modelValue.length > 0) {
-        states.hoveringIndex = Math.min(...props.modelValue.map((selected) => {
-          return filteredOptions.value.findIndex((item) => {
-            return getValue3(item) === selected;
-          });
-        }));
-      } else {
-        states.hoveringIndex = -1;
-      }
+      states.hoveringIndex = filteredOptions.value.findIndex((item) => props.modelValue.some((modelValue) => getValueKey(modelValue) === getValueKey(item)));
     }
   };
   const onInput = (event) => {
@@ -46508,6 +47017,7 @@ var useSelect2 = (props, emit) => {
     }
   };
   const handleMenuEnter = () => {
+    states.isBeforeHide = false;
     return nextTick(() => {
       if (~indexRef.value) {
         scrollToItem(states.hoveringIndex);
@@ -46519,13 +47029,13 @@ var useSelect2 = (props, emit) => {
   };
   const getOption = (value) => {
     const selectValue = getValueKey(value);
-    if (filteredOptionsValueMap.value.has(selectValue)) {
-      const { option } = filteredOptionsValueMap.value.get(selectValue);
+    if (allOptionsValueMap.value.has(selectValue)) {
+      const { option } = allOptionsValueMap.value.get(selectValue);
       return option;
     }
     return {
-      value,
-      label: value
+      [aliasProps.value.value]: value,
+      [aliasProps.value.label]: value
     };
   };
   const initStates = () => {
@@ -46572,7 +47082,7 @@ var useSelect2 = (props, emit) => {
   });
   watch(() => props.modelValue, (val, oldVal) => {
     var _a2;
-    if (!val || val.toString() !== states.previousValue) {
+    if (!val || props.multiple && val.toString() !== states.previousValue || !props.multiple && getValueKey(val) !== getValueKey(states.previousValue)) {
       initStates();
     }
     if (!isEqual_default(val, oldVal) && props.validateEvent) {
@@ -46587,7 +47097,8 @@ var useSelect2 = (props, emit) => {
       initStates();
     }
   }, {
-    deep: true
+    deep: true,
+    flush: "post"
   });
   watch(() => filteredOptions.value, () => {
     return menuRef.value && nextTick(menuRef.value.resetScrollTop);
@@ -46722,7 +47233,7 @@ var _sfc_main110 = defineComponent({
     "blur"
   ],
   setup(props, { emit }) {
-    const modelValue = computed2(() => {
+    const modelValue = computed(() => {
       const { modelValue: rawModelValue, multiple } = props;
       const fallback = multiple ? [] : void 0;
       if (isArray(rawModelValue)) {
@@ -46752,8 +47263,9 @@ var _sfc_main110 = defineComponent({
     };
   }
 });
-var _hoisted_155 = ["id", "autocomplete", "aria-expanded", "aria-label", "disabled", "readonly", "name"];
+var _hoisted_156 = ["id", "autocomplete", "aria-expanded", "aria-label", "disabled", "readonly", "name"];
 var _hoisted_235 = ["textContent"];
+var _hoisted_317 = { key: 1 };
 function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_tag = resolveComponent("el-tag");
   const _component_el_tooltip = resolveComponent("el-tooltip");
@@ -46763,9 +47275,8 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
   return withDirectives((openBlock(), createElementBlock("div", {
     ref: "selectRef",
     class: normalizeClass([_ctx.nsSelect.b(), _ctx.nsSelect.m(_ctx.selectSize)]),
-    onMouseenter: _cache[14] || (_cache[14] = ($event) => _ctx.states.inputHovering = true),
-    onMouseleave: _cache[15] || (_cache[15] = ($event) => _ctx.states.inputHovering = false),
-    onClick: _cache[16] || (_cache[16] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["stop"]))
+    onMouseenter: _cache[15] || (_cache[15] = ($event) => _ctx.states.inputHovering = true),
+    onMouseleave: _cache[16] || (_cache[16] = ($event) => _ctx.states.inputHovering = false)
   }, [
     createVNode(_component_el_tooltip, {
       ref: "tooltipRef",
@@ -46775,7 +47286,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
       "gpu-acceleration": false,
       "stop-popper-mouse-event": false,
       "popper-options": _ctx.popperOptions,
-      "fallback-placements": ["bottom-start", "top-start", "right", "left"],
+      "fallback-placements": _ctx.fallbackPlacements,
       effect: _ctx.effect,
       placement: _ctx.placement,
       pure: "",
@@ -46783,7 +47294,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
       trigger: "click",
       persistent: _ctx.persistent,
       onBeforeShow: _ctx.handleMenuEnter,
-      onHide: _cache[13] || (_cache[13] = ($event) => _ctx.states.isBeforeHide = false)
+      onHide: _cache[14] || (_cache[14] = ($event) => _ctx.states.isBeforeHide = false)
     }, {
       default: withCtx(() => [
         createBaseVNode("div", {
@@ -46794,7 +47305,8 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
             _ctx.nsSelect.is("hovering", _ctx.states.inputHovering),
             _ctx.nsSelect.is("filterable", _ctx.filterable),
             _ctx.nsSelect.is("disabled", _ctx.selectDisabled)
-          ])
+          ]),
+          onClick: _cache[13] || (_cache[13] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["prevent", "stop"]))
         }, [
           _ctx.$slots.prefix ? (openBlock(), createElementBlock("div", {
             key: 0,
@@ -46827,7 +47339,14 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
                     default: withCtx(() => [
                       createBaseVNode("span", {
                         class: normalizeClass(_ctx.nsSelect.e("tags-text"))
-                      }, toDisplayString(_ctx.getLabel(item)), 3)
+                      }, [
+                        renderSlot(_ctx.$slots, "label", {
+                          label: _ctx.getLabel(item),
+                          value: _ctx.getValue(item)
+                        }, () => [
+                          createTextVNode(toDisplayString(_ctx.getLabel(item)), 1)
+                        ])
+                      ], 2)
                     ]),
                     _: 2
                   }, 1032, ["closable", "size", "type", "style", "onClose"])
@@ -46884,7 +47403,14 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
                           default: withCtx(() => [
                             createBaseVNode("span", {
                               class: normalizeClass(_ctx.nsSelect.e("tags-text"))
-                            }, toDisplayString(_ctx.getLabel(selected)), 3)
+                            }, [
+                              renderSlot(_ctx.$slots, "label", {
+                                label: _ctx.getLabel(selected),
+                                value: _ctx.getValue(selected)
+                              }, () => [
+                                createTextVNode(toDisplayString(_ctx.getLabel(selected)), 1)
+                              ])
+                            ], 2)
                           ]),
                           _: 2
                         }, 1032, ["closable", "size", "type", "onClose"])
@@ -46892,7 +47418,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
                     }), 128))
                   ], 2)
                 ]),
-                _: 1
+                _: 3
               }, 8, ["disabled", "effect", "teleported"])) : createCommentVNode("v-if", true)
             ]) : createCommentVNode("v-if", true),
             !_ctx.selectDisabled ? (openBlock(), createElementBlock("div", {
@@ -46935,7 +47461,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
                   _cache[11] || (_cache[11] = withKeys(withModifiers((...args) => _ctx.handleDel && _ctx.handleDel(...args), ["stop"]), ["delete"]))
                 ],
                 onClick: _cache[12] || (_cache[12] = withModifiers((...args) => _ctx.toggleMenu && _ctx.toggleMenu(...args), ["stop"]))
-              }, null, 46, _hoisted_155), [
+              }, null, 46, _hoisted_156), [
                 [vModelText, _ctx.states.inputValue]
               ]),
               _ctx.filterable ? (openBlock(), createElementBlock("span", {
@@ -46954,7 +47480,13 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
                 _ctx.nsSelect.is("transparent", !_ctx.hasModelValue || _ctx.expanded && !_ctx.states.inputValue)
               ])
             }, [
-              createBaseVNode("span", null, toDisplayString(_ctx.currentPlaceholder), 1)
+              _ctx.hasModelValue ? renderSlot(_ctx.$slots, "label", {
+                key: 0,
+                label: _ctx.currentPlaceholder,
+                value: _ctx.modelValue
+              }, () => [
+                createBaseVNode("span", null, toDisplayString(_ctx.currentPlaceholder), 1)
+              ]) : (openBlock(), createElementBlock("span", _hoisted_317, toDisplayString(_ctx.currentPlaceholder), 1))
             ], 2)) : createCommentVNode("v-if", true)
           ], 2),
           createBaseVNode("div", {
@@ -47051,7 +47583,7 @@ function _sfc_render26(_ctx, _cache, $props, $setup, $data, $options) {
         ]), 1032, ["data", "width", "hovering-index", "scrollbar-always-on"])
       ]),
       _: 3
-    }, 8, ["visible", "teleported", "popper-class", "popper-options", "effect", "placement", "transition", "persistent", "onBeforeShow"])
+    }, 8, ["visible", "teleported", "popper-class", "popper-options", "fallback-placements", "effect", "placement", "transition", "persistent", "onBeforeShow"])
   ], 34)), [
     [_directive_click_outside, _ctx.handleClickOutside, _ctx.popperRef]
   ]);
@@ -47258,7 +47790,8 @@ var sliderProps = buildProps({
   validateEvent: {
     type: Boolean,
     default: true
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var isValidValue = (value) => isNumber3(value) || isArray(value) && value.every(isNumber3);
 var sliderEmits = {
@@ -47299,7 +47832,7 @@ var useLifecycle = (props, initData, resetSize) => {
 
 // node_modules/element-plus/es/components/slider/src/composables/use-marks.mjs
 var useMarks = (props) => {
-  return computed2(() => {
+  return computed(() => {
     if (!props.marks) {
       return [];
     }
@@ -47322,25 +47855,25 @@ var useSlide = (props, initData, emit) => {
     firstButton,
     secondButton
   };
-  const sliderDisabled = computed2(() => {
+  const sliderDisabled = computed(() => {
     return props.disabled || (elForm == null ? void 0 : elForm.disabled) || false;
   });
-  const minValue = computed2(() => {
+  const minValue = computed(() => {
     return Math.min(initData.firstValue, initData.secondValue);
   });
-  const maxValue = computed2(() => {
+  const maxValue = computed(() => {
     return Math.max(initData.firstValue, initData.secondValue);
   });
-  const barSize = computed2(() => {
+  const barSize = computed(() => {
     return props.range ? `${100 * (maxValue.value - minValue.value) / (props.max - props.min)}%` : `${100 * (initData.firstValue - props.min) / (props.max - props.min)}%`;
   });
-  const barStart = computed2(() => {
+  const barStart = computed(() => {
     return props.range ? `${100 * (minValue.value - props.min) / (props.max - props.min)}%` : "0%";
   });
-  const runwayStyle = computed2(() => {
+  const runwayStyle = computed(() => {
     return props.vertical ? { height: props.height } : {};
   });
-  const barStyle = computed2(() => {
+  const barStyle = computed(() => {
     return props.vertical ? {
       height: barSize.value,
       bottom: barStart.value
@@ -47454,10 +47987,10 @@ var { left, down, right, up, home, end, pageUp, pageDown } = EVENT_CODE;
 var useTooltip = (props, formatTooltip, showTooltip) => {
   const tooltip = ref();
   const tooltipVisible = ref(false);
-  const enableFormat = computed2(() => {
+  const enableFormat = computed(() => {
     return formatTooltip.value instanceof Function;
   });
-  const formatValue = computed2(() => {
+  const formatValue = computed(() => {
     return enableFormat.value && formatTooltip.value(props.modelValue) || props.modelValue;
   });
   const displayTooltip = debounce_default(() => {
@@ -47490,10 +48023,10 @@ var useSliderButton = (props, initData, emit) => {
   } = inject(sliderContextKey);
   const { tooltip, tooltipVisible, formatValue, displayTooltip, hideTooltip } = useTooltip(props, formatTooltip, showTooltip);
   const button = ref();
-  const currentPosition = computed2(() => {
+  const currentPosition = computed(() => {
     return `${(props.modelValue - min4.value) / (max4.value - min4.value) * 100}%`;
   });
-  const wrapperStyle = computed2(() => {
+  const wrapperStyle = computed(() => {
     return props.vertical ? { bottom: currentPosition.value } : { left: currentPosition.value };
   });
   const handleMouseEnter = () => {
@@ -47675,7 +48208,7 @@ var useSliderButton = (props, initData, emit) => {
 
 // node_modules/element-plus/es/components/slider/src/composables/use-stops.mjs
 var useStops = (props, initData, minValue, maxValue) => {
-  const stops = computed2(() => {
+  const stops = computed(() => {
     if (!props.showStops || props.min > props.max)
       return [];
     if (props.step === 0) {
@@ -47794,7 +48327,7 @@ var sliderButtonEmits = {
 };
 
 // node_modules/element-plus/es/components/slider/src/button2.mjs
-var _hoisted_156 = ["tabindex"];
+var _hoisted_157 = ["tabindex"];
 var __default__77 = defineComponent({
   name: "ElSliderButton"
 });
@@ -47875,7 +48408,7 @@ var _sfc_main113 = defineComponent({
           ]),
           _: 1
         }, 8, ["visible", "placement", "popper-class", "disabled"])
-      ], 46, _hoisted_156);
+      ], 46, _hoisted_157);
     };
   }
 });
@@ -47893,10 +48426,10 @@ var SliderMarker = defineComponent({
   props: sliderMarkerProps,
   setup(props) {
     const ns = useNamespace("slider");
-    const label = computed2(() => {
+    const label = computed(() => {
       return isString(props.mark) ? props.mark : props.mark.label;
     });
-    const style = computed2(() => isString(props.mark) ? void 0 : props.mark.style);
+    const style = computed(() => isString(props.mark) ? void 0 : props.mark.style);
     return () => h("div", {
       class: ns.e("marks-text"),
       style: style.value
@@ -47905,7 +48438,7 @@ var SliderMarker = defineComponent({
 });
 
 // node_modules/element-plus/es/components/slider/src/slider2.mjs
-var _hoisted_157 = ["id", "role", "aria-label", "aria-labelledby"];
+var _hoisted_158 = ["id", "role", "aria-label", "aria-labelledby"];
 var _hoisted_236 = { key: 1 };
 var __default__78 = defineComponent({
   name: "ElSlider"
@@ -47948,30 +48481,30 @@ var _sfc_main114 = defineComponent({
       formItemContext: elFormItem
     });
     const sliderWrapperSize = useFormSize();
-    const sliderInputSize = computed2(() => props.inputSize || sliderWrapperSize.value);
-    const groupLabel = computed2(() => {
-      return props.label || t("el.slider.defaultLabel", {
+    const sliderInputSize = computed(() => props.inputSize || sliderWrapperSize.value);
+    const groupLabel = computed(() => {
+      return props.label || props.ariaLabel || t("el.slider.defaultLabel", {
         min: props.min,
         max: props.max
       });
     });
-    const firstButtonLabel = computed2(() => {
+    const firstButtonLabel = computed(() => {
       if (props.range) {
         return props.rangeStartLabel || t("el.slider.defaultRangeStartLabel");
       } else {
         return groupLabel.value;
       }
     });
-    const firstValueText = computed2(() => {
+    const firstValueText = computed(() => {
       return props.formatValueText ? props.formatValueText(firstValue.value) : `${firstValue.value}`;
     });
-    const secondButtonLabel = computed2(() => {
+    const secondButtonLabel = computed(() => {
       return props.rangeEndLabel || t("el.slider.defaultRangeEndLabel");
     });
-    const secondValueText = computed2(() => {
+    const secondValueText = computed(() => {
       return props.formatValueText ? props.formatValueText(secondValue.value) : `${secondValue.value}`;
     });
-    const sliderKls = computed2(() => [
+    const sliderKls = computed(() => [
       ns.b(),
       ns.m(sliderWrapperSize.value),
       ns.is("vertical", props.vertical),
@@ -47979,7 +48512,7 @@ var _sfc_main114 = defineComponent({
     ]);
     const markList = useMarks(props);
     useWatch(props, initData, minValue, maxValue, emit, elFormItem);
-    const precision = computed2(() => {
+    const precision = computed(() => {
       const precisions = [props.min, props.max, props.step].map((item) => {
         const decimal = `${item}`.split(".")[1];
         return decimal ? decimal.length : 0;
@@ -48000,6 +48533,13 @@ var _sfc_main114 = defineComponent({
       resetSize,
       updateDragging
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-slider",
+      ref: "https://element-plus.org/en-US/component/slider.html"
+    }, computed(() => !!props.label));
     expose({
       onSliderClick
     });
@@ -48116,7 +48656,7 @@ var _sfc_main114 = defineComponent({
           "onUpdate:modelValue": unref(setFirstValue),
           onChange: unref(emitChange)
         }, null, 8, ["model-value", "class", "step", "disabled", "controls", "min", "max", "debounce", "size", "onUpdate:modelValue", "onChange"])) : createCommentVNode("v-if", true)
-      ], 42, _hoisted_157);
+      ], 42, _hoisted_158);
     };
   }
 });
@@ -48136,7 +48676,7 @@ var SpaceItem = defineComponent({
   props: spaceItemProps,
   setup(props, { slots }) {
     const ns = useNamespace("space");
-    const classes = computed2(() => `${props.prefixCls || ns.b()}__item`);
+    const classes = computed(() => `${props.prefixCls || ns.b()}__item`);
     return () => h("div", { class: classes.value }, renderSlot(slots, "default"));
   }
 });
@@ -48149,10 +48689,10 @@ var SIZE_MAP = {
 };
 function useSpace(props) {
   const ns = useNamespace("space");
-  const classes = computed2(() => [ns.b(), ns.m(props.direction), props.class]);
+  const classes = computed(() => [ns.b(), ns.m(props.direction), props.class]);
   const horizontalSize = ref(0);
   const verticalSize = ref(0);
-  const containerStyle = computed2(() => {
+  const containerStyle = computed(() => {
     const wrapKls = props.wrap || props.fill ? { flexWrap: "wrap" } : {};
     const alignment = {
       alignItems: props.alignment
@@ -48163,7 +48703,7 @@ function useSpace(props) {
     };
     return [wrapKls, alignment, gap, props.style];
   });
-  const itemStyle = computed2(() => {
+  const itemStyle = computed(() => {
     return props.fill ? { flexGrow: 1, minWidth: `${props.fillRatio}%` } : {};
   });
   watchEffect(() => {
@@ -48356,7 +48896,7 @@ var _sfc_main115 = defineComponent({
   setup(__props, { expose }) {
     const props = __props;
     const ns = useNamespace("statistic");
-    const displayValue = computed2(() => {
+    const displayValue = computed(() => {
       const { value, formatter: formatter2, precision, decimalSeparator, groupSeparator } = props;
       if (isFunction(formatter2))
         return formatter2(value);
@@ -48477,7 +49017,7 @@ var _sfc_main116 = defineComponent({
     const props = __props;
     let timer;
     const rawValue = ref(getTime(props.value) - Date.now());
-    const displayValue = computed2(() => formatTime(rawValue.value, props.format));
+    const displayValue = computed(() => formatTime(rawValue.value, props.format));
     const formatter2 = (val) => formatTime(val, props.format);
     const stopTimer = () => {
       if (timer) {
@@ -48658,33 +49198,33 @@ var _sfc_main118 = defineComponent({
     onBeforeUnmount(() => {
       parent2.removeStep(stepItemState.uid);
     });
-    const currentStatus = computed2(() => {
+    const currentStatus = computed(() => {
       return props.status || internalStatus.value;
     });
-    const prevStatus = computed2(() => {
+    const prevStatus = computed(() => {
       const prevStep = parent2.steps.value[index.value - 1];
       return prevStep ? prevStep.currentStatus : "wait";
     });
-    const isCenter = computed2(() => {
+    const isCenter = computed(() => {
       return parent2.props.alignCenter;
     });
-    const isVertical = computed2(() => {
+    const isVertical = computed(() => {
       return parent2.props.direction === "vertical";
     });
-    const isSimple = computed2(() => {
+    const isSimple = computed(() => {
       return parent2.props.simple;
     });
-    const stepsCount = computed2(() => {
+    const stepsCount = computed(() => {
       return parent2.steps.value.length;
     });
-    const isLast = computed2(() => {
+    const isLast = computed(() => {
       var _a2;
       return ((_a2 = parent2.steps.value[stepsCount.value - 1]) == null ? void 0 : _a2.uid) === (currentInstance == null ? void 0 : currentInstance.uid);
     });
-    const space = computed2(() => {
+    const space = computed(() => {
       return isSimple.value ? "" : parent2.props.space;
     });
-    const containerKls = computed2(() => {
+    const containerKls = computed(() => {
       return [
         ns.b(),
         ns.is(isSimple.value ? "simple" : parent2.props.direction),
@@ -48692,7 +49232,7 @@ var _sfc_main118 = defineComponent({
         ns.is("center", isCenter.value && !isVertical.value && !isSimple.value)
       ];
     });
-    const style = computed2(() => {
+    const style = computed(() => {
       const style2 = {
         flexBasis: isNumber3(space.value) ? `${space.value}px` : space.value ? space.value : `${100 / (stepsCount.value - (isCenter.value ? 0 : 1))}%`
       };
@@ -48877,18 +49417,6 @@ var switchProps = buildProps({
     type: [Boolean, String, Number],
     default: false
   },
-  activeColor: {
-    type: String,
-    default: ""
-  },
-  inactiveColor: {
-    type: String,
-    default: ""
-  },
-  borderColor: {
-    type: String,
-    default: ""
-  },
   name: {
     type: String,
     default: ""
@@ -48904,14 +49432,11 @@ var switchProps = buildProps({
   tabindex: {
     type: [String, Number]
   },
-  value: {
-    type: [Boolean, String, Number],
-    default: false
-  },
   label: {
     type: String,
     default: void 0
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 var switchEmits = {
   [UPDATE_MODEL_EVENT]: (val) => isBoolean2(val) || isString(val) || isNumber3(val),
@@ -48920,11 +49445,11 @@ var switchEmits = {
 };
 
 // node_modules/element-plus/es/components/switch/src/switch2.mjs
-var _hoisted_158 = ["onClick"];
+var _hoisted_159 = ["onClick"];
 var _hoisted_237 = ["id", "aria-checked", "aria-disabled", "aria-label", "name", "true-value", "false-value", "disabled", "tabindex", "onKeydown"];
-var _hoisted_315 = ["aria-hidden"];
-var _hoisted_49 = ["aria-hidden"];
-var _hoisted_56 = ["aria-hidden"];
+var _hoisted_318 = ["aria-hidden"];
+var _hoisted_410 = ["aria-hidden"];
+var _hoisted_57 = ["aria-hidden"];
 var COMPONENT_NAME17 = "ElSwitch";
 var __default__83 = defineComponent({
   name: COMPONENT_NAME17
@@ -48935,67 +49460,42 @@ var _sfc_main119 = defineComponent({
   emits: switchEmits,
   setup(__props, { expose, emit }) {
     const props = __props;
-    const vm = getCurrentInstance();
     const { formItem } = useFormItem();
     const switchSize = useFormSize();
     const ns = useNamespace("switch");
-    const useBatchDeprecated = (list) => {
-      list.forEach((param) => {
-        useDeprecated({
-          from: param[0],
-          replacement: param[1],
-          scope: COMPONENT_NAME17,
-          version: "2.3.0",
-          ref: "https://element-plus.org/en-US/component/switch.html#attributes",
-          type: "Attribute"
-        }, computed2(() => {
-          var _a2;
-          return !!((_a2 = vm.vnode.props) == null ? void 0 : _a2[param[2]]);
-        }));
-      });
-    };
-    useBatchDeprecated([
-      ['"value"', '"model-value" or "v-model"', "value"],
-      ['"active-color"', "CSS var `--el-switch-on-color`", "activeColor"],
-      ['"inactive-color"', "CSS var `--el-switch-off-color`", "inactiveColor"],
-      ['"border-color"', "CSS var `--el-switch-border-color`", "borderColor"]
-    ]);
     const { inputId } = useFormItemInputId(props, {
       formItemContext: formItem
     });
-    const switchDisabled = useFormDisabled(computed2(() => props.loading));
+    const switchDisabled = useFormDisabled(computed(() => props.loading));
     const isControlled = ref(props.modelValue !== false);
     const input = ref();
     const core = ref();
-    const switchKls = computed2(() => [
+    const switchKls = computed(() => [
       ns.b(),
       ns.m(switchSize.value),
       ns.is("disabled", switchDisabled.value),
       ns.is("checked", checked.value)
     ]);
-    const labelLeftKls = computed2(() => [
+    const labelLeftKls = computed(() => [
       ns.e("label"),
       ns.em("label", "left"),
       ns.is("active", !checked.value)
     ]);
-    const labelRightKls = computed2(() => [
+    const labelRightKls = computed(() => [
       ns.e("label"),
       ns.em("label", "right"),
       ns.is("active", checked.value)
     ]);
-    const coreStyle = computed2(() => ({
+    const coreStyle = computed(() => ({
       width: addUnit(props.width)
     }));
     watch(() => props.modelValue, () => {
       isControlled.value = true;
     });
-    watch(() => props.value, () => {
-      isControlled.value = false;
+    const actualValue = computed(() => {
+      return isControlled.value ? props.modelValue : false;
     });
-    const actualValue = computed2(() => {
-      return isControlled.value ? props.modelValue : props.value;
-    });
-    const checked = computed2(() => actualValue.value === props.activeValue);
+    const checked = computed(() => actualValue.value === props.activeValue);
     if (![props.activeValue, props.inactiveValue].includes(actualValue.value)) {
       emit(UPDATE_MODEL_EVENT, props.inactiveValue);
       emit(CHANGE_EVENT, props.inactiveValue);
@@ -49045,13 +49545,6 @@ var _sfc_main119 = defineComponent({
         handleChange();
       }
     };
-    const styles = computed2(() => {
-      return ns.cssVarBlock({
-        ...props.activeColor ? { "on-color": props.activeColor } : null,
-        ...props.inactiveColor ? { "off-color": props.inactiveColor } : null,
-        ...props.borderColor ? { "border-color": props.borderColor } : null
-      });
-    });
     const focus = () => {
       var _a2, _b;
       (_b = (_a2 = input.value) == null ? void 0 : _a2.focus) == null ? void 0 : _b.call(_a2);
@@ -49059,6 +49552,13 @@ var _sfc_main119 = defineComponent({
     onMounted(() => {
       input.value.checked = checked.value;
     });
+    useDeprecated({
+      from: "label",
+      replacement: "aria-label",
+      version: "2.8.0",
+      scope: "el-switch",
+      ref: "https://element-plus.org/en-US/component/switch.html"
+    }, computed(() => !!props.label));
     expose({
       focus,
       checked
@@ -49066,7 +49566,6 @@ var _sfc_main119 = defineComponent({
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(unref(switchKls)),
-        style: normalizeStyle(unref(styles)),
         onClick: withModifiers(switchValue, ["prevent"])
       }, [
         createBaseVNode("input", {
@@ -49078,7 +49577,7 @@ var _sfc_main119 = defineComponent({
           role: "switch",
           "aria-checked": unref(checked),
           "aria-disabled": unref(switchDisabled),
-          "aria-label": _ctx.label,
+          "aria-label": _ctx.label || _ctx.ariaLabel,
           name: _ctx.name,
           "true-value": _ctx.activeValue,
           "false-value": _ctx.inactiveValue,
@@ -49100,7 +49599,7 @@ var _sfc_main119 = defineComponent({
           !_ctx.inactiveIcon && _ctx.inactiveText ? (openBlock(), createElementBlock("span", {
             key: 1,
             "aria-hidden": unref(checked)
-          }, toDisplayString(_ctx.inactiveText), 9, _hoisted_315)) : createCommentVNode("v-if", true)
+          }, toDisplayString(_ctx.inactiveText), 9, _hoisted_318)) : createCommentVNode("v-if", true)
         ], 2)) : createCommentVNode("v-if", true),
         createBaseVNode("span", {
           ref_key: "core",
@@ -49124,7 +49623,7 @@ var _sfc_main119 = defineComponent({
               key: 1,
               class: normalizeClass(unref(ns).is("text")),
               "aria-hidden": !unref(checked)
-            }, toDisplayString(unref(checked) ? _ctx.activeText : _ctx.inactiveText), 11, _hoisted_49)) : createCommentVNode("v-if", true)
+            }, toDisplayString(unref(checked) ? _ctx.activeText : _ctx.inactiveText), 11, _hoisted_410)) : createCommentVNode("v-if", true)
           ], 2)) : createCommentVNode("v-if", true),
           createBaseVNode("div", {
             class: normalizeClass(unref(ns).e("action"))
@@ -49167,9 +49666,9 @@ var _sfc_main119 = defineComponent({
           !_ctx.activeIcon && _ctx.activeText ? (openBlock(), createElementBlock("span", {
             key: 1,
             "aria-hidden": !unref(checked)
-          }, toDisplayString(_ctx.activeText), 9, _hoisted_56)) : createCommentVNode("v-if", true)
+          }, toDisplayString(_ctx.activeText), 9, _hoisted_57)) : createCommentVNode("v-if", true)
         ], 2)) : createCommentVNode("v-if", true)
-      ], 14, _hoisted_158);
+      ], 10, _hoisted_159);
     };
   }
 });
@@ -49676,13 +50175,13 @@ function useTree(watcherData) {
   const lazyColumnIdentifier = ref("hasChildren");
   const childrenColumnName = ref("children");
   const instance = getCurrentInstance();
-  const normalizedData = computed2(() => {
+  const normalizedData = computed(() => {
     if (!watcherData.rowKey.value)
       return {};
     const data = watcherData.data.value || [];
     return normalize(data);
   });
-  const normalizedLazyNode = computed2(() => {
+  const normalizedLazyNode = computed(() => {
     const rowKey2 = watcherData.rowKey.value;
     const keys3 = Object.keys(lazyTreeNodeMap.value);
     const res = {};
@@ -49960,8 +50459,8 @@ function useWatcher() {
   const clearSelection = () => {
     isAllSelected.value = false;
     const oldSelection = selection.value;
+    selection.value = [];
     if (oldSelection.length) {
-      selection.value = [];
       instance.emit("selection-change", []);
     }
   };
@@ -50021,7 +50520,7 @@ function useWatcher() {
     if (selectionChanged) {
       instance.emit("selection-change", selection.value ? selection.value.slice() : []);
     }
-    instance.emit("select-all", selection.value);
+    instance.emit("select-all", (selection.value || []).slice());
   };
   const updateSelectionByRowKey = () => {
     const selectedMap = getKeysMap(selection.value, rowKey2.value);
@@ -50764,16 +51263,16 @@ var _sfc_main120 = defineComponent({
     }
     const tooltipVisible = ref(false);
     const tooltip = ref(null);
-    const filters = computed2(() => {
+    const filters = computed(() => {
       return props.column && props.column.filters;
     });
-    const filterClassName = computed2(() => {
+    const filterClassName = computed(() => {
       if (props.column.filterClassName) {
         return `${ns.b()} ${props.column.filterClassName}`;
       }
       return ns.b();
     });
-    const filterValue = computed2({
+    const filterValue = computed({
       get: () => {
         var _a2;
         return (((_a2 = props.column) == null ? void 0 : _a2.filteredValue) || [])[0];
@@ -50788,7 +51287,7 @@ var _sfc_main120 = defineComponent({
         }
       }
     });
-    const filteredValue = computed2({
+    const filteredValue = computed({
       get() {
         if (props.column) {
           return props.column.filteredValue || [];
@@ -50801,7 +51300,7 @@ var _sfc_main120 = defineComponent({
         }
       }
     });
-    const multiple = computed2(() => {
+    const multiple = computed(() => {
       if (props.column) {
         return props.column.filterMultiple;
       }
@@ -50852,7 +51351,7 @@ var _sfc_main120 = defineComponent({
     }, {
       immediate: true
     });
-    const popperPaneRef = computed2(() => {
+    const popperPaneRef = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = tooltip.value) == null ? void 0 : _a2.popperRef) == null ? void 0 : _b.contentRef;
     });
@@ -50876,9 +51375,9 @@ var _sfc_main120 = defineComponent({
     };
   }
 });
-var _hoisted_159 = { key: 0 };
+var _hoisted_160 = { key: 0 };
 var _hoisted_238 = ["disabled"];
-var _hoisted_316 = ["label", "onClick"];
+var _hoisted_319 = ["label", "onClick"];
 function _sfc_render27(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_checkbox = resolveComponent("el-checkbox");
   const _component_el_checkbox_group = resolveComponent("el-checkbox-group");
@@ -50902,7 +51401,7 @@ function _sfc_render27(_ctx, _cache, $props, $setup, $data, $options) {
     persistent: ""
   }, {
     content: withCtx(() => [
-      _ctx.multiple ? (openBlock(), createElementBlock("div", _hoisted_159, [
+      _ctx.multiple ? (openBlock(), createElementBlock("div", _hoisted_160, [
         createBaseVNode("div", {
           class: normalizeClass(_ctx.ns.e("content"))
         }, [
@@ -50919,13 +51418,13 @@ function _sfc_render27(_ctx, _cache, $props, $setup, $data, $options) {
                   (openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.filters, (filter2) => {
                     return openBlock(), createBlock(_component_el_checkbox, {
                       key: filter2.value,
-                      label: filter2.value
+                      value: filter2.value
                     }, {
                       default: withCtx(() => [
                         createTextVNode(toDisplayString(filter2.text), 1)
                       ]),
                       _: 2
-                    }, 1032, ["label"]);
+                    }, 1032, ["value"]);
                   }), 128))
                 ]),
                 _: 1
@@ -50967,7 +51466,7 @@ function _sfc_render27(_ctx, _cache, $props, $setup, $data, $options) {
             class: normalizeClass([_ctx.ns.e("list-item"), _ctx.ns.is("active", _ctx.isActive(filter2))]),
             label: filter2.value,
             onClick: ($event) => _ctx.handleSelect(filter2.value)
-          }, toDisplayString(filter2.text), 11, _hoisted_316);
+          }, toDisplayString(filter2.text), 11, _hoisted_319);
         }), 128))
       ], 2))
     ]),
@@ -51011,7 +51510,7 @@ function useLayoutObserver(root2) {
   onUnmounted(() => {
     tableLayout.value.removeObserver(instance);
   });
-  const tableLayout = computed2(() => {
+  const tableLayout = computed(() => {
     const layout2 = root2.layout;
     if (!layout2) {
       throw new Error("Can not find table layout.");
@@ -51358,10 +51857,10 @@ var convertToRows = (originColumns) => {
 };
 function useUtils(props) {
   const parent2 = inject(TABLE_INJECTION_KEY);
-  const columnRows = computed2(() => {
+  const columnRows = computed(() => {
     return convertToRows(props.store.states.originColumns.value);
   });
-  const isGroup = computed2(() => {
+  const isGroup = computed(() => {
     const result2 = columnRows.value.length > 1;
     if (result2 && parent2) {
       parent2.state.isGroup.value = true;
@@ -51494,7 +51993,12 @@ var TableHeader = defineComponent({
         key: `${column2.id}-thead`,
         rowspan: column2.rowSpan,
         style: getHeaderCellStyle(rowIndex, cellIndex, subColumns, column2),
-        onClick: ($event) => handleHeaderClick($event, column2),
+        onClick: ($event) => {
+          if ($event.currentTarget.classList.contains("noclick")) {
+            return;
+          }
+          handleHeaderClick($event, column2);
+        },
         onContextmenu: ($event) => handleHeaderContextMenu($event, column2),
         onMousedown: ($event) => handleMouseDown($event, column2),
         onMousemove: ($event) => handleMouseMove($event, column2),
@@ -51540,6 +52044,9 @@ var TableHeader = defineComponent({
 });
 
 // node_modules/element-plus/es/components/table/src/table-body/events-helper.mjs
+function isGreaterThan(a2, b2, epsilon = 0.01) {
+  return a2 - b2 > epsilon;
+}
 function useEvents(props) {
   const parent2 = inject(TABLE_INJECTION_KEY);
   const tooltipContent = ref("");
@@ -51589,6 +52096,16 @@ function useEvents(props) {
       bottom: paddingBottom
     };
   };
+  const toggleRowClassByCell = (rowSpan, event, toggle) => {
+    let node = event.target.parentNode;
+    while (rowSpan > 1) {
+      node = node == null ? void 0 : node.nextSibling;
+      if (!node || node.nodeName !== "TR")
+        break;
+      toggle(node, "hover-row hover-fixed-row");
+      rowSpan--;
+    }
+  };
   const handleCellMouseEnter = (event, row, tooltipOptions) => {
     var _a2;
     const table = parent2;
@@ -51598,6 +52115,9 @@ function useEvents(props) {
       const column2 = getColumnByCell({
         columns: props.store.states.columns.value
       }, cell, namespace);
+      if (cell.rowSpan > 1) {
+        toggleRowClassByCell(cell.rowSpan, event, addClass);
+      }
       const hoverState = table.hoverState = { cell, column: column2, row };
       table == null ? void 0 : table.emit("cell-mouse-enter", hoverState.row, hoverState.column, hoverState.cell, event);
     }
@@ -51611,9 +52131,9 @@ function useEvents(props) {
     const range4 = document.createRange();
     range4.setStart(cellChild, 0);
     range4.setEnd(cellChild, cellChild.childNodes.length);
-    let rangeWidth = range4.getBoundingClientRect().width;
-    let rangeHeight = range4.getBoundingClientRect().height;
+    let { width: rangeWidth, height: rangeHeight } = range4.getBoundingClientRect();
     const offsetWidth = rangeWidth - Math.floor(rangeWidth);
+    const { width: cellChildWidth, height: cellChildHeight } = cellChild.getBoundingClientRect();
     if (offsetWidth < 1e-3) {
       rangeWidth = Math.floor(rangeWidth);
     }
@@ -51624,7 +52144,7 @@ function useEvents(props) {
     const { top, left: left2, right: right2, bottom } = getPadding(cellChild);
     const horizontalPadding = left2 + right2;
     const verticalPadding = top + bottom;
-    if (rangeWidth + horizontalPadding > cellChild.offsetWidth || rangeHeight + verticalPadding > cellChild.offsetHeight || cellChild.scrollWidth > cellChild.offsetWidth) {
+    if (isGreaterThan(rangeWidth + horizontalPadding, cellChildWidth) || isGreaterThan(rangeHeight + verticalPadding, cellChildHeight) || isGreaterThan(cellChild.scrollWidth, cellChildWidth)) {
       createTablePopper(tooltipOptions, cell.innerText || cell.textContent, cell, table);
     }
   };
@@ -51632,6 +52152,9 @@ function useEvents(props) {
     const cell = getCell(event);
     if (!cell)
       return;
+    if (cell.rowSpan > 1) {
+      toggleRowClassByCell(cell.rowSpan, event, removeClass);
+    }
     const oldHoverState = parent2 == null ? void 0 : parent2.hoverState;
     parent2 == null ? void 0 : parent2.emit("cell-mouse-leave", oldHoverState == null ? void 0 : oldHoverState.row, oldHoverState == null ? void 0 : oldHoverState.column, oldHoverState == null ? void 0 : oldHoverState.cell, event);
   };
@@ -51775,7 +52298,7 @@ function useRender(props) {
     getSpan,
     getColspanRealWidth
   } = useStyles(props);
-  const firstDefaultColumnIndex = computed2(() => {
+  const firstDefaultColumnIndex = computed(() => {
     return props.store.states.columns.value.findIndex(({ type: type4 }) => type4 === "default");
   });
   const getKeyOfRow = (row, index) => {
@@ -51837,7 +52360,7 @@ function useRender(props) {
           }
         }
       }
-      const baseKey = `${$index},${cellIndex}`;
+      const baseKey = `${getKeyOfRow(row, $index)},${cellIndex}`;
       const patchKey = columnData.columnKey || columnData.rawColumnKey || "";
       const tdChildren = cellChildren(cellIndex, column2, data);
       const mergedTooltipOptions = column2.showOverflowTooltip && merge_default({
@@ -51994,15 +52517,49 @@ var TableBody = defineComponent({
     const ns = useNamespace("table");
     const { wrappedRowRender, tooltipContent, tooltipTrigger } = useRender(props);
     const { onColumnsChange, onScrollableChange } = useLayoutObserver(parent2);
+    const hoveredCellList = [];
     watch(props.store.states.hoverRow, (newVal, oldVal) => {
+      var _a2;
+      const el = instance == null ? void 0 : instance.vnode.el;
+      const rows = Array.from((el == null ? void 0 : el.children) || []).filter((e) => e == null ? void 0 : e.classList.contains(`${ns.e("row")}`));
+      let rowNum = newVal;
+      const childNodes = (_a2 = rows[rowNum]) == null ? void 0 : _a2.childNodes;
+      if (childNodes == null ? void 0 : childNodes.length) {
+        let control = 0;
+        const indexes = Array.from(childNodes).reduce((acc, item, index) => {
+          var _a22, _b;
+          if (((_a22 = childNodes[index]) == null ? void 0 : _a22.colSpan) > 1) {
+            control = (_b = childNodes[index]) == null ? void 0 : _b.colSpan;
+          }
+          if (item.nodeName !== "TD" && control === 0) {
+            acc.push(index);
+          }
+          control > 0 && control--;
+          return acc;
+        }, []);
+        indexes.forEach((rowIndex) => {
+          var _a22;
+          rowNum = newVal;
+          while (rowNum > 0) {
+            const preChildNodes = (_a22 = rows[rowNum - 1]) == null ? void 0 : _a22.childNodes;
+            if (preChildNodes[rowIndex] && preChildNodes[rowIndex].nodeName === "TD" && preChildNodes[rowIndex].rowSpan > 1) {
+              addClass(preChildNodes[rowIndex], "hover-cell");
+              hoveredCellList.push(preChildNodes[rowIndex]);
+              break;
+            }
+            rowNum--;
+          }
+        });
+      } else {
+        hoveredCellList.forEach((item) => removeClass(item, "hover-cell"));
+        hoveredCellList.length = 0;
+      }
       if (!props.store.states.isComplex.value || !isClient)
         return;
       rAF(() => {
-        const el = instance == null ? void 0 : instance.vnode.el;
-        const rows = Array.from((el == null ? void 0 : el.children) || []).filter((e) => e == null ? void 0 : e.classList.contains(`${ns.e("row")}`));
         const oldRow = rows[oldVal];
         const newRow = rows[newVal];
-        if (oldRow) {
+        if (oldRow && !oldRow.classList.contains("hover-fixed-row")) {
           removeClass(oldRow, "hover-row");
         }
         if (newRow) {
@@ -52038,19 +52595,19 @@ var TableBody = defineComponent({
 function useMapState() {
   const table = inject(TABLE_INJECTION_KEY);
   const store = table == null ? void 0 : table.store;
-  const leftFixedLeafCount = computed2(() => {
+  const leftFixedLeafCount = computed(() => {
     return store.states.fixedLeafColumnsLength.value;
   });
-  const rightFixedLeafCount = computed2(() => {
+  const rightFixedLeafCount = computed(() => {
     return store.states.rightFixedColumns.value.length;
   });
-  const columnsCount = computed2(() => {
+  const columnsCount = computed(() => {
     return store.states.columns.value.length;
   });
-  const leftFixedCount = computed2(() => {
+  const leftFixedCount = computed(() => {
     return store.states.fixedColumns.value.length;
   });
-  const rightFixedCount = computed2(() => {
+  const rightFixedCount = computed(() => {
     return store.states.rightFixedColumns.value.length;
   });
   return {
@@ -52292,10 +52849,10 @@ function useStyle3(props, layout2, store, table) {
       table.refs.bodyWrapper.scrollLeft += data.pixelX / 5;
     }
   };
-  const shouldUpdateHeight = computed2(() => {
+  const shouldUpdateHeight = computed(() => {
     return props.height || props.maxHeight || store.states.fixedColumns.value.length > 0 || store.states.rightFixedColumns.value.length > 0;
   });
-  const tableBodyStyles = computed2(() => {
+  const tableBodyStyles = computed(() => {
     return {
       width: layout2.bodyWidth.value ? `${layout2.bodyWidth.value}px` : ""
     };
@@ -52433,16 +52990,16 @@ function useStyle3(props, layout2, store, table) {
     }
   };
   const tableSize = useFormSize();
-  const bodyWidth = computed2(() => {
+  const bodyWidth = computed(() => {
     const { bodyWidth: bodyWidth_, scrollY, gutterWidth } = layout2;
     return bodyWidth_.value ? `${bodyWidth_.value - (scrollY.value ? gutterWidth : 0)}px` : "";
   });
-  const tableLayout = computed2(() => {
+  const tableLayout = computed(() => {
     if (props.maxHeight)
       return "fixed";
     return props.tableLayout;
   });
-  const emptyBlockStyle = computed2(() => {
+  const emptyBlockStyle = computed(() => {
     if (props.data && props.data.length)
       return null;
     let height = "100%";
@@ -52455,7 +53012,7 @@ function useStyle3(props, layout2, store, table) {
       height
     };
   });
-  const tableInnerStyle = computed2(() => {
+  const tableInnerStyle = computed(() => {
     if (props.height) {
       return {
         height: !Number.isNaN(Number(props.height)) ? `${props.height}px` : props.height
@@ -52468,7 +53025,7 @@ function useStyle3(props, layout2, store, table) {
     }
     return {};
   });
-  const scrollbarStyle = computed2(() => {
+  const scrollbarStyle = computed(() => {
     if (props.height) {
       return {
         height: "100%"
@@ -52618,10 +53175,7 @@ var defaultProps3 = {
     type: String,
     default: "fixed"
   },
-  scrollbarAlwaysOn: {
-    type: Boolean,
-    default: false
-  },
+  scrollbarAlwaysOn: Boolean,
   flexible: Boolean,
   showOverflowTooltip: [Boolean, Object]
 };
@@ -52728,7 +53282,7 @@ var _sfc_main121 = defineComponent({
       showHeader: props.showHeader
     });
     table.layout = layout2;
-    const isEmpty3 = computed2(() => (store.states.data.value || []).length === 0);
+    const isEmpty3 = computed(() => (store.states.data.value || []).length === 0);
     const {
       setCurrentRow,
       getSelectionRows,
@@ -52770,15 +53324,19 @@ var _sfc_main121 = defineComponent({
       doLayout,
       debouncedUpdateLayout
     };
-    const computedSumText = computed2(() => props.sumText || t("el.table.sumText"));
-    const computedEmptyText = computed2(() => {
+    const computedSumText = computed(() => props.sumText || t("el.table.sumText"));
+    const computedEmptyText = computed(() => {
       return props.emptyText || t("el.table.emptyText");
+    });
+    const columns2 = computed(() => {
+      return convertToRows(store.states.originColumns.value)[0];
     });
     useKeyRender(table);
     return {
       ns,
       layout: layout2,
       store,
+      columns: columns2,
       handleHeaderFooterMousewheel,
       handleMouseLeave,
       tableId,
@@ -52820,7 +53378,7 @@ var _sfc_main121 = defineComponent({
     };
   }
 });
-var _hoisted_160 = ["data-prefix"];
+var _hoisted_161 = ["data-prefix"];
 var _hoisted_239 = {
   ref: "hiddenColumns",
   class: "hidden-columns"
@@ -53011,7 +53569,7 @@ function _sfc_render28(_ctx, _cache, $props, $setup, $data, $options) {
     }, null, 2), [
       [vShow, _ctx.resizeProxyVisible]
     ])
-  ], 46, _hoisted_160);
+  ], 46, _hoisted_161);
 }
 var Table = _export_sfc(_sfc_main121, [["render", _sfc_render28], ["__file", "table.vue"]]);
 
@@ -53295,14 +53853,14 @@ function useRender2(props, slots, owner) {
     realHeaderAlign.value = props.headerAlign ? `is-${props.headerAlign}` : realAlign.value;
     realHeaderAlign.value;
   });
-  const columnOrTableParent = computed2(() => {
+  const columnOrTableParent = computed(() => {
     let parent2 = instance.vnode.vParent || instance.parent;
     while (parent2 && !parent2.tableId && !parent2.columnId) {
       parent2 = parent2.vnode.vParent || parent2.parent;
     }
     return parent2;
   });
-  const hasTreeColumn = computed2(() => {
+  const hasTreeColumn = computed(() => {
     const { store } = instance.parent;
     if (!store)
       return false;
@@ -53507,7 +54065,7 @@ var ElTableColumn = defineComponent({
   setup(props, { slots }) {
     const instance = getCurrentInstance();
     const columnConfig = ref({});
-    const owner = computed2(() => {
+    const owner = computed(() => {
       let parent22 = instance.parent;
       while (parent22 && !parent22.tableId) {
         parent22 = parent22.parent;
@@ -53594,7 +54152,8 @@ var ElTableColumn = defineComponent({
       columnIndex > -1 && owner.value.store.commit("insertColumn", columnConfig.value, isSubColumn.value ? parent22.columnConfig.value : null, updateColumnOrder);
     });
     onBeforeUnmount(() => {
-      owner.value.store.commit("removeColumn", columnConfig.value, isSubColumn.value ? parent2.columnConfig.value : null, updateColumnOrder);
+      const columnIndex = columnConfig.value.getColumnIndex();
+      columnIndex > -1 && owner.value.store.commit("removeColumn", columnConfig.value, isSubColumn.value ? parent2.columnConfig.value : null, updateColumnOrder);
     });
     instance.columnId = columnId.value;
     instance.columnConfig = columnConfig;
@@ -53698,13 +54257,13 @@ var calcColumnStyle = (column2, fixedColumn, fixed) => {
 
 // node_modules/element-plus/es/components/table-v2/src/composables/use-columns.mjs
 function useColumns(props, columns2, fixed) {
-  const visibleColumns = computed2(() => {
+  const visibleColumns = computed(() => {
     return unref(columns2).filter((column2) => !column2.hidden);
   });
-  const fixedColumnsOnLeft = computed2(() => unref(visibleColumns).filter((column2) => column2.fixed === "left" || column2.fixed === true));
-  const fixedColumnsOnRight = computed2(() => unref(visibleColumns).filter((column2) => column2.fixed === "right"));
-  const normalColumns = computed2(() => unref(visibleColumns).filter((column2) => !column2.fixed));
-  const mainColumns = computed2(() => {
+  const fixedColumnsOnLeft = computed(() => unref(visibleColumns).filter((column2) => column2.fixed === "left" || column2.fixed === true));
+  const fixedColumnsOnRight = computed(() => unref(visibleColumns).filter((column2) => column2.fixed === "right"));
+  const normalColumns = computed(() => unref(visibleColumns).filter((column2) => !column2.fixed));
+  const mainColumns = computed(() => {
     const ret = [];
     unref(fixedColumnsOnLeft).forEach((column2) => {
       ret.push({
@@ -53723,17 +54282,17 @@ function useColumns(props, columns2, fixed) {
     });
     return ret;
   });
-  const hasFixedColumns = computed2(() => {
+  const hasFixedColumns = computed(() => {
     return unref(fixedColumnsOnLeft).length || unref(fixedColumnsOnRight).length;
   });
-  const columnsStyles = computed2(() => {
+  const columnsStyles = computed(() => {
     const _columns = unref(columns2);
     return _columns.reduce((style, column2) => {
       style[column2.key] = calcColumnStyle(column2, unref(fixed), props.fixed);
       return style;
     }, {});
   });
-  const columnsTotalWidth = computed2(() => {
+  const columnsTotalWidth = computed(() => {
     return unref(visibleColumns).reduce((width, column2) => width + column2.width, 0);
   });
   const getColumn = (key) => {
@@ -53834,11 +54393,17 @@ var useScrollbar2 = (props, {
 };
 
 // node_modules/element-plus/es/components/table-v2/src/composables/use-row.mjs
-var useRow = (props, { mainTableRef, leftTableRef, rightTableRef }) => {
+var useRow = (props, {
+  mainTableRef,
+  leftTableRef,
+  rightTableRef,
+  tableInstance,
+  ns,
+  isScrolling
+}) => {
   const vm = getCurrentInstance();
   const { emit } = vm;
   const isResetting = shallowRef(false);
-  const hoveringRowKey = shallowRef(null);
   const expandedRowKeys = ref(props.defaultExpandedRowKeys || []);
   const lastRenderedRowIndex = ref(-1);
   const resetIndex = shallowRef(null);
@@ -53847,7 +54412,7 @@ var useRow = (props, { mainTableRef, leftTableRef, rightTableRef }) => {
   const leftTableHeights = shallowRef({});
   const mainTableHeights = shallowRef({});
   const rightTableHeights = shallowRef({});
-  const isDynamic = computed2(() => isNumber3(props.estimatedRowHeight));
+  const isDynamic = computed(() => isNumber3(props.estimatedRowHeight));
   function onRowsRendered(params) {
     var _a2;
     (_a2 = props.onRowsRendered) == null ? void 0 : _a2.call(props, params);
@@ -53856,7 +54421,18 @@ var useRow = (props, { mainTableRef, leftTableRef, rightTableRef }) => {
     }
   }
   function onRowHovered({ hovered, rowKey: rowKey2 }) {
-    hoveringRowKey.value = hovered ? rowKey2 : null;
+    if (isScrolling.value) {
+      return;
+    }
+    const tableRoot = tableInstance.vnode.el;
+    const rows = tableRoot.querySelectorAll(`[rowkey="${String(rowKey2)}"]`);
+    rows.forEach((row) => {
+      if (hovered) {
+        row.classList.add(ns.is("hovered"));
+      } else {
+        row.classList.remove(ns.is("hovered"));
+      }
+    });
   }
   function onRowExpanded({
     expanded,
@@ -53934,7 +54510,6 @@ var useRow = (props, { mainTableRef, leftTableRef, rightTableRef }) => {
     }
   }
   return {
-    hoveringRowKey,
     expandedRowKeys,
     lastRenderedRowIndex,
     isDynamic,
@@ -53951,7 +54526,7 @@ var useRow = (props, { mainTableRef, leftTableRef, rightTableRef }) => {
 // node_modules/element-plus/es/components/table-v2/src/composables/use-data.mjs
 var useData = (props, { expandedRowKeys, lastRenderedRowIndex, resetAfterIndex }) => {
   const depthMap = ref({});
-  const flattenedData = computed2(() => {
+  const flattenedData = computed(() => {
     const depths = {};
     const { data: data2, rowKey: rowKey2 } = props;
     const _expandedRowKeys = unref(expandedRowKeys);
@@ -53973,7 +54548,7 @@ var useData = (props, { expandedRowKeys, lastRenderedRowIndex, resetAfterIndex }
     depthMap.value = depths;
     return array4;
   });
-  const data = computed2(() => {
+  const data = computed(() => {
     const { data: data2, expandColumnKey: expandColumnKey2 } = props;
     return expandColumnKey2 ? unref(flattenedData) : data2;
   });
@@ -54013,13 +54588,13 @@ var useStyles2 = (props, {
   fixedColumnsOnLeft,
   fixedColumnsOnRight
 }) => {
-  const bodyWidth = computed2(() => {
+  const bodyWidth = computed(() => {
     const { fixed, width, vScrollbarSize } = props;
     const ret = width - vScrollbarSize;
     return fixed ? Math.max(Math.round(unref(columnsTotalWidth)), ret) : ret;
   });
-  const headerWidth = computed2(() => unref(bodyWidth) + (props.fixed ? props.vScrollbarSize : 0));
-  const mainTableHeight = computed2(() => {
+  const headerWidth = computed(() => unref(bodyWidth) + props.vScrollbarSize);
+  const mainTableHeight = computed(() => {
     const { height = 0, maxHeight = 0, footerHeight: footerHeight2, hScrollbarSize } = props;
     if (maxHeight > 0) {
       const _fixedRowsHeight = unref(fixedRowsHeight);
@@ -54030,7 +54605,7 @@ var useStyles2 = (props, {
     }
     return height - footerHeight2;
   });
-  const rowsHeight = computed2(() => {
+  const rowsHeight = computed(() => {
     const { rowHeight, estimatedRowHeight } = props;
     const _data = unref(data);
     if (isNumber3(estimatedRowHeight)) {
@@ -54038,7 +54613,7 @@ var useStyles2 = (props, {
     }
     return _data.length * rowHeight;
   });
-  const fixedTableHeight = computed2(() => {
+  const fixedTableHeight = computed(() => {
     const { maxHeight } = props;
     const tableHeight = unref(mainTableHeight);
     if (isNumber3(maxHeight) && maxHeight > 0)
@@ -54047,17 +54622,17 @@ var useStyles2 = (props, {
     return Math.min(tableHeight, totalHeight);
   });
   const mapColumn = (column2) => column2.width;
-  const leftTableWidth = computed2(() => sum2(unref(fixedColumnsOnLeft).map(mapColumn)));
-  const rightTableWidth = computed2(() => sum2(unref(fixedColumnsOnRight).map(mapColumn)));
-  const headerHeight = computed2(() => sum2(props.headerHeight));
-  const fixedRowsHeight = computed2(() => {
+  const leftTableWidth = computed(() => sum2(unref(fixedColumnsOnLeft).map(mapColumn)));
+  const rightTableWidth = computed(() => sum2(unref(fixedColumnsOnRight).map(mapColumn)));
+  const headerHeight = computed(() => sum2(props.headerHeight));
+  const fixedRowsHeight = computed(() => {
     var _a2;
     return (((_a2 = props.fixedData) == null ? void 0 : _a2.length) || 0) * props.rowHeight;
   });
-  const windowHeight = computed2(() => {
+  const windowHeight = computed(() => {
     return unref(mainTableHeight) - unref(headerHeight) - unref(fixedRowsHeight);
   });
-  const rootStyle = computed2(() => {
+  const rootStyle = computed(() => {
     const { style = {}, height, width } = props;
     return enforceUnit({
       ...style,
@@ -54065,8 +54640,8 @@ var useStyles2 = (props, {
       width
     });
   });
-  const footerHeight = computed2(() => enforceUnit({ height: props.footerHeight }));
-  const emptyStyle = computed2(() => ({
+  const footerHeight = computed(() => enforceUnit({ height: props.footerHeight }));
+  const emptyStyle = computed(() => ({
     top: addUnit(unref(headerHeight)),
     bottom: addUnit(props.footerHeight),
     width: addUnit(props.width)
@@ -54151,9 +54726,11 @@ function useTable(props) {
     rightTableRef,
     onMaybeEndReached
   });
+  const ns = useNamespace("table-v2");
+  const instance = getCurrentInstance();
+  const isScrolling = shallowRef(false);
   const {
     expandedRowKeys,
-    hoveringRowKey,
     lastRenderedRowIndex,
     isDynamic,
     isResetting,
@@ -54166,7 +54743,10 @@ function useTable(props) {
   } = useRow(props, {
     mainTableRef,
     leftTableRef,
-    rightTableRef
+    rightTableRef,
+    tableInstance: instance,
+    ns,
+    isScrolling
   });
   const { data, depthMap } = useData(props, {
     expandedRowKeys,
@@ -54192,9 +54772,8 @@ function useTable(props) {
     fixedColumnsOnLeft,
     fixedColumnsOnRight
   });
-  const isScrolling = shallowRef(false);
   const containerRef = ref();
-  const showEmpty = computed2(() => {
+  const showEmpty = computed(() => {
     const noData = unref(data).length === 0;
     return isArray(props.fixedData) ? props.fixedData.length === 0 && noData : noData;
   });
@@ -54228,7 +54807,6 @@ function useTable(props) {
     isDynamic,
     isResetting,
     isScrolling,
-    hoveringRowKey,
     hasFixedColumns,
     columnsStyles,
     columnsTotalWidth,
@@ -54597,15 +55175,15 @@ var TableV2Header = defineComponent({
   }) {
     const ns = useNamespace("table-v2");
     const headerRef = ref();
-    const headerStyle = computed2(() => enforceUnit({
+    const headerStyle = computed(() => enforceUnit({
       width: props.width,
       height: props.height
     }));
-    const rowStyle = computed2(() => enforceUnit({
+    const rowStyle = computed(() => enforceUnit({
       width: props.rowWidth,
       height: props.height
     }));
-    const headerHeights = computed2(() => castArray_default(unref(props.headerHeight)));
+    const headerHeights = computed(() => castArray_default(unref(props.headerHeight)));
     const scrollToLeft = (left2) => {
       const headerEl = unref(headerRef);
       nextTick(() => {
@@ -54681,7 +55259,7 @@ var useTableRow = (props) => {
   } = inject(TableV2InjectionKey);
   const measured = ref(false);
   const rowRef = ref();
-  const measurable = computed2(() => {
+  const measurable = computed(() => {
     return isNumber3(props.estimatedRowHeight) && props.rowIndex >= 0;
   });
   const doMeasure = (isInit = false) => {
@@ -54711,7 +55289,7 @@ var useTableRow = (props) => {
       }
     });
   };
-  const eventHandlers = computed2(() => {
+  const eventHandlers = computed(() => {
     const {
       rowData,
       rowIndex,
@@ -54913,7 +55491,7 @@ var COMPONENT_NAME20 = "ElTableV2Grid";
 var useTableGrid = (props) => {
   const headerRef = ref();
   const bodyRef = ref();
-  const totalHeight = computed2(() => {
+  const totalHeight = computed(() => {
     const {
       data,
       rowHeight,
@@ -54924,21 +55502,21 @@ var useTableGrid = (props) => {
     }
     return data.length * rowHeight;
   });
-  const fixedRowHeight = computed2(() => {
+  const fixedRowHeight = computed(() => {
     const {
       fixedData,
       rowHeight
     } = props;
     return ((fixedData == null ? void 0 : fixedData.length) || 0) * rowHeight;
   });
-  const headerHeight = computed2(() => sum2(props.headerHeight));
-  const gridHeight = computed2(() => {
+  const headerHeight = computed(() => sum2(props.headerHeight));
+  const gridHeight = computed(() => {
     const {
       height
     } = props;
     return Math.max(0, height - unref(headerHeight) - unref(fixedRowHeight));
   });
-  const hasHeader = computed2(() => {
+  const hasHeader = computed(() => {
     return unref(headerHeight) + unref(fixedRowHeight) > 0;
   });
   const itemKey = ({
@@ -54966,14 +55544,12 @@ var useTableGrid = (props) => {
   function scrollTo(leftOrOptions, top) {
     const header$ = unref(headerRef);
     const body$ = unref(bodyRef);
-    if (!header$ || !body$)
-      return;
     if (isObject(leftOrOptions)) {
-      header$.scrollToLeft(leftOrOptions.scrollLeft);
-      body$.scrollTo(leftOrOptions);
+      header$ == null ? void 0 : header$.scrollToLeft(leftOrOptions.scrollLeft);
+      body$ == null ? void 0 : body$.scrollTo(leftOrOptions);
     } else {
-      header$.scrollToLeft(leftOrOptions);
-      body$.scrollTo({
+      header$ == null ? void 0 : header$.scrollToLeft(leftOrOptions);
+      body$ == null ? void 0 : body$.scrollTo({
         scrollLeft: leftOrOptions,
         scrollTop: top
       });
@@ -55196,7 +55772,6 @@ var RowRenderer = (props, {
     expandedRowKeys,
     estimatedRowHeight,
     hasFixedColumns,
-    hoveringRowKey,
     rowData,
     rowIndex,
     style,
@@ -55226,7 +55801,6 @@ var RowRenderer = (props, {
   const kls = [ns.e("row"), rowKls, {
     [ns.e(`row-depth-${depth}`)]: canExpand && rowIndex >= 0,
     [ns.is("expanded")]: canExpand && expandedRowKeys.includes(_rowKey),
-    [ns.is("hovered")]: !isScrolling && _rowKey === hoveringRowKey,
     [ns.is("fixed")]: !depth && isFixedRow,
     [ns.is("customized")]: Boolean(slots.row)
   }];
@@ -55246,9 +55820,29 @@ var RowRenderer = (props, {
     rowEventHandlers,
     style
   };
+  const handlerMosueEnter = (e) => {
+    onRowHover == null ? void 0 : onRowHover({
+      hovered: true,
+      rowKey: _rowKey,
+      event: e,
+      rowData,
+      rowIndex
+    });
+  };
+  const handlerMouseLeave = (e) => {
+    onRowHover == null ? void 0 : onRowHover({
+      hovered: false,
+      rowKey: _rowKey,
+      event: e,
+      rowData,
+      rowIndex
+    });
+  };
   return createVNode(TableV2Row, mergeProps(_rowProps, {
-    "onRowHover": onRowHover,
-    "onRowExpand": onRowExpanded
+    "onRowExpand": onRowExpanded,
+    "onMouseenter": handlerMosueEnter,
+    "onMouseleave": handlerMouseLeave,
+    "rowkey": _rowKey
   }), _isSlot4(slots) ? slots : {
     default: () => [slots]
   });
@@ -55498,7 +56092,6 @@ var TableV2 = defineComponent({
       depthMap,
       expandedRowKeys,
       hasFixedColumns,
-      hoveringRowKey,
       mainTableRef,
       leftTableRef,
       rightTableRef,
@@ -55533,7 +56126,6 @@ var TableV2 = defineComponent({
     provide(TableV2InjectionKey, {
       ns,
       isResetting,
-      hoveringRowKey,
       isScrolling
     });
     return () => {
@@ -55641,7 +56233,6 @@ var TableV2 = defineComponent({
         expandedRowKeys: unref(expandedRowKeys),
         estimatedRowHeight,
         hasFixedColumns: unref(hasFixedColumns),
-        hoveringRowKey: unref(hoveringRowKey),
         rowProps: rowProps2,
         rowClass,
         rowKey: rowKey2,
@@ -55902,8 +56493,8 @@ var TabNav = defineComponent({
     const navOffset = ref(0);
     const isFocus = ref(false);
     const focusable = ref(true);
-    const sizeName = computed2(() => ["top", "bottom"].includes(rootTabs.props.tabPosition) ? "width" : "height");
-    const navStyle = computed2(() => {
+    const sizeName = computed(() => ["top", "bottom"].includes(rootTabs.props.tabPosition) ? "width" : "height");
+    const navStyle = computed(() => {
       const dir = sizeName.value === "width" ? "X" : "Y";
       return {
         transform: `translate${dir}(-${navOffset.value}px)`
@@ -56123,9 +56714,6 @@ var tabsProps = buildProps({
     values: ["card", "border-card", ""],
     default: ""
   },
-  activeName: {
-    type: [String, Number]
-  },
   closable: Boolean,
   addable: Boolean,
   modelValue: {
@@ -56161,7 +56749,7 @@ var Tabs = defineComponent({
     slots,
     expose
   }) {
-    var _a2, _b;
+    var _a2;
     const ns = useNamespace("tabs");
     const {
       children: panes,
@@ -56169,9 +56757,9 @@ var Tabs = defineComponent({
       removeChild: unregisterPane
     } = useOrderedChildren(getCurrentInstance(), "ElTabPane");
     const nav$ = ref();
-    const currentName = ref((_b = (_a2 = props.modelValue) != null ? _a2 : props.activeName) != null ? _b : "0");
+    const currentName = ref((_a2 = props.modelValue) != null ? _a2 : "0");
     const setCurrentName = async (value, trigger = false) => {
-      var _a22, _b2, _c;
+      var _a22, _b, _c;
       if (currentName.value === value || isUndefined2(value))
         return;
       try {
@@ -56182,7 +56770,7 @@ var Tabs = defineComponent({
             emit(UPDATE_MODEL_EVENT, value);
             emit("tabChange", value);
           }
-          (_c = (_b2 = nav$.value) == null ? void 0 : _b2.removeFocus) == null ? void 0 : _c.call(_b2);
+          (_c = (_b = nav$.value) == null ? void 0 : _b.removeFocus) == null ? void 0 : _c.call(_b);
         }
       } catch (e) {
       }
@@ -56204,23 +56792,6 @@ var Tabs = defineComponent({
       emit("edit", void 0, "add");
       emit("tabAdd");
     };
-    useDeprecated({
-      from: '"activeName"',
-      replacement: '"model-value" or "v-model"',
-      scope: "ElTabs",
-      version: "2.3.0",
-      ref: "https://element-plus.org/en-US/component/tabs.html#attributes",
-      type: "Attribute"
-    }, computed2(() => !!props.activeName));
-    useDeprecated({
-      from: '"addIcon"',
-      replacement: '"add-icon"',
-      scope: "ElTabs",
-      version: "2.6.0",
-      ref: "https://element-plus.org/en-US/component/tabs.html#slots",
-      type: "Slot"
-    }, computed2(() => !!slots.addIcon));
-    watch(() => props.activeName, (modelValue) => setCurrentName(modelValue));
     watch(() => props.modelValue, (modelValue) => setCurrentName(modelValue));
     watch(currentName, async () => {
       var _a22;
@@ -56237,8 +56808,7 @@ var Tabs = defineComponent({
       currentName
     });
     return () => {
-      const addSlot = slots["add-icon"] || slots["addIcon"];
-      const isCamelCase = addSlot && slots["addIcon"];
+      const addSlot = slots["add-icon"];
       const newButton = props.editable || props.addable ? createVNode("span", {
         "class": ns.e("new-tab"),
         "tabindex": "0",
@@ -56247,7 +56817,7 @@ var Tabs = defineComponent({
           if (ev.code === EVENT_CODE.enter)
             handleTabAdd();
         }
-      }, [addSlot ? renderSlot(slots, isCamelCase ? "addIcon" : "add-icon") : createVNode(ElIcon, {
+      }, [addSlot ? renderSlot(slots, "add-icon") : createVNode(ElIcon, {
         "class": ns.is("icon-plus")
       }, {
         default: () => [createVNode(plus_default, null, null)]
@@ -56292,7 +56862,7 @@ var tabPaneProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/tabs/src/tab-pane2.mjs
-var _hoisted_161 = ["id", "aria-hidden", "aria-labelledby"];
+var _hoisted_163 = ["id", "aria-hidden", "aria-labelledby"];
 var COMPONENT_NAME24 = "ElTabPane";
 var __default__85 = defineComponent({
   name: COMPONENT_NAME24
@@ -56309,13 +56879,13 @@ var _sfc_main123 = defineComponent({
       throwError(COMPONENT_NAME24, "usage: <el-tabs><el-tab-pane /></el-tabs/>");
     const ns = useNamespace("tab-pane");
     const index = ref();
-    const isClosable = computed2(() => props.closable || tabsRoot.props.closable);
+    const isClosable = computed(() => props.closable || tabsRoot.props.closable);
     const active = computedEager(() => {
       var _a2;
       return tabsRoot.currentName.value === ((_a2 = props.name) != null ? _a2 : index.value);
     });
     const loaded = ref(active.value);
-    const paneName = computed2(() => {
+    const paneName = computed(() => {
       var _a2;
       return (_a2 = props.name) != null ? _a2 : index.value;
     });
@@ -56349,7 +56919,7 @@ var _sfc_main123 = defineComponent({
         "aria-labelledby": `tab-${unref(paneName)}`
       }, [
         renderSlot(_ctx.$slots, "default")
-      ], 10, _hoisted_161)), [
+      ], 10, _hoisted_163)), [
         [vShow, unref(active)]
       ]) : createCommentVNode("v-if", true);
     };
@@ -56398,7 +56968,7 @@ var _sfc_main124 = defineComponent({
     const props = __props;
     const textSize = useFormSize();
     const ns = useNamespace("text");
-    const textKls = computed2(() => [
+    const textKls = computed(() => [
       ns.b(),
       ns.m(props.type),
       ns.m(textSize.value),
@@ -56471,7 +57041,8 @@ var timeSelectProps = buildProps({
   clearIcon: {
     type: definePropType([String, Object]),
     default: () => circle_close_default
-  }
+  },
+  ...useEmptyValuesProps
 });
 
 // node_modules/element-plus/es/components/time-select/src/utils.mjs
@@ -56547,28 +57118,28 @@ var _sfc_main125 = defineComponent({
     const select = ref();
     const _disabled = useFormDisabled();
     const { lang } = useLocale();
-    const value = computed2(() => props.modelValue);
-    const start = computed2(() => {
+    const value = computed(() => props.modelValue);
+    const start = computed(() => {
       const time = parseTime(props.start);
       return time ? formatTime2(time) : null;
     });
-    const end2 = computed2(() => {
+    const end2 = computed(() => {
       const time = parseTime(props.end);
       return time ? formatTime2(time) : null;
     });
-    const step = computed2(() => {
+    const step = computed(() => {
       const time = parseTime(props.step);
       return time ? formatTime2(time) : null;
     });
-    const minTime = computed2(() => {
+    const minTime = computed(() => {
       const time = parseTime(props.minTime || "");
       return time ? formatTime2(time) : null;
     });
-    const maxTime = computed2(() => {
+    const maxTime = computed(() => {
       const time = parseTime(props.maxTime || "");
       return time ? formatTime2(time) : null;
     });
-    const items = computed2(() => {
+    const items = computed(() => {
       const result2 = [];
       if (props.start && props.end && props.step) {
         let current = start.value;
@@ -56609,6 +57180,8 @@ var _sfc_main125 = defineComponent({
         placeholder: _ctx.placeholder,
         "default-first-option": "",
         filterable: _ctx.editable,
+        "empty-values": _ctx.emptyValues,
+        "value-on-clear": _ctx.valueOnClear,
         "onUpdate:modelValue": _cache[0] || (_cache[0] = (event) => _ctx.$emit("update:modelValue", event)),
         onChange: _cache[1] || (_cache[1] = (event) => _ctx.$emit("change", event)),
         onBlur: _cache[2] || (_cache[2] = (event) => _ctx.$emit("blur", event)),
@@ -56636,7 +57209,7 @@ var _sfc_main125 = defineComponent({
           }), 128))
         ]),
         _: 1
-      }, 8, ["model-value", "disabled", "clearable", "clear-icon", "size", "effect", "placeholder", "filterable"]);
+      }, 8, ["model-value", "disabled", "clearable", "clear-icon", "size", "effect", "placeholder", "filterable", "empty-values", "value-on-clear"]);
     };
   }
 });
@@ -56713,7 +57286,7 @@ var _sfc_main126 = defineComponent({
   setup(__props) {
     const props = __props;
     const ns = useNamespace("timeline-item");
-    const defaultNodeKls = computed2(() => [
+    const defaultNodeKls = computed(() => [
       ns.e("node"),
       ns.em("node", props.size || ""),
       ns.em("node", props.type || ""),
@@ -56831,7 +57404,6 @@ var tooltipV2Placements = [
   "right"
 ];
 var tooltipV2ContentProps = buildProps({
-  ariaLabel: String,
   arrowPadding: {
     type: definePropType(Number),
     default: 5
@@ -56862,7 +57434,8 @@ var tooltipV2ContentProps = buildProps({
   showArrow: {
     type: Boolean,
     default: false
-  }
+  },
+  ...useAriaProps(["ariaLabel"])
 });
 
 // node_modules/element-plus/es/components/tooltip-v2/src/root.mjs
@@ -56932,7 +57505,7 @@ var _sfc_main127 = defineComponent({
     const props = __props;
     const _open = ref(props.defaultOpen);
     const triggerRef = ref(null);
-    const open = computed2({
+    const open = computed({
       get: () => isPropAbsent(props.open) ? _open.value : props.open,
       set: (open2) => {
         var _a2;
@@ -56940,10 +57513,10 @@ var _sfc_main127 = defineComponent({
         (_a2 = props["onUpdate:open"]) == null ? void 0 : _a2.call(props, open2);
       }
     });
-    const isOpenDelayed = computed2(() => isNumber3(props.delayDuration) && props.delayDuration > 0);
+    const isOpenDelayed = computed(() => isNumber3(props.delayDuration) && props.delayDuration > 0);
     const { start: onDelayedOpen, stop: clearTimer } = useTimeoutFn(() => {
       open.value = true;
-    }, computed2(() => props.delayDuration), {
+    }, computed(() => props.delayDuration), {
       immediate: false
     });
     const ns = useNamespace("tooltip-v2");
@@ -57009,7 +57582,7 @@ var _sfc_main128 = defineComponent({
     const props = __props;
     const { ns } = inject(tooltipV2RootKey);
     const { arrowRef } = inject(tooltipV2ContentKey);
-    const arrowStyle = computed2(() => {
+    const arrowStyle = computed(() => {
       const { style, width, height } = props;
       const namespace = ns.namespace.value;
       return {
@@ -57032,7 +57605,7 @@ var _sfc_main128 = defineComponent({
 });
 var TooltipV2Arrow = _export_sfc(_sfc_main128, [["__file", "arrow.vue"]]);
 
-// node_modules/element-plus/es/components/visual-hidden/src/visual-hidden.mjs
+// node_modules/element-plus/es/components/visual-hidden/src/visual-hidden2.mjs
 var visualHiddenProps = buildProps({
   style: {
     type: definePropType([String, Object, Array]),
@@ -57040,7 +57613,7 @@ var visualHiddenProps = buildProps({
   }
 });
 
-// node_modules/element-plus/es/components/visual-hidden/src/visual-hidden2.mjs
+// node_modules/element-plus/es/components/visual-hidden/src/visual-hidden.mjs
 var __default__91 = defineComponent({
   name: "ElVisuallyHidden"
 });
@@ -57049,7 +57622,7 @@ var _sfc_main129 = defineComponent({
   props: visualHiddenProps,
   setup(__props) {
     const props = __props;
-    const computedStyle = computed2(() => {
+    const computedStyle = computed(() => {
       return [
         props.style,
         {
@@ -57076,7 +57649,7 @@ var _sfc_main129 = defineComponent({
 var ElVisuallyHidden = _export_sfc(_sfc_main129, [["__file", "visual-hidden.vue"]]);
 
 // node_modules/element-plus/es/components/tooltip-v2/src/content2.mjs
-var _hoisted_163 = ["data-side"];
+var _hoisted_164 = ["data-side"];
 var __default__92 = defineComponent({
   name: "ElTooltipV2Content"
 });
@@ -57092,7 +57665,7 @@ var _sfc_main130 = defineComponent({
     const { referenceRef, contentRef, middlewareData, x: x2, y, update: update2 } = useFloating({
       placement,
       strategy,
-      middleware: computed2(() => {
+      middleware: computed(() => {
         const middleware = [offset2(props.offset)];
         if (props.showArrow) {
           middleware.push(arrowMiddleware({
@@ -57104,10 +57677,10 @@ var _sfc_main130 = defineComponent({
     });
     const zIndex2 = useZIndex().nextZIndex();
     const ns = useNamespace("tooltip-v2");
-    const side = computed2(() => {
+    const side = computed(() => {
       return placement.value.split("-")[0];
     });
-    const contentStyle = computed2(() => {
+    const contentStyle = computed(() => {
       return {
         position: unref(strategy),
         top: `${unref(y) || 0}px`,
@@ -57115,7 +57688,7 @@ var _sfc_main130 = defineComponent({
         zIndex: zIndex2
       };
     });
-    const arrowStyle = computed2(() => {
+    const arrowStyle = computed(() => {
       if (!props.showArrow)
         return {};
       const { arrow: arrow3 } = unref(middlewareData);
@@ -57124,7 +57697,7 @@ var _sfc_main130 = defineComponent({
         [`--${ns.namespace.value}-tooltip-v2-arrow-y`]: `${arrow3 == null ? void 0 : arrow3.y}px` || ""
       };
     });
-    const contentClass = computed2(() => [
+    const contentClass = computed(() => [
       ns.e("content"),
       ns.is("dark", props.effect === "dark"),
       ns.is(unref(strategy)),
@@ -57171,7 +57744,7 @@ var _sfc_main130 = defineComponent({
             style: normalizeStyle(unref(arrowStyle)),
             side: unref(side)
           })
-        ], 10, _hoisted_163)) : createCommentVNode("v-if", true)
+        ], 10, _hoisted_164)) : createCommentVNode("v-if", true)
       ], 4);
     };
   }
@@ -57455,7 +58028,7 @@ var usePropsAlias = (props) => {
     key: "key",
     disabled: "disabled"
   };
-  return computed2(() => ({
+  return computed(() => ({
     ...initProps,
     ...props.props
   }));
@@ -57464,7 +58037,7 @@ var usePropsAlias = (props) => {
 // node_modules/element-plus/es/components/transfer/src/composables/use-check.mjs
 var useCheck = (props, panelState, emit) => {
   const propsAlias = usePropsAlias(props);
-  const filteredData = computed2(() => {
+  const filteredData = computed(() => {
     return props.data.filter((item) => {
       if (isFunction(props.filterMethod)) {
         return props.filterMethod(panelState.query, item);
@@ -57474,8 +58047,8 @@ var useCheck = (props, panelState, emit) => {
       }
     });
   });
-  const checkableData = computed2(() => filteredData.value.filter((item) => !item[propsAlias.value.disabled]));
-  const checkedSummary = computed2(() => {
+  const checkableData = computed(() => filteredData.value.filter((item) => !item[propsAlias.value.disabled]));
+  const checkedSummary = computed(() => {
     const checkedLength = panelState.checked.length;
     const dataLength = props.data.length;
     const { noChecked, hasChecked } = props.format;
@@ -57485,7 +58058,7 @@ var useCheck = (props, panelState, emit) => {
       return `${checkedLength}/${dataLength}`;
     }
   });
-  const isIndeterminate = computed2(() => {
+  const isIndeterminate = computed(() => {
     const checkedLength = panelState.checked.length;
     return checkedLength > 0 && checkedLength < checkableData.value.length;
   });
@@ -57568,9 +58141,9 @@ var useCheckedChange = (checkedState, emit) => {
 // node_modules/element-plus/es/components/transfer/src/composables/use-computed-data.mjs
 var useComputedData = (props) => {
   const propsAlias = usePropsAlias(props);
-  const dataObj = computed2(() => props.data.reduce((o2, cur) => (o2[cur[propsAlias.value.key]] = cur) && o2, {}));
-  const sourceData = computed2(() => props.data.filter((item) => !props.modelValue.includes(item[propsAlias.value.key])));
-  const targetData = computed2(() => {
+  const dataObj = computed(() => props.data.reduce((o2, cur) => (o2[cur[propsAlias.value.key]] = cur) && o2, {}));
+  const sourceData = computed(() => props.data.filter((item) => !props.modelValue.includes(item[propsAlias.value.key])));
+  const targetData = computed(() => {
     if (props.targetOrder === "original") {
       return props.data.filter((item) => props.modelValue.includes(item[propsAlias.value.key]));
     } else {
@@ -57651,8 +58224,8 @@ var _sfc_main133 = defineComponent({
       isIndeterminate,
       handleAllCheckedChange
     } = useCheck(props, panelState, emit);
-    const hasNoMatch = computed2(() => !isEmpty2(panelState.query) && isEmpty2(filteredData.value));
-    const hasFooter = computed2(() => !isEmpty2(slots.default()[0].children));
+    const hasNoMatch = computed(() => !isEmpty2(panelState.query) && isEmpty2(filteredData.value));
+    const hasFooter = computed(() => !isEmpty2(slots.default()[0].children));
     const { checked, allChecked, query } = toRefs(panelState);
     expose({
       query
@@ -57703,7 +58276,7 @@ var _sfc_main133 = defineComponent({
                 return openBlock(), createBlock(unref(ElCheckbox), {
                   key: item[unref(propsAlias).key],
                   class: normalizeClass(unref(ns).be("panel", "item")),
-                  label: item[unref(propsAlias).key],
+                  value: item[unref(propsAlias).key],
                   disabled: item[unref(propsAlias).disabled],
                   "validate-event": false
                 }, {
@@ -57716,7 +58289,7 @@ var _sfc_main133 = defineComponent({
                     ];
                   }),
                   _: 2
-                }, 1032, ["class", "label", "disabled"]);
+                }, 1032, ["class", "value", "disabled"]);
               }), 128))
             ]),
             _: 1
@@ -57742,7 +58315,7 @@ var _sfc_main133 = defineComponent({
 var TransferPanel = _export_sfc(_sfc_main133, [["__file", "transfer-panel.vue"]]);
 
 // node_modules/element-plus/es/components/transfer/src/transfer2.mjs
-var _hoisted_164 = { key: 0 };
+var _hoisted_165 = { key: 0 };
 var _hoisted_240 = { key: 0 };
 var __default__96 = defineComponent({
   name: "ElTransfer"
@@ -57777,17 +58350,17 @@ var _sfc_main134 = defineComponent({
           break;
       }
     };
-    const hasButtonTexts = computed2(() => props.buttonTexts.length === 2);
-    const leftPanelTitle = computed2(() => props.titles[0] || t("el.transfer.titles.0"));
-    const rightPanelTitle = computed2(() => props.titles[1] || t("el.transfer.titles.1"));
-    const panelFilterPlaceholder = computed2(() => props.filterPlaceholder || t("el.transfer.filterPlaceholder"));
+    const hasButtonTexts = computed(() => props.buttonTexts.length === 2);
+    const leftPanelTitle = computed(() => props.titles[0] || t("el.transfer.titles.0"));
+    const rightPanelTitle = computed(() => props.titles[1] || t("el.transfer.titles.1"));
+    const panelFilterPlaceholder = computed(() => props.filterPlaceholder || t("el.transfer.filterPlaceholder"));
     watch(() => props.modelValue, () => {
       var _a2;
       if (props.validateEvent) {
         (_a2 = formItem == null ? void 0 : formItem.validate) == null ? void 0 : _a2.call(formItem, "change").catch((err) => debugWarn(err));
       }
     });
-    const optionRender = computed2(() => (option) => {
+    const optionRender = computed(() => (option) => {
       if (props.renderContent)
         return props.renderContent(h, option);
       if (slots.default)
@@ -57838,7 +58411,7 @@ var _sfc_main134 = defineComponent({
                 ]),
                 _: 1
               }),
-              !unref(isUndefined2)(_ctx.buttonTexts[0]) ? (openBlock(), createElementBlock("span", _hoisted_164, toDisplayString(_ctx.buttonTexts[0]), 1)) : createCommentVNode("v-if", true)
+              !unref(isUndefined2)(_ctx.buttonTexts[0]) ? (openBlock(), createElementBlock("span", _hoisted_165, toDisplayString(_ctx.buttonTexts[0]), 1)) : createCommentVNode("v-if", true)
             ]),
             _: 1
           }, 8, ["class", "disabled", "onClick"]),
@@ -58327,12 +58900,28 @@ var Node3 = class _Node {
           callback.call(this, children);
         }
       };
-      this.store.load(this, resolve);
+      const reject2 = () => {
+        this.loading = false;
+      };
+      this.store.load(this, resolve, reject2);
     } else {
       if (callback) {
         callback.call(this);
       }
     }
+  }
+  eachNode(callback) {
+    const arr = [this];
+    while (arr.length) {
+      const node = arr.shift();
+      arr.unshift(...node.childNodes);
+      callback(node);
+    }
+  }
+  reInitChecked() {
+    if (this.store.checkStrictly)
+      return;
+    reInitChecked(this);
   }
 };
 
@@ -58428,7 +59017,7 @@ var TreeStore = class {
     }
   }
   append(data, parentData) {
-    const parentNode = parentData ? this.getNode(parentData) : this.root;
+    const parentNode = !isPropAbsent(parentData) ? this.getNode(parentData) : this.root;
     if (parentNode) {
       parentNode.insertChild({ data });
     }
@@ -58820,6 +59409,12 @@ function useDragNodeHandler({ props, ctx, el$, dropIndicator$, store }) {
       }
       if (dropType !== "none") {
         store.value.registerNode(draggingNodeCopy);
+        if (store.value.key) {
+          draggingNode.node.eachNode((node) => {
+            var _a2;
+            (_a2 = store.value.nodesMap[node.data[store.value.key]]) == null ? void 0 : _a2.setChecked(node.checked, !store.value.checkStrictly);
+          });
+        }
       }
       removeClass(dropNode.$el, ns.is("drop-inner"));
       ctx.emit("node-drag-end", draggingNode.node, dropNode.node, dropType, event);
@@ -58905,6 +59500,7 @@ var _sfc_main136 = defineComponent({
     watch(() => props.node.checked, (val) => {
       handleSelectChange(val, props.node.indeterminate);
     });
+    watch(() => props.node.childNodes.length, () => props.node.reInitChecked());
     watch(() => props.node.expanded, (val) => {
       nextTick(() => expanded.value = val);
       if (val) {
@@ -59032,7 +59628,7 @@ var _sfc_main136 = defineComponent({
     };
   }
 });
-var _hoisted_165 = ["aria-expanded", "aria-disabled", "aria-checked", "draggable", "data-key"];
+var _hoisted_166 = ["aria-expanded", "aria-disabled", "aria-checked", "draggable", "data-key"];
 var _hoisted_241 = ["aria-expanded"];
 function _sfc_render29(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_icon = resolveComponent("el-icon");
@@ -59135,7 +59731,7 @@ function _sfc_render29(_ctx, _cache, $props, $setup, $data, $options) {
       ]),
       _: 1
     })
-  ], 42, _hoisted_165)), [
+  ], 42, _hoisted_166)), [
     [vShow, _ctx.node.visible]
   ]);
 }
@@ -59313,6 +59909,7 @@ var _sfc_main137 = defineComponent({
   setup(props, ctx) {
     const { t } = useLocale();
     const ns = useNamespace("tree");
+    const selectInfo = inject(selectKey, null);
     const store = ref(new TreeStore({
       key: props.nodeKey,
       data: props.data,
@@ -59342,9 +59939,10 @@ var _sfc_main137 = defineComponent({
       store
     });
     useKeydown({ el$ }, store);
-    const isEmpty3 = computed2(() => {
+    const isEmpty3 = computed(() => {
       const { childNodes } = root2.value;
-      return !childNodes || childNodes.length === 0 || childNodes.every(({ visible }) => !visible);
+      const hasFilteredOptions = selectInfo ? selectInfo.hasFilteredOptions !== 0 : false;
+      return (!childNodes || childNodes.length === 0 || childNodes.every(({ visible }) => !visible)) && !hasFilteredOptions;
     });
     watch(() => props.currentNodeKey, (newVal) => {
       store.value.setCurrentNodeKey(newVal);
@@ -59552,34 +60150,38 @@ var ElTree = _Tree;
 
 // node_modules/element-plus/es/components/tree-select/src/select.mjs
 var useSelect3 = (props, { attrs, emit }, {
+  select,
   tree,
   key
 }) => {
   const ns = useNamespace("tree-select");
+  watch(() => props.data, () => {
+    if (props.filterable) {
+      nextTick(() => {
+        var _a2, _b;
+        (_b = tree.value) == null ? void 0 : _b.filter((_a2 = select.value) == null ? void 0 : _a2.states.inputValue);
+      });
+    }
+  }, { flush: "post" });
   const result2 = {
     ...pick_default(toRefs(props), Object.keys(ElSelect.props)),
     ...attrs,
     "onUpdate:modelValue": (value) => emit(UPDATE_MODEL_EVENT, value),
     valueKey: key,
-    popperClass: computed2(() => {
+    popperClass: computed(() => {
       const classes = [ns.e("popper")];
       if (props.popperClass)
         classes.push(props.popperClass);
       return classes.join(" ");
     }),
     filterMethod: (keyword = "") => {
-      if (props.filterMethod)
-        props.filterMethod(keyword);
-      nextTick(() => {
-        var _a2;
-        (_a2 = tree.value) == null ? void 0 : _a2.filter(keyword);
-      });
-    },
-    onVisibleChange: (visible) => {
       var _a2;
-      (_a2 = attrs.onVisibleChange) == null ? void 0 : _a2.call(attrs, visible);
-      if (props.filterable && visible) {
-        result2.filterMethod();
+      if (props.filterMethod) {
+        props.filterMethod(keyword);
+      } else if (props.remoteMethod) {
+        props.remoteMethod(keyword);
+      } else {
+        (_a2 = tree.value) == null ? void 0 : _a2.filter(keyword);
       }
     }
   };
@@ -59662,7 +60264,7 @@ var useTree2 = (props, { attrs, slots, emit }, {
     immediate: true,
     deep: true
   });
-  const propsMap = computed2(() => ({
+  const propsMap = computed(() => ({
     value: key.value,
     label: "label",
     children: "children",
@@ -59682,7 +60284,7 @@ var useTree2 = (props, { attrs, slots, emit }, {
   const defaultExpandedParentKeys = toValidArray(props.modelValue).map((value) => {
     return treeFind(props.data || [], (data) => getNodeValByProp("value", data) === value, (data) => getNodeValByProp("children", data), (data, index, array4, parent2) => parent2 && getNodeValByProp("value", parent2));
   }).filter((item) => isValidValue2(item));
-  const cacheOptions = computed2(() => {
+  const cacheOptions = computed(() => {
     if (!props.renderAfterExpand && !props.lazy)
       return [];
     const options = [];
@@ -59696,17 +60298,14 @@ var useTree2 = (props, { attrs, slots, emit }, {
     }, (data) => getNodeValByProp("children", data));
     return options;
   });
-  const cacheOptionsMap = computed2(() => {
-    return cacheOptions.value.reduce((prev, next) => ({ ...prev, [next.value]: next }), {});
-  });
   return {
     ...pick_default(toRefs(props), Object.keys(_Tree.props)),
     ...attrs,
     nodeKey: key,
-    expandOnClickNode: computed2(() => {
+    expandOnClickNode: computed(() => {
       return !props.checkStrictly && props.expandOnClickNode;
     }),
-    defaultExpandedKeys: computed2(() => {
+    defaultExpandedKeys: computed(() => {
       return props.defaultExpandedKeys ? props.defaultExpandedKeys.concat(defaultExpandedParentKeys) : defaultExpandedParentKeys;
     }),
     renderContent: (h3, { node, data, store }) => {
@@ -59725,7 +60324,7 @@ var useTree2 = (props, { attrs, slots, emit }, {
       return regexp4.test(getNodeValByProp("label", data) || "");
     },
     onNodeClick: (data, node, e) => {
-      var _a2, _b, _c;
+      var _a2, _b, _c, _d;
       (_a2 = attrs.onNodeClick) == null ? void 0 : _a2.call(attrs, data, node, e);
       if (props.showCheckbox && props.checkOnClickNode)
         return;
@@ -59737,19 +60336,23 @@ var useTree2 = (props, { attrs, slots, emit }, {
       } else if (props.expandOnClickNode) {
         e.proxy.handleExpandIconClick();
       }
+      (_d = select.value) == null ? void 0 : _d.focus();
     },
     onCheck: (data, params) => {
+      var _a2;
       if (!props.showCheckbox)
         return;
       const dataValue = getNodeValByProp("value", data);
+      const dataMap = {};
+      treeEach([tree.value.store.root], (node) => dataMap[node.key] = node, (node) => node.childNodes);
       const uncachedCheckedKeys = params.checkedKeys;
-      const cachedKeys = props.multiple ? toValidArray(props.modelValue).filter((item) => item in cacheOptionsMap.value && !tree.value.getNode(item) && !uncachedCheckedKeys.includes(item)) : [];
-      const checkedKeys = uncachedCheckedKeys.concat(cachedKeys);
+      const cachedKeys = props.multiple ? toValidArray(props.modelValue).filter((item) => !(item in dataMap) && !uncachedCheckedKeys.includes(item)) : [];
+      const checkedKeys = cachedKeys.concat(uncachedCheckedKeys);
       if (props.checkStrictly) {
         emit(UPDATE_MODEL_EVENT, props.multiple ? checkedKeys : checkedKeys.includes(dataValue) ? dataValue : void 0);
       } else {
         if (props.multiple) {
-          emit(UPDATE_MODEL_EVENT, tree.value.getCheckedKeys(true));
+          emit(UPDATE_MODEL_EVENT, cachedKeys.concat(tree.value.getCheckedKeys(true)));
         } else {
           const firstLeaf = treeFind([data], (data2) => !isValidArray(getNodeValByProp("children", data2)) && !getNodeValByProp("disabled", data2), (data2) => getNodeValByProp("children", data2));
           const firstLeafKey = firstLeaf ? getNodeValByProp("value", firstLeaf) : void 0;
@@ -59758,16 +60361,17 @@ var useTree2 = (props, { attrs, slots, emit }, {
         }
       }
       nextTick(() => {
-        var _a2;
+        var _a22;
         const checkedKeys2 = toValidArray(props.modelValue);
         tree.value.setCheckedKeys(checkedKeys2);
-        (_a2 = attrs.onCheck) == null ? void 0 : _a2.call(attrs, data, {
+        (_a22 = attrs.onCheck) == null ? void 0 : _a22.call(attrs, data, {
           checkedKeys: tree.value.getCheckedKeys(),
           checkedNodes: tree.value.getCheckedNodes(),
           halfCheckedKeys: tree.value.getHalfCheckedKeys(),
           halfCheckedNodes: tree.value.getHalfCheckedNodes()
         });
       });
+      (_a2 = select.value) == null ? void 0 : _a2.focus();
     },
     cacheOptions
   };
@@ -59815,7 +60419,7 @@ var _sfc_main138 = defineComponent({
     const { slots, expose } = context;
     const select = ref();
     const tree = ref();
-    const key = computed2(() => props.nodeKey || props.valueKey || "value");
+    const key = computed(() => props.nodeKey || props.valueKey || "value");
     const selectProps = useSelect3(props, context, { select, tree, key });
     const { cacheOptions, ...treeProps2 } = useTree2(props, context, {
       select,
@@ -60169,7 +60773,9 @@ function useCheck2(props, tree) {
   function setCheckedKeys(keys3) {
     checkedKeys.value.clear();
     indeterminateKeys.value.clear();
-    _setCheckedKeys(keys3);
+    nextTick(() => {
+      _setCheckedKeys(keys3);
+    });
   }
   function setChecked(key, isChecked2) {
     if ((tree == null ? void 0 : tree.value) && props.showCheckbox) {
@@ -60210,7 +60816,7 @@ function useCheck2(props, tree) {
 function useFilter(props, tree) {
   const hiddenNodeKeySet = ref(/* @__PURE__ */ new Set([]));
   const hiddenExpandIconKeySet = ref(/* @__PURE__ */ new Set([]));
-  const filterable = computed2(() => {
+  const filterable = computed(() => {
     return isFunction(props.filterMethod);
   });
   function doFilter(query) {
@@ -60301,23 +60907,23 @@ function useTree3(props, emit) {
     setCheckedKeys
   } = useCheck2(props, tree);
   const { doFilter, hiddenNodeKeySet, isForceHiddenExpandIcon } = useFilter(props, tree);
-  const valueKey = computed2(() => {
+  const valueKey = computed(() => {
     var _a2;
     return ((_a2 = props.props) == null ? void 0 : _a2.value) || TreeOptionsEnum.KEY;
   });
-  const childrenKey = computed2(() => {
+  const childrenKey = computed(() => {
     var _a2;
     return ((_a2 = props.props) == null ? void 0 : _a2.children) || TreeOptionsEnum.CHILDREN;
   });
-  const disabledKey = computed2(() => {
+  const disabledKey = computed(() => {
     var _a2;
     return ((_a2 = props.props) == null ? void 0 : _a2.disabled) || TreeOptionsEnum.DISABLED;
   });
-  const labelKey = computed2(() => {
+  const labelKey = computed(() => {
     var _a2;
     return ((_a2 = props.props) == null ? void 0 : _a2.label) || TreeOptionsEnum.LABEL;
   });
-  const flattenTree = computed2(() => {
+  const flattenTree = computed(() => {
     const expandedKeys = expandedKeySet.value;
     const hiddenKeys = hiddenNodeKeySet.value;
     const flattenNodes = [];
@@ -60348,7 +60954,7 @@ function useTree3(props, emit) {
     traverse();
     return flattenNodes;
   });
-  const isNotEmpty = computed2(() => {
+  const isNotEmpty = computed(() => {
     return flattenTree.value.length > 0;
   });
   function createTree(data) {
@@ -60542,7 +61148,7 @@ var ElNodeContent = defineComponent({
 });
 
 // node_modules/element-plus/es/components/tree-v2/src/tree-node.mjs
-var _hoisted_166 = ["aria-expanded", "aria-disabled", "aria-checked", "data-key", "onClick"];
+var _hoisted_167 = ["aria-expanded", "aria-disabled", "aria-checked", "data-key", "onClick"];
 var __default__97 = defineComponent({
   name: "ElTreeNode"
 });
@@ -60554,11 +61160,11 @@ var _sfc_main139 = defineComponent({
     const props = __props;
     const tree = inject(ROOT_TREE_INJECTION_KEY);
     const ns = useNamespace("tree");
-    const indent = computed2(() => {
+    const indent = computed(() => {
       var _a2;
       return (_a2 = tree == null ? void 0 : tree.props.indent) != null ? _a2 : 16;
     });
-    const icon = computed2(() => {
+    const icon = computed(() => {
       var _a2;
       return (_a2 = tree == null ? void 0 : tree.props.icon) != null ? _a2 : caret_right_default;
     });
@@ -60634,7 +61240,7 @@ var _sfc_main139 = defineComponent({
           }, null, 8, ["model-value", "indeterminate", "disabled"])) : createCommentVNode("v-if", true),
           createVNode(unref(ElNodeContent), { node: _ctx.node }, null, 8, ["node"])
         ], 6)
-      ], 42, _hoisted_166);
+      ], 42, _hoisted_167);
     };
   }
 });
@@ -60651,7 +61257,7 @@ var _sfc_main140 = defineComponent({
   setup(__props, { expose, emit }) {
     const props = __props;
     const slots = useSlots();
-    const treeNodeSize = computed2(() => props.itemSize);
+    const treeNodeSize = computed(() => props.itemSize);
     provide(ROOT_TREE_INJECTION_KEY, {
       ctx: {
         emit,
@@ -60765,7 +61371,7 @@ var ElTreeV2 = withInstall(TreeV2);
 var uploadContextKey = Symbol("uploadContextKey");
 
 // node_modules/element-plus/es/components/upload/src/ajax.mjs
-var SCOPE7 = "ElUpload";
+var SCOPE8 = "ElUpload";
 var UploadAjaxError = class extends Error {
   constructor(message2, status, method5, url2) {
     super(message2);
@@ -60799,7 +61405,7 @@ function getBody(xhr) {
 }
 var ajaxUpload = (option) => {
   if (typeof XMLHttpRequest === "undefined")
-    throwError(SCOPE7, "XMLHttpRequest is undefined");
+    throwError(SCOPE8, "XMLHttpRequest is undefined");
   const xhr = new XMLHttpRequest();
   const action = option.action;
   if (xhr.upload) {
@@ -60977,12 +61583,12 @@ var uploadListEmits = {
 };
 
 // node_modules/element-plus/es/components/upload/src/upload-list2.mjs
-var _hoisted_167 = ["onKeydown"];
+var _hoisted_168 = ["onKeydown"];
 var _hoisted_242 = ["src", "crossorigin"];
-var _hoisted_317 = ["onClick"];
-var _hoisted_410 = ["title"];
-var _hoisted_57 = ["onClick"];
-var _hoisted_64 = ["onClick"];
+var _hoisted_320 = ["onClick"];
+var _hoisted_411 = ["title"];
+var _hoisted_58 = ["onClick"];
+var _hoisted_65 = ["onClick"];
 var __default__99 = defineComponent({
   name: "ElUploadList"
 });
@@ -60998,7 +61604,7 @@ var _sfc_main141 = defineComponent({
     const nsList = useNamespace("list");
     const disabled = useFormDisabled();
     const focusing = ref(false);
-    const containerKls = computed2(() => [
+    const containerKls = computed(() => [
       nsUpload.b("list"),
       nsUpload.bm("list", props.listType),
       nsUpload.is("disabled", props.disabled)
@@ -61054,8 +61660,8 @@ var _sfc_main141 = defineComponent({
                     createBaseVNode("span", {
                       class: normalizeClass(unref(nsUpload).be("list", "item-file-name")),
                       title: file.name
-                    }, toDisplayString(file.name), 11, _hoisted_410)
-                  ], 10, _hoisted_317),
+                    }, toDisplayString(file.name), 11, _hoisted_411)
+                  ], 10, _hoisted_320),
                   file.status === "uploading" ? (openBlock(), createBlock(unref(ElProgress), {
                     key: 0,
                     type: _ctx.listType === "picture-card" ? "circle" : "line",
@@ -61118,7 +61724,7 @@ var _sfc_main141 = defineComponent({
                       ]),
                       _: 1
                     }, 8, ["class"])
-                  ], 10, _hoisted_57),
+                  ], 10, _hoisted_58),
                   !unref(disabled) ? (openBlock(), createElementBlock("span", {
                     key: 0,
                     class: normalizeClass(unref(nsUpload).be("list", "item-delete")),
@@ -61132,10 +61738,10 @@ var _sfc_main141 = defineComponent({
                       ]),
                       _: 1
                     }, 8, ["class"])
-                  ], 10, _hoisted_64)) : createCommentVNode("v-if", true)
+                  ], 10, _hoisted_65)) : createCommentVNode("v-if", true)
                 ], 2)) : createCommentVNode("v-if", true)
               ])
-            ], 42, _hoisted_167);
+            ], 42, _hoisted_168);
           }), 128)),
           renderSlot(_ctx.$slots, "append")
         ]),
@@ -61158,7 +61764,7 @@ var uploadDraggerEmits = {
 };
 
 // node_modules/element-plus/es/components/upload/src/upload-dragger2.mjs
-var _hoisted_168 = ["onDrop", "onDragover"];
+var _hoisted_169 = ["onDrop", "onDragover"];
 var COMPONENT_NAME25 = "ElUploadDrag";
 var __default__100 = defineComponent({
   name: COMPONENT_NAME25
@@ -61181,29 +61787,7 @@ var _sfc_main142 = defineComponent({
       dragover.value = false;
       e.stopPropagation();
       const files = Array.from(e.dataTransfer.files);
-      const accept = uploaderContext.accept.value;
-      if (!accept) {
-        emit("file", files);
-        return;
-      }
-      const filesFiltered = files.filter((file) => {
-        const { type: type4, name } = file;
-        const extension = name.includes(".") ? `.${name.split(".").pop()}` : "";
-        const baseType = type4.replace(/\/.*$/, "");
-        return accept.split(",").map((type22) => type22.trim()).filter((type22) => type22).some((acceptedType) => {
-          if (acceptedType.startsWith(".")) {
-            return extension === acceptedType;
-          }
-          if (/\/\*$/.test(acceptedType)) {
-            return baseType === acceptedType.replace(/\/\*$/, "");
-          }
-          if (/^[^/]+\/[^/]+$/.test(acceptedType)) {
-            return type4 === acceptedType;
-          }
-          return false;
-        });
-      });
-      emit("file", filesFiltered);
+      emit("file", files);
     };
     const onDragover = () => {
       if (!disabled.value)
@@ -61217,7 +61801,7 @@ var _sfc_main142 = defineComponent({
         onDragleave: _cache[0] || (_cache[0] = withModifiers(($event) => dragover.value = false, ["prevent"]))
       }, [
         renderSlot(_ctx.$slots, "default")
-      ], 42, _hoisted_168);
+      ], 42, _hoisted_169);
     };
   }
 });
@@ -61257,7 +61841,7 @@ var uploadContentProps = buildProps({
 });
 
 // node_modules/element-plus/es/components/upload/src/upload-content2.mjs
-var _hoisted_169 = ["onKeydown"];
+var _hoisted_170 = ["onKeydown"];
 var _hoisted_243 = ["name", "multiple", "accept"];
 var __default__101 = defineComponent({
   name: "ElUploadContent",
@@ -61435,14 +62019,14 @@ var _sfc_main143 = defineComponent({
           onClick: _cache[0] || (_cache[0] = withModifiers(() => {
           }, ["stop"]))
         }, null, 42, _hoisted_243)
-      ], 42, _hoisted_169);
+      ], 42, _hoisted_170);
     };
   }
 });
 var UploadContent = _export_sfc(_sfc_main143, [["__file", "upload-content.vue"]]);
 
 // node_modules/element-plus/es/components/upload/src/use-handlers.mjs
-var SCOPE8 = "ElUpload";
+var SCOPE9 = "ElUpload";
 var revokeFileObjectURL = (file) => {
   var _a2;
   if ((_a2 = file.url) == null ? void 0 : _a2.startsWith("blob:")) {
@@ -61501,7 +62085,7 @@ var useHandlers = (props, uploadRef) => {
       try {
         uploadFile.url = URL.createObjectURL(file);
       } catch (err) {
-        debugWarn(SCOPE8, err.message);
+        debugWarn(SCOPE9, err.message);
         props.onError(err, uploadFile, uploadFiles.value);
       }
     }
@@ -61511,7 +62095,7 @@ var useHandlers = (props, uploadRef) => {
   const handleRemove = async (file) => {
     const uploadFile = file instanceof File ? getFile(file) : file;
     if (!uploadFile)
-      throwError(SCOPE8, "file to be removed not found");
+      throwError(SCOPE9, "file to be removed not found");
     const doRemove = (file2) => {
       abort(file2);
       const fileList = uploadFiles.value;
@@ -61592,8 +62176,8 @@ var _sfc_main144 = defineComponent({
       handleProgress,
       revokeFileObjectURL: revokeFileObjectURL2
     } = useHandlers(props, uploadRef);
-    const isPictureCard = computed2(() => props.listType === "picture-card");
-    const uploadContentProps2 = computed2(() => ({
+    const isPictureCard = computed(() => props.listType === "picture-card");
+    const uploadContentProps2 = computed(() => ({
       ...props,
       fileList: uploadFiles.value,
       onStart: handleStart,
@@ -61836,43 +62420,43 @@ var _sfc_main145 = defineComponent({
     const style = {
       position: "relative"
     };
-    const color = computed2(() => {
+    const color = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = props.font) == null ? void 0 : _a2.color) != null ? _b : "rgba(0,0,0,.15)";
     });
-    const fontSize = computed2(() => {
+    const fontSize = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = props.font) == null ? void 0 : _a2.fontSize) != null ? _b : 16;
     });
-    const fontWeight = computed2(() => {
+    const fontWeight = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = props.font) == null ? void 0 : _a2.fontWeight) != null ? _b : "normal";
     });
-    const fontStyle = computed2(() => {
+    const fontStyle = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = props.font) == null ? void 0 : _a2.fontStyle) != null ? _b : "normal";
     });
-    const fontFamily = computed2(() => {
+    const fontFamily = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = props.font) == null ? void 0 : _a2.fontFamily) != null ? _b : "sans-serif";
     });
-    const textAlign = computed2(() => {
+    const textAlign = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = props.font) == null ? void 0 : _a2.textAlign) != null ? _b : "center";
     });
-    const textBaseline = computed2(() => {
+    const textBaseline = computed(() => {
       var _a2, _b;
-      return (_b = (_a2 = props.font) == null ? void 0 : _a2.textBaseline) != null ? _b : "top";
+      return (_b = (_a2 = props.font) == null ? void 0 : _a2.textBaseline) != null ? _b : "hanging";
     });
-    const gapX = computed2(() => props.gap[0]);
-    const gapY = computed2(() => props.gap[1]);
-    const gapXCenter = computed2(() => gapX.value / 2);
-    const gapYCenter = computed2(() => gapY.value / 2);
-    const offsetLeft = computed2(() => {
+    const gapX = computed(() => props.gap[0]);
+    const gapY = computed(() => props.gap[1]);
+    const gapXCenter = computed(() => gapX.value / 2);
+    const gapYCenter = computed(() => gapY.value / 2);
+    const offsetLeft = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = props.offset) == null ? void 0 : _a2[0]) != null ? _b : gapXCenter.value;
     });
-    const offsetTop = computed2(() => {
+    const offsetTop = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = props.offset) == null ? void 0 : _a2[1]) != null ? _b : gapYCenter.value;
     });
@@ -62100,7 +62684,7 @@ var useTarget = (target2, open, gap, mergedMask, scrollIntoViewOptions) => {
     var _a2;
     return (_a2 = isArray(gap.value.offset) ? gap.value.offset[index] : gap.value.offset) != null ? _a2 : 6;
   };
-  const mergedPosInfo = computed2(() => {
+  const mergedPosInfo = computed(() => {
     var _a2;
     if (!posInfo.value)
       return posInfo.value;
@@ -62115,7 +62699,7 @@ var useTarget = (target2, open, gap, mergedMask, scrollIntoViewOptions) => {
       radius: gapRadius
     };
   });
-  const triggerTarget = computed2(() => {
+  const triggerTarget = computed(() => {
     const targetEl = getTargetEl();
     if (!mergedMask.value || !targetEl || !window.DOMRect) {
       return targetEl || void 0;
@@ -62155,7 +62739,7 @@ var useFloating2 = (referenceRef, contentRef, arrowRef, placement, strategy, off
     strategy,
     middlewareData
   };
-  const middleware = computed2(() => {
+  const middleware = computed(() => {
     const _middleware = [
       offset2(unref(offset$1)),
       flip3(),
@@ -62185,7 +62769,7 @@ var useFloating2 = (referenceRef, contentRef, arrowRef, placement, strategy, off
       states[key].value = data[key];
     });
   };
-  const contentStyle = computed2(() => {
+  const contentStyle = computed(() => {
     if (!unref(referenceRef)) {
       return {
         position: "fixed",
@@ -62205,7 +62789,7 @@ var useFloating2 = (referenceRef, contentRef, arrowRef, placement, strategy, off
       maxWidth: (overflow == null ? void 0 : overflow.maxWidth) ? `${overflow == null ? void 0 : overflow.maxWidth}px` : ""
     };
   });
-  const arrowStyle = computed2(() => {
+  const arrowStyle = computed(() => {
     if (!unref(showArrow))
       return {};
     const { arrow: arrow22 } = unref(middlewareData);
@@ -62216,7 +62800,11 @@ var useFloating2 = (referenceRef, contentRef, arrowRef, placement, strategy, off
   });
   let cleanup;
   onMounted(() => {
-    cleanup = autoUpdate(unref(referenceRef), unref(contentRef), update2);
+    const referenceEl = unref(referenceRef);
+    const contentEl = unref(contentRef);
+    if (referenceEl && contentEl) {
+      cleanup = autoUpdate(referenceEl, contentEl, update2);
+    }
     watchEffect(() => {
       update2();
     });
@@ -62251,7 +62839,7 @@ var overflowMiddleware = () => {
 };
 
 // node_modules/element-plus/es/components/tour/src/mask2.mjs
-var _hoisted_170 = { style: {
+var _hoisted_171 = { style: {
   width: "100%",
   height: "100%"
 } };
@@ -62266,11 +62854,11 @@ var _sfc_main146 = defineComponent({
   setup(__props) {
     const props = __props;
     const { ns } = inject(tourKey);
-    const radius = computed2(() => {
+    const radius = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = props.pos) == null ? void 0 : _a2.radius) != null ? _b : 2;
     });
-    const roundInfo = computed2(() => {
+    const roundInfo = computed(() => {
       const v2 = radius.value;
       const baseInfo = `a${v2},${v2} 0 0 1`;
       return {
@@ -62280,7 +62868,7 @@ var _sfc_main146 = defineComponent({
         topLeft: `${baseInfo} ${v2},${-v2}`
       };
     });
-    const path = computed2(() => {
+    const path = computed(() => {
       const width = window.innerWidth;
       const height = window.innerHeight;
       const info = roundInfo.value;
@@ -62288,7 +62876,7 @@ var _sfc_main146 = defineComponent({
       const _radius = radius.value;
       return props.pos ? `${_path} M${props.pos.left + _radius},${props.pos.top} h${props.pos.width - _radius * 2} ${info.topRight} v${props.pos.height - _radius * 2} ${info.bottomRight} h${-props.pos.width + _radius * 2} ${info.bottomLeft} v${-props.pos.height + _radius * 2} ${info.topLeft} z` : _path;
     });
-    const pathStyle = computed2(() => {
+    const pathStyle = computed(() => {
       return {
         fill: props.fill,
         pointerEvents: "auto",
@@ -62312,7 +62900,7 @@ var _sfc_main146 = defineComponent({
           pointerEvents: _ctx.pos && _ctx.targetAreaClickable ? "none" : "auto"
         }
       }, _ctx.$attrs), [
-        (openBlock(), createElementBlock("svg", _hoisted_170, [
+        (openBlock(), createElementBlock("svg", _hoisted_171, [
           createBaseVNode("path", {
             class: normalizeClass(unref(ns).e("hollow")),
             style: normalizeStyle(unref(pathStyle)),
@@ -62371,7 +62959,7 @@ var tourContentEmits = {
 };
 
 // node_modules/element-plus/es/components/tour/src/content2.mjs
-var _hoisted_171 = ["data-side"];
+var _hoisted_173 = ["data-side"];
 var __default__105 = defineComponent({
   name: "ElTourContent"
 });
@@ -62389,12 +62977,17 @@ var _sfc_main147 = defineComponent({
       placement.value = props.placement;
     });
     const { contentStyle, arrowStyle } = useFloating2(toRef(props, "reference"), contentRef, arrowRef, placement, strategy, toRef(props, "offset"), toRef(props, "zIndex"), toRef(props, "showArrow"));
-    const side = computed2(() => {
+    const side = computed(() => {
       return placement.value.split("-")[0];
     });
     const { ns } = inject(tourKey);
     const onCloseRequested = () => {
       emit("close");
+    };
+    const onFocusoutPrevented = (event) => {
+      if (event.detail.focusReason === "pointer") {
+        event.preventDefault();
+      }
     };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -62410,7 +63003,8 @@ var _sfc_main147 = defineComponent({
           trapped: "",
           "focus-start-el": "container",
           "focus-trap-el": contentRef.value || void 0,
-          onReleaseRequested: onCloseRequested
+          onReleaseRequested: onCloseRequested,
+          onFocusoutPrevented
         }, {
           default: withCtx(() => [
             renderSlot(_ctx.$slots, "default")
@@ -62424,7 +63018,7 @@ var _sfc_main147 = defineComponent({
           style: normalizeStyle(unref(arrowStyle)),
           class: normalizeClass(unref(ns).e("arrow"))
         }, null, 6)) : createCommentVNode("v-if", true)
-      ], 14, _hoisted_171);
+      ], 14, _hoisted_173);
     };
   }
 });
@@ -62556,43 +63150,43 @@ var _sfc_main148 = defineComponent({
     const current = useVModel(props, "current", emit, {
       passive: true
     });
-    const currentTarget = computed2(() => {
+    const currentTarget = computed(() => {
       var _a2;
       return (_a2 = currentStep.value) == null ? void 0 : _a2.target;
     });
-    const kls = computed2(() => [
+    const kls = computed(() => [
       ns.b(),
       mergedType.value === "primary" ? ns.m("primary") : ""
     ]);
-    const mergedPlacement = computed2(() => {
+    const mergedPlacement = computed(() => {
       var _a2;
       return ((_a2 = currentStep.value) == null ? void 0 : _a2.placement) || props.placement;
     });
-    const mergedContentStyle = computed2(() => {
+    const mergedContentStyle = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = currentStep.value) == null ? void 0 : _a2.contentStyle) != null ? _b : props.contentStyle;
     });
-    const mergedMask = computed2(() => {
+    const mergedMask = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = currentStep.value) == null ? void 0 : _a2.mask) != null ? _b : props.mask;
     });
-    const mergedShowMask = computed2(() => !!mergedMask.value && props.modelValue);
-    const mergedMaskStyle = computed2(() => isBoolean2(mergedMask.value) ? void 0 : mergedMask.value);
-    const mergedShowArrow = computed2(() => {
+    const mergedShowMask = computed(() => !!mergedMask.value && props.modelValue);
+    const mergedMaskStyle = computed(() => isBoolean2(mergedMask.value) ? void 0 : mergedMask.value);
+    const mergedShowArrow = computed(() => {
       var _a2, _b;
       return !!currentTarget.value && ((_b = (_a2 = currentStep.value) == null ? void 0 : _a2.showArrow) != null ? _b : props.showArrow);
     });
-    const mergedScrollIntoViewOptions = computed2(() => {
+    const mergedScrollIntoViewOptions = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = currentStep.value) == null ? void 0 : _a2.scrollIntoViewOptions) != null ? _b : props.scrollIntoViewOptions;
     });
-    const mergedType = computed2(() => {
+    const mergedType = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = currentStep.value) == null ? void 0 : _a2.type) != null ? _b : props.type;
     });
     const { nextZIndex } = useZIndex();
     const nowZIndex = nextZIndex();
-    const mergedZIndex = computed2(() => {
+    const mergedZIndex = computed(() => {
       var _a2;
       return (_a2 = props.zIndex) != null ? _a2 : nowZIndex;
     });
@@ -62758,11 +63352,11 @@ var _sfc_main149 = defineComponent({
     }, {
       immediate: true
     });
-    const mergedShowClose = computed2(() => {
+    const mergedShowClose = computed(() => {
       var _a2;
       return (_a2 = props.showClose) != null ? _a2 : showClose.value;
     });
-    const mergedCloseIcon = computed2(() => {
+    const mergedCloseIcon = computed(() => {
       var _a2, _b;
       return (_b = (_a2 = props.closeIcon) != null ? _a2 : closeIcon.value) != null ? _b : Close;
     });
@@ -62895,6 +63489,505 @@ var ElTour = withInstall(Tour, {
 });
 var ElTourStep = withNoopInstall(TourStep);
 
+// node_modules/element-plus/es/components/anchor/src/anchor.mjs
+var anchorProps = buildProps({
+  container: {
+    type: definePropType([
+      String,
+      Object
+    ])
+  },
+  offset: {
+    type: Number,
+    default: 0
+  },
+  bound: {
+    type: Number,
+    default: 15
+  },
+  duration: {
+    type: Number,
+    default: 300
+  },
+  marker: {
+    type: Boolean,
+    default: true
+  },
+  type: {
+    type: definePropType(String),
+    default: "default"
+  },
+  direction: {
+    type: definePropType(String),
+    default: "vertical"
+  }
+});
+var anchorEmits = {
+  change: (href) => isString(href),
+  click: (e, href) => e instanceof MouseEvent && (isString(href) || isUndefined2(href))
+};
+
+// node_modules/element-plus/es/components/anchor/src/constants.mjs
+var anchorKey = Symbol("anchor");
+
+// node_modules/element-plus/es/components/anchor/src/anchor2.mjs
+var __default__108 = defineComponent({
+  name: "ElAnchor"
+});
+var _sfc_main150 = defineComponent({
+  ...__default__108,
+  props: anchorProps,
+  emits: anchorEmits,
+  setup(__props, { expose, emit }) {
+    const props = __props;
+    const currentAnchor = ref("");
+    const anchorRef = ref(null);
+    const markerRef = ref(null);
+    const containerEl = ref();
+    const links = {};
+    let isScrolling = false;
+    let currentScrollTop = 0;
+    const ns = useNamespace("anchor");
+    const cls = computed(() => [
+      ns.b(),
+      props.type === "underline" ? ns.m("underline") : "",
+      ns.m(props.direction)
+    ]);
+    const addLink = (state) => {
+      links[state.href] = state.el;
+    };
+    const removeLink = (href) => {
+      delete links[href];
+    };
+    const setCurrentAnchor = (href) => {
+      const activeHref = currentAnchor.value;
+      if (activeHref !== href) {
+        currentAnchor.value = href;
+        emit("change", href);
+      }
+    };
+    let clearAnimate = null;
+    const scrollToAnchor = (href) => {
+      if (!containerEl.value)
+        return;
+      const target2 = getElement(href);
+      if (!target2)
+        return;
+      if (clearAnimate)
+        clearAnimate();
+      isScrolling = true;
+      const scrollEle = getScrollElement(target2, containerEl.value);
+      const distance = getOffsetTopDistance(target2, scrollEle);
+      const max4 = scrollEle.scrollHeight - scrollEle.clientHeight;
+      const to = Math.min(distance - props.offset, max4);
+      clearAnimate = animateScrollTo(containerEl.value, currentScrollTop, to, props.duration, () => {
+        setTimeout(() => {
+          isScrolling = false;
+        }, 20);
+      });
+    };
+    const scrollTo = (href) => {
+      if (href) {
+        setCurrentAnchor(href);
+        scrollToAnchor(href);
+      }
+    };
+    const handleClick = (e, href) => {
+      emit("click", e, href);
+      scrollTo(href);
+    };
+    const handleScroll2 = throttleByRaf(() => {
+      if (containerEl.value) {
+        currentScrollTop = getScrollTop(containerEl.value);
+      }
+      const currentHref = getCurrentHref();
+      if (isScrolling || isUndefined2(currentHref))
+        return;
+      setCurrentAnchor(currentHref);
+    });
+    const getCurrentHref = () => {
+      if (!containerEl.value)
+        return;
+      const scrollTop = getScrollTop(containerEl.value);
+      const anchorTopList = [];
+      for (const href of Object.keys(links)) {
+        const target2 = getElement(href);
+        if (!target2)
+          continue;
+        const scrollEle = getScrollElement(target2, containerEl.value);
+        const distance = getOffsetTopDistance(target2, scrollEle);
+        anchorTopList.push({
+          top: distance - props.offset - props.bound,
+          href
+        });
+      }
+      anchorTopList.sort((prev, next) => prev.top - next.top);
+      for (let i = 0; i < anchorTopList.length; i++) {
+        const item = anchorTopList[i];
+        const next = anchorTopList[i + 1];
+        if (i === 0 && scrollTop === 0) {
+          return "";
+        }
+        if (item.top <= scrollTop && (!next || next.top > scrollTop)) {
+          return item.href;
+        }
+      }
+    };
+    const getContainer = () => {
+      const el = getElement(props.container);
+      if (!el || isWindow(el)) {
+        containerEl.value = window;
+      } else {
+        containerEl.value = el;
+      }
+    };
+    useEventListener(containerEl, "scroll", handleScroll2);
+    const markerStyle = computed(() => {
+      if (!anchorRef.value || !markerRef.value || !currentAnchor.value)
+        return {};
+      const currentLinkEl = links[currentAnchor.value];
+      if (!currentLinkEl)
+        return {};
+      const anchorRect = anchorRef.value.getBoundingClientRect();
+      const markerRect = markerRef.value.getBoundingClientRect();
+      const linkRect = currentLinkEl.getBoundingClientRect();
+      if (props.direction === "horizontal") {
+        const left2 = linkRect.left - anchorRect.left;
+        return {
+          left: `${left2}px`,
+          width: `${linkRect.width}px`,
+          opacity: 1
+        };
+      } else {
+        const top = linkRect.top - anchorRect.top + (linkRect.height - markerRect.height) / 2;
+        return {
+          top: `${top}px`,
+          opacity: 1
+        };
+      }
+    });
+    onMounted(() => {
+      getContainer();
+      const hash = decodeURIComponent(window.location.hash);
+      const target2 = getElement(hash);
+      if (target2) {
+        scrollTo(hash);
+      } else {
+        handleScroll2();
+      }
+    });
+    watch(() => props.container, () => {
+      getContainer();
+    });
+    provide(anchorKey, {
+      ns,
+      direction: props.direction,
+      currentAnchor,
+      addLink,
+      removeLink,
+      handleClick
+    });
+    expose({
+      scrollTo
+    });
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", {
+        ref_key: "anchorRef",
+        ref: anchorRef,
+        class: normalizeClass(unref(cls))
+      }, [
+        _ctx.marker ? (openBlock(), createElementBlock("div", {
+          key: 0,
+          ref_key: "markerRef",
+          ref: markerRef,
+          class: normalizeClass(unref(ns).e("marker")),
+          style: normalizeStyle(unref(markerStyle))
+        }, null, 6)) : createCommentVNode("v-if", true),
+        createBaseVNode("div", {
+          class: normalizeClass(unref(ns).e("list"))
+        }, [
+          renderSlot(_ctx.$slots, "default")
+        ], 2)
+      ], 2);
+    };
+  }
+});
+var Anchor = _export_sfc(_sfc_main150, [["__file", "anchor.vue"]]);
+
+// node_modules/element-plus/es/components/anchor/src/anchor-link.mjs
+var anchorLinkProps = buildProps({
+  title: String,
+  href: String
+});
+
+// node_modules/element-plus/es/components/anchor/src/anchor-link2.mjs
+var _hoisted_174 = ["href"];
+var __default__109 = defineComponent({
+  name: "ElAnchorLink"
+});
+var _sfc_main151 = defineComponent({
+  ...__default__109,
+  props: anchorLinkProps,
+  setup(__props) {
+    const props = __props;
+    const linkRef = ref(null);
+    const {
+      ns,
+      direction: direction2,
+      currentAnchor,
+      addLink,
+      removeLink,
+      handleClick: contextHandleClick
+    } = inject(anchorKey);
+    const cls = computed(() => [
+      ns.e("link"),
+      ns.is("active", currentAnchor.value === props.href)
+    ]);
+    const handleClick = (e) => {
+      contextHandleClick(e, props.href);
+    };
+    watch(() => props.href, (val, oldVal) => {
+      nextTick(() => {
+        if (oldVal)
+          removeLink(oldVal);
+        if (val) {
+          addLink({
+            href: val,
+            el: linkRef.value
+          });
+        }
+      });
+    });
+    onMounted(() => {
+      const { href } = props;
+      if (href) {
+        addLink({
+          href,
+          el: linkRef.value
+        });
+      }
+    });
+    onBeforeUnmount(() => {
+      const { href } = props;
+      if (href) {
+        removeLink(href);
+      }
+    });
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", {
+        class: normalizeClass(unref(ns).e("item"))
+      }, [
+        createBaseVNode("a", {
+          ref_key: "linkRef",
+          ref: linkRef,
+          class: normalizeClass(unref(cls)),
+          href: _ctx.href,
+          onClick: handleClick
+        }, [
+          renderSlot(_ctx.$slots, "default", {}, () => [
+            createTextVNode(toDisplayString(_ctx.title), 1)
+          ])
+        ], 10, _hoisted_174),
+        _ctx.$slots["sub-link"] && unref(direction2) === "vertical" ? (openBlock(), createElementBlock("div", {
+          key: 0,
+          class: normalizeClass(unref(ns).e("list"))
+        }, [
+          renderSlot(_ctx.$slots, "sub-link")
+        ], 2)) : createCommentVNode("v-if", true)
+      ], 2);
+    };
+  }
+});
+var AnchorLink = _export_sfc(_sfc_main151, [["__file", "anchor-link.vue"]]);
+
+// node_modules/element-plus/es/components/anchor/index.mjs
+var ElAnchor = withInstall(Anchor, {
+  AnchorLink
+});
+var ElAnchorLink = withNoopInstall(AnchorLink);
+
+// node_modules/element-plus/es/components/segmented/src/segmented.mjs
+var segmentedProps = buildProps({
+  options: {
+    type: definePropType(Array),
+    default: () => []
+  },
+  modelValue: {
+    type: [String, Number, Boolean],
+    default: void 0
+  },
+  block: Boolean,
+  size: useSizeProp,
+  disabled: Boolean,
+  validateEvent: {
+    type: Boolean,
+    default: true
+  },
+  id: String,
+  name: String,
+  ...useAriaProps(["ariaLabel"])
+});
+var segmentedEmits = {
+  [UPDATE_MODEL_EVENT]: (val) => isString(val) || isNumber3(val),
+  [CHANGE_EVENT]: (val) => isString(val) || isNumber3(val)
+};
+
+// node_modules/element-plus/es/components/segmented/src/segmented2.mjs
+var _hoisted_175 = ["id", "aria-label", "aria-labelledby"];
+var _hoisted_245 = ["name", "disabled", "checked", "onChange"];
+var __default__110 = defineComponent({
+  name: "ElSegmented"
+});
+var _sfc_main152 = defineComponent({
+  ...__default__110,
+  props: segmentedProps,
+  emits: segmentedEmits,
+  setup(__props, { emit }) {
+    const props = __props;
+    const ns = useNamespace("segmented");
+    const segmentedId = useId();
+    const segmentedSize = useFormSize();
+    const _disabled = useFormDisabled();
+    const { formItem } = useFormItem();
+    const { inputId, isLabeledByFormItem } = useFormItemInputId(props, {
+      formItemContext: formItem
+    });
+    const segmentedRef = ref(null);
+    const activeElement = useActiveElement();
+    const state = reactive({
+      isInit: false,
+      width: 0,
+      translateX: 0,
+      disabled: false,
+      focusVisible: false
+    });
+    const handleChange = (item) => {
+      const value = getValue3(item);
+      emit(UPDATE_MODEL_EVENT, value);
+      emit(CHANGE_EVENT, value);
+    };
+    const getValue3 = (item) => {
+      return isObject(item) ? item.value : item;
+    };
+    const getLabel = (item) => {
+      return isObject(item) ? item.label : item;
+    };
+    const getDisabled = (item) => {
+      return !!(_disabled.value || (isObject(item) ? item.disabled : false));
+    };
+    const getSelected = (item) => {
+      return props.modelValue === getValue3(item);
+    };
+    const getOption = (value) => {
+      return props.options.find((item) => getValue3(item) === value);
+    };
+    const getItemCls = (item) => {
+      return [
+        ns.e("item"),
+        ns.is("selected", getSelected(item)),
+        ns.is("disabled", getDisabled(item))
+      ];
+    };
+    const updateSelect = () => {
+      if (!segmentedRef.value)
+        return;
+      const selectedItem = segmentedRef.value.querySelector(".is-selected");
+      const selectedItemInput = segmentedRef.value.querySelector(".is-selected input");
+      if (!selectedItem || !selectedItemInput) {
+        state.width = 0;
+        state.translateX = 0;
+        state.disabled = false;
+        state.focusVisible = false;
+        return;
+      }
+      const rect = selectedItem.getBoundingClientRect();
+      state.isInit = true;
+      state.width = rect.width;
+      state.translateX = selectedItem.offsetLeft;
+      state.disabled = getDisabled(getOption(props.modelValue));
+      try {
+        state.focusVisible = selectedItemInput.matches(":focus-visible");
+      } catch (e) {
+      }
+    };
+    const segmentedCls = computed(() => [
+      ns.b(),
+      ns.m(segmentedSize.value),
+      ns.is("block", props.block)
+    ]);
+    const selectedStyle = computed(() => ({
+      width: `${state.width}px`,
+      transform: `translateX(${state.translateX}px)`,
+      display: state.isInit ? "block" : "none"
+    }));
+    const selectedCls = computed(() => [
+      ns.e("item-selected"),
+      ns.is("disabled", state.disabled),
+      ns.is("focus-visible", state.focusVisible)
+    ]);
+    const name = computed(() => {
+      return props.name || segmentedId.value;
+    });
+    useResizeObserver(segmentedRef, updateSelect);
+    watch(activeElement, updateSelect);
+    watch(() => props.modelValue, () => {
+      var _a2;
+      updateSelect();
+      if (props.validateEvent) {
+        (_a2 = formItem == null ? void 0 : formItem.validate) == null ? void 0 : _a2.call(formItem, "change").catch((err) => debugWarn(err));
+      }
+    }, {
+      flush: "post"
+    });
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", {
+        id: unref(inputId),
+        ref_key: "segmentedRef",
+        ref: segmentedRef,
+        class: normalizeClass(unref(segmentedCls)),
+        role: "radiogroup",
+        "aria-label": !unref(isLabeledByFormItem) ? _ctx.ariaLabel || "segmented" : void 0,
+        "aria-labelledby": unref(isLabeledByFormItem) ? unref(formItem).labelId : void 0
+      }, [
+        createBaseVNode("div", {
+          class: normalizeClass(unref(ns).e("group"))
+        }, [
+          createBaseVNode("div", {
+            style: normalizeStyle(unref(selectedStyle)),
+            class: normalizeClass(unref(selectedCls))
+          }, null, 6),
+          (openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.options, (item, index) => {
+            return openBlock(), createElementBlock("label", {
+              key: index,
+              class: normalizeClass(getItemCls(item))
+            }, [
+              createBaseVNode("input", {
+                class: normalizeClass(unref(ns).e("item-input")),
+                type: "radio",
+                name: unref(name),
+                disabled: getDisabled(item),
+                checked: getSelected(item),
+                onChange: ($event) => handleChange(item)
+              }, null, 42, _hoisted_245),
+              createBaseVNode("div", {
+                class: normalizeClass(unref(ns).e("item-label"))
+              }, [
+                renderSlot(_ctx.$slots, "default", { item }, () => [
+                  createTextVNode(toDisplayString(getLabel(item)), 1)
+                ])
+              ], 2)
+            ], 2);
+          }), 128))
+        ], 2)
+      ], 10, _hoisted_175);
+    };
+  }
+});
+var Segmented = _export_sfc(_sfc_main152, [["__file", "segmented.vue"]]);
+
+// node_modules/element-plus/es/components/segmented/index.mjs
+var ElSegmented = withInstall(Segmented);
+
 // node_modules/element-plus/es/component.mjs
 var Components = [
   ElAffix,
@@ -62997,11 +64090,14 @@ var Components = [
   ElUpload,
   ElWatermark,
   ElTour,
-  ElTourStep
+  ElTourStep,
+  ElAnchor,
+  ElAnchorLink,
+  ElSegmented
 ];
 
 // node_modules/element-plus/es/components/infinite-scroll/src/index.mjs
-var SCOPE9 = "ElInfiniteScroll";
+var SCOPE10 = "ElInfiniteScroll";
 var CHECK_INTERVAL = 50;
 var DEFAULT_DELAY = 200;
 var DEFAULT_DISTANCE = 0;
@@ -63036,18 +64132,18 @@ var getScrollOptions = (el, instance) => {
   }, {});
 };
 var destroyObserver = (el) => {
-  const { observer } = el[SCOPE9];
+  const { observer } = el[SCOPE10];
   if (observer) {
     observer.disconnect();
-    delete el[SCOPE9].observer;
+    delete el[SCOPE10].observer;
   }
 };
 var handleScroll = (el, cb) => {
-  const { container, containerEl, instance, observer, lastScrollTop } = el[SCOPE9];
+  const { container, containerEl, instance, observer, lastScrollTop } = el[SCOPE10];
   const { disabled, distance } = getScrollOptions(el, instance);
   const { clientHeight, scrollHeight, scrollTop } = containerEl;
   const delta = scrollTop - lastScrollTop;
-  el[SCOPE9].lastScrollTop = scrollTop;
+  el[SCOPE10].lastScrollTop = scrollTop;
   if (observer || disabled || delta < 0)
     return;
   let shouldTrigger = false;
@@ -63063,7 +64159,7 @@ var handleScroll = (el, cb) => {
   }
 };
 function checkFull(el, cb) {
-  const { containerEl, instance } = el[SCOPE9];
+  const { containerEl, instance } = el[SCOPE10];
   const { disabled } = getScrollOptions(el, instance);
   if (disabled || containerEl.clientHeight === 0)
     return;
@@ -63077,7 +64173,7 @@ var InfiniteScroll = {
   async mounted(el, binding) {
     const { instance, value: cb } = binding;
     if (!isFunction(cb)) {
-      throwError(SCOPE9, "'v-infinite-scroll' binding value must be a function");
+      throwError(SCOPE10, "'v-infinite-scroll' binding value must be a function");
     }
     await nextTick();
     const { delay: delay2, immediate } = getScrollOptions(el, instance);
@@ -63086,7 +64182,7 @@ var InfiniteScroll = {
     const onScroll = throttle_default(handleScroll.bind(null, el, cb), delay2);
     if (!container)
       return;
-    el[SCOPE9] = {
+    el[SCOPE10] = {
       instance,
       container,
       containerEl,
@@ -63097,22 +64193,24 @@ var InfiniteScroll = {
     };
     if (immediate) {
       const observer = new MutationObserver(throttle_default(checkFull.bind(null, el, cb), CHECK_INTERVAL));
-      el[SCOPE9].observer = observer;
+      el[SCOPE10].observer = observer;
       observer.observe(el, { childList: true, subtree: true });
       checkFull(el, cb);
     }
     container.addEventListener("scroll", onScroll);
   },
   unmounted(el) {
-    const { container, onScroll } = el[SCOPE9];
+    if (!el[SCOPE10])
+      return;
+    const { container, onScroll } = el[SCOPE10];
     container == null ? void 0 : container.removeEventListener("scroll", onScroll);
     destroyObserver(el);
   },
   async updated(el) {
-    if (!el[SCOPE9]) {
+    if (!el[SCOPE10]) {
       await nextTick();
     } else {
-      const { containerEl, cb, observer } = el[SCOPE9];
+      const { containerEl, cb, observer } = el[SCOPE10];
       if (containerEl.clientHeight && observer) {
         checkFull(el, cb);
       }
@@ -63424,6 +64522,7 @@ var messageDefaults = mutable({
   onClose: void 0,
   showClose: false,
   type: "info",
+  plain: false,
   offset: 16,
   zIndex: 0,
   grouping: false,
@@ -63465,7 +64564,7 @@ var messageProps = buildProps({
   },
   onClose: {
     type: definePropType(Function),
-    required: false
+    default: messageDefaults.onClose
   },
   showClose: {
     type: Boolean,
@@ -63475,6 +64574,10 @@ var messageProps = buildProps({
     type: String,
     values: messageTypes,
     default: messageDefaults.type
+  },
+  plain: {
+    type: Boolean,
+    default: messageDefaults.plain
   },
   offset: {
     type: Number,
@@ -63516,17 +64619,17 @@ var getLastOffset = (id) => {
 };
 var getOffsetOrSpace = (id, offset3) => {
   const idx = instances.findIndex((instance) => instance.id === id);
-  return idx > 0 ? 20 : offset3;
+  return idx > 0 ? 16 : offset3;
 };
 
 // node_modules/element-plus/es/components/message/src/message2.mjs
-var _hoisted_173 = ["id"];
-var _hoisted_245 = ["innerHTML"];
-var __default__108 = defineComponent({
+var _hoisted_176 = ["id"];
+var _hoisted_246 = ["innerHTML"];
+var __default__111 = defineComponent({
   name: "ElMessage"
 });
-var _sfc_main150 = defineComponent({
-  ...__default__108,
+var _sfc_main153 = defineComponent({
+  ...__default__111,
   props: messageProps,
   emits: messageEmits,
   setup(__props, { expose }) {
@@ -63538,16 +64641,16 @@ var _sfc_main150 = defineComponent({
     const visible = ref(false);
     const height = ref(0);
     let stopTimer = void 0;
-    const badgeType = computed2(() => props.type ? props.type === "error" ? "danger" : props.type : "info");
-    const typeClass = computed2(() => {
+    const badgeType = computed(() => props.type ? props.type === "error" ? "danger" : props.type : "info");
+    const typeClass = computed(() => {
       const type4 = props.type;
       return { [ns.bm("icon", type4)]: type4 && TypeComponentsMap[type4] };
     });
-    const iconComponent = computed2(() => props.icon || TypeComponentsMap[props.type] || "");
-    const lastOffset = computed2(() => getLastOffset(props.id));
-    const offset3 = computed2(() => getOffsetOrSpace(props.id, props.offset) + lastOffset.value);
-    const bottom = computed2(() => height.value + offset3.value);
-    const customStyle = computed2(() => ({
+    const iconComponent = computed(() => props.icon || TypeComponentsMap[props.type] || "");
+    const lastOffset = computed(() => getLastOffset(props.id));
+    const offset3 = computed(() => getOffsetOrSpace(props.id, props.offset) + lastOffset.value);
+    const bottom = computed(() => height.value + offset3.value);
+    const customStyle = computed(() => ({
       top: `${offset3.value}px`,
       zIndex: currentZIndex.value
     }));
@@ -63604,6 +64707,7 @@ var _sfc_main150 = defineComponent({
               { [unref(ns).m(_ctx.type)]: _ctx.type },
               unref(ns).is("center", _ctx.center),
               unref(ns).is("closable", _ctx.showClose),
+              unref(ns).is("plain", _ctx.plain),
               _ctx.customClass
             ]),
             style: normalizeStyle(unref(customStyle)),
@@ -63635,7 +64739,7 @@ var _sfc_main150 = defineComponent({
                 createBaseVNode("p", {
                   class: normalizeClass(unref(ns).e("content")),
                   innerHTML: _ctx.message
-                }, null, 10, _hoisted_245)
+                }, null, 10, _hoisted_246)
               ], 2112))
             ]),
             _ctx.showClose ? (openBlock(), createBlock(unref(ElIcon), {
@@ -63648,7 +64752,7 @@ var _sfc_main150 = defineComponent({
               ]),
               _: 1
             }, 8, ["class", "onClick"])) : createCommentVNode("v-if", true)
-          ], 46, _hoisted_173), [
+          ], 46, _hoisted_176), [
             [vShow, visible.value]
           ])
         ]),
@@ -63657,7 +64761,7 @@ var _sfc_main150 = defineComponent({
     };
   }
 });
-var MessageConstructor = _export_sfc(_sfc_main150, [["__file", "message.vue"]]);
+var MessageConstructor = _export_sfc(_sfc_main153, [["__file", "message.vue"]]);
 
 // node_modules/element-plus/es/components/message/src/method.mjs
 var seed = 1;
@@ -63765,7 +64869,7 @@ message._context = null;
 var ElMessage = withInstallFunction(message, "$message");
 
 // node_modules/element-plus/es/components/message-box/src/index.mjs
-var _sfc_main151 = defineComponent({
+var _sfc_main154 = defineComponent({
   name: "ElMessageBox",
   directives: {
     TrapFocus
@@ -63831,7 +64935,7 @@ var _sfc_main151 = defineComponent({
       zIndex: zIndex2,
       ns,
       size: btnSize
-    } = useGlobalComponentSettings("message-box", computed2(() => props.buttonSize));
+    } = useGlobalComponentSettings("message-box", computed(() => props.buttonSize));
     const { t } = locale;
     const { nextZIndex } = zIndex2;
     const visible = ref(false);
@@ -63870,20 +64974,20 @@ var _sfc_main151 = defineComponent({
       validateError: false,
       zIndex: nextZIndex()
     });
-    const typeClass = computed2(() => {
+    const typeClass = computed(() => {
       const type4 = state.type;
       return { [ns.bm("icon", type4)]: type4 && TypeComponentsMap[type4] };
     });
     const contentId = useId();
     const inputId = useId();
-    const iconComponent = computed2(() => state.icon || TypeComponentsMap[state.type] || "");
-    const hasMessage = computed2(() => !!state.message);
+    const iconComponent = computed(() => state.icon || TypeComponentsMap[state.type] || "");
+    const hasMessage = computed(() => !!state.message);
     const rootRef = ref();
     const headerRef = ref();
     const focusStartRef = ref();
     const inputRef = ref();
     const confirmRef = ref();
-    const confirmButtonClasses = computed2(() => state.confirmButtonClass);
+    const confirmButtonClasses = computed(() => state.confirmButtonClass);
     watch(() => state.inputValue, async (val) => {
       await nextTick();
       if (props.boxType === "prompt" && val !== null) {
@@ -63920,8 +65024,8 @@ var _sfc_main151 = defineComponent({
         state.validateError = false;
       }
     });
-    const draggable2 = computed2(() => props.draggable);
-    const overflow = computed2(() => props.overflow);
+    const draggable2 = computed(() => props.draggable);
+    const overflow = computed(() => props.overflow);
     useDraggable(rootRef, headerRef, draggable2, overflow);
     onMounted(async () => {
       await nextTick();
@@ -64036,9 +65140,9 @@ var _sfc_main151 = defineComponent({
     };
   }
 });
-var _hoisted_174 = ["aria-label", "aria-describedby"];
-var _hoisted_246 = ["aria-label"];
-var _hoisted_318 = ["id"];
+var _hoisted_177 = ["aria-label", "aria-describedby"];
+var _hoisted_247 = ["aria-label"];
+var _hoisted_321 = ["id"];
 function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
   const _component_el_icon = resolveComponent("el-icon");
   const _component_close = resolveComponent("close");
@@ -64124,7 +65228,7 @@ function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
                         ]),
                         _: 1
                       }, 8, ["class"])
-                    ], 42, _hoisted_246)) : createCommentVNode("v-if", true)
+                    ], 42, _hoisted_247)) : createCommentVNode("v-if", true)
                   ], 2)) : createCommentVNode("v-if", true),
                   createBaseVNode("div", {
                     id: _ctx.contentId,
@@ -64186,7 +65290,7 @@ function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
                     ], 2), [
                       [vShow, _ctx.showInput]
                     ])
-                  ], 10, _hoisted_318),
+                  ], 10, _hoisted_321),
                   createBaseVNode("div", {
                     class: normalizeClass(_ctx.ns.e("btns"))
                   }, [
@@ -64227,7 +65331,7 @@ function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
               ]),
               _: 3
             }, 8, ["trapped", "focus-trap-el", "focus-start-el", "onReleaseRequested"])
-          ], 42, _hoisted_174)
+          ], 42, _hoisted_177)
         ]),
         _: 3
       }, 8, ["z-index", "overlay-class", "mask"]), [
@@ -64237,7 +65341,7 @@ function _sfc_render31(_ctx, _cache, $props, $setup, $data, $options) {
     _: 3
   });
 }
-var MessageBoxConstructor = _export_sfc(_sfc_main151, [["render", _sfc_render31], ["__file", "index.vue"]]);
+var MessageBoxConstructor = _export_sfc(_sfc_main154, [["render", _sfc_render31], ["__file", "index.vue"]]);
 
 // node_modules/element-plus/es/components/message-box/src/messageBox.mjs
 var messageInstance = /* @__PURE__ */ new Map();
@@ -64447,15 +65551,15 @@ var notificationEmits = {
 };
 
 // node_modules/element-plus/es/components/notification/src/notification2.mjs
-var _hoisted_175 = ["id"];
-var _hoisted_247 = ["textContent"];
-var _hoisted_319 = { key: 0 };
-var _hoisted_411 = ["innerHTML"];
-var __default__109 = defineComponent({
+var _hoisted_178 = ["id"];
+var _hoisted_248 = ["textContent"];
+var _hoisted_322 = { key: 0 };
+var _hoisted_412 = ["innerHTML"];
+var __default__112 = defineComponent({
   name: "ElNotification"
 });
-var _sfc_main152 = defineComponent({
-  ...__default__109,
+var _sfc_main155 = defineComponent({
+  ...__default__112,
   props: notificationProps,
   emits: notificationEmits,
   setup(__props, { expose }) {
@@ -64465,18 +65569,18 @@ var _sfc_main152 = defineComponent({
     const { Close } = CloseComponents;
     const visible = ref(false);
     let timer = void 0;
-    const typeClass = computed2(() => {
+    const typeClass = computed(() => {
       const type4 = props.type;
       return type4 && TypeComponentsMap[props.type] ? ns.m(type4) : "";
     });
-    const iconComponent = computed2(() => {
+    const iconComponent = computed(() => {
       if (!props.type)
         return props.icon;
       return TypeComponentsMap[props.type] || props.icon;
     });
-    const horizontalClass = computed2(() => props.position.endsWith("right") ? "right" : "left");
-    const verticalProperty = computed2(() => props.position.startsWith("top") ? "top" : "bottom");
-    const positionStyle = computed2(() => {
+    const horizontalClass = computed(() => props.position.endsWith("right") ? "right" : "left");
+    const verticalProperty = computed(() => props.position.startsWith("top") ? "top" : "bottom");
+    const positionStyle = computed(() => {
       var _a2;
       return {
         [verticalProperty.value]: `${props.offset}px`,
@@ -64551,15 +65655,15 @@ var _sfc_main152 = defineComponent({
               createBaseVNode("h2", {
                 class: normalizeClass(unref(ns).e("title")),
                 textContent: toDisplayString(_ctx.title)
-              }, null, 10, _hoisted_247),
+              }, null, 10, _hoisted_248),
               withDirectives(createBaseVNode("div", {
                 class: normalizeClass(unref(ns).e("content")),
                 style: normalizeStyle(!!_ctx.title ? void 0 : { margin: 0 })
               }, [
                 renderSlot(_ctx.$slots, "default", {}, () => [
-                  !_ctx.dangerouslyUseHTMLString ? (openBlock(), createElementBlock("p", _hoisted_319, toDisplayString(_ctx.message), 1)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+                  !_ctx.dangerouslyUseHTMLString ? (openBlock(), createElementBlock("p", _hoisted_322, toDisplayString(_ctx.message), 1)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
                     createCommentVNode(" Caution here, message could've been compromised, never use user's input as message "),
-                    createBaseVNode("p", { innerHTML: _ctx.message }, null, 8, _hoisted_411)
+                    createBaseVNode("p", { innerHTML: _ctx.message }, null, 8, _hoisted_412)
                   ], 2112))
                 ])
               ], 6), [
@@ -64576,7 +65680,7 @@ var _sfc_main152 = defineComponent({
                 _: 1
               }, 8, ["class", "onClick"])) : createCommentVNode("v-if", true)
             ], 2)
-          ], 46, _hoisted_175), [
+          ], 46, _hoisted_178), [
             [vShow, visible.value]
           ])
         ]),
@@ -64585,7 +65689,7 @@ var _sfc_main152 = defineComponent({
     };
   }
 });
-var NotificationConstructor = _export_sfc(_sfc_main152, [["__file", "notification.vue"]]);
+var NotificationConstructor = _export_sfc(_sfc_main155, [["__file", "notification.vue"]]);
 
 // node_modules/element-plus/es/components/notification/src/notify.mjs
 var notifications = {
@@ -64723,9 +65827,11 @@ export {
   ClickOutside,
   CommonPicker,
   CommonProps,
+  DEFAULT_EMPTY_VALUES,
   DEFAULT_FORMATS_DATE,
   DEFAULT_FORMATS_DATEPICKER,
   DEFAULT_FORMATS_TIME,
+  DEFAULT_VALUE_ON_CLEAR,
   COLLECTION_INJECTION_KEY2 as DROPDOWN_COLLECTION_INJECTION_KEY,
   COLLECTION_ITEM_INJECTION_KEY2 as DROPDOWN_COLLECTION_ITEM_INJECTION_KEY,
   DROPDOWN_INJECTION_KEY,
@@ -64736,6 +65842,8 @@ export {
   Effect,
   ElAffix,
   ElAlert,
+  ElAnchor,
+  ElAnchorLink,
   ElAside,
   ElAutoResizer,
   ElAutocomplete,
@@ -64817,6 +65925,7 @@ export {
   ElResult,
   ElRow,
   ElScrollbar,
+  ElSegmented,
   ElSelect,
   ElSelectV2,
   ElSkeleton,
@@ -64868,6 +65977,7 @@ export {
   ROOT_PICKER_INJECTION_KEY,
   RowAlign,
   RowJustify,
+  SCOPE3 as SCOPE,
   SIZE_INJECTION_KEY,
   TOOLTIP_INJECTION_KEY,
   TableV2,
@@ -64879,11 +65989,15 @@ export {
   TrapFocus,
   UPDATE_MODEL_EVENT,
   WEEK_DAYS,
+  ZINDEX_INJECTION_KEY,
   affixEmits,
   affixProps,
   alertEffects,
   alertEmits,
   alertProps,
+  anchorEmits,
+  anchorProps,
+  ariaProps,
   arrowMiddleware,
   autoResizerProps,
   autocompleteEmits,
@@ -64942,6 +66056,7 @@ export {
   installer as default,
   defaultInitialZIndex,
   defaultNamespace,
+  descriptionItemProps,
   descriptionProps,
   dialogEmits,
   dialogInjectionKey,
@@ -64962,6 +66077,7 @@ export {
   formItemContextKey,
   formItemProps,
   formItemValidateStates,
+  formMetaProps,
   formProps,
   formatter,
   genFileId,
@@ -65032,6 +66148,8 @@ export {
   scrollbarContextKey,
   scrollbarEmits,
   scrollbarProps,
+  segmentedEmits,
+  segmentedProps,
   selectGroupKey,
   selectKey,
   selectV2InjectionKey,
@@ -65040,6 +66158,7 @@ export {
   sliderContextKey,
   sliderEmits,
   sliderProps,
+  spaceItemProps,
   spaceProps,
   statisticProps,
   stepProps,
@@ -65065,8 +66184,14 @@ export {
   timeUnits,
   timelineItemProps,
   tooltipEmits,
+  tourContentEmits,
+  tourContentProps,
   tourEmits,
+  tourPlacements,
   tourProps,
+  tourStepEmits,
+  tourStepProps,
+  tourStrategies,
   transferCheckedChangeFn,
   transferEmits,
   transferProps,
@@ -65080,6 +66205,7 @@ export {
   uploadListProps,
   uploadListTypes,
   uploadProps,
+  useAriaProps,
   useAttrs2 as useAttrs,
   useCascaderConfig,
   useCursor,
@@ -65090,6 +66216,8 @@ export {
   useDialog,
   useDisabled,
   useDraggable,
+  useEmptyValues,
+  useEmptyValuesProps,
   useEscapeKeydown,
   useFloating,
   useFloatingProps,
