@@ -65,6 +65,12 @@ export const shared = defineConfig({
       {async:'',src:'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6253158297867597',crossorigin:'anonymous'}
     ],
 
+    //share
+    [
+      'script',
+      {src:'https://res.wx.qq.com/open/js/jweixin-1.2.0.js'}
+    ],
+
   ],
   themeConfig: {
     search:{
