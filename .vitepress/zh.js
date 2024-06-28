@@ -54,7 +54,7 @@ function nav() {
 function sidebarProject() {
   return [
     {
-      text: '专注翼航',
+      text: '进程领航',
       collapsed: false,
       items: [
         { text: '开始', link: 'Scheduler/' },

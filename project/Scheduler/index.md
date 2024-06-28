@@ -2,10 +2,10 @@
 
 layout: home
 
-title: 专注翼航
+title: 进程领航
 
 hero:
-  name: 专注翼航
+  name: 进程领航
   text: 记录进度目标计数和专注的网页应用程序
   tagline: 一款效率工具
   actions:
