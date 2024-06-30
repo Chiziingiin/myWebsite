@@ -80,11 +80,16 @@ $$
   const targetDate = ref(null);
   const result = ref(null);
   const DAY = 60;
-
+  // format Date to MMYYDD
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${year}${month}${day}`;
+  }
   const calculateBiorhythm = () => {
     if (!birthDate.value || !targetDate.value) return;
-    window.clarity("event", `${birthDate.value} ${new Date().getTime()}`);
-    window.clarity("set", "experiment", "experiment1") 
+    window.clarity("set", 'selectDate' ,`${formatDate(birthDate.value)} ${formatDate(targetDate.value)}`);
     const X = calculateDaysSinceBirth(birthDate.value, targetDate.value);
 
     const physicalCycle = calculateCycle(X, 23);
