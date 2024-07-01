@@ -91,7 +91,7 @@ export const shared = defineConfig({
   },
   transformHead: async (context) =>{
     // 假设你想将页面的 content 的前 100 个字符作为 description  
-    return [ ['meta', { name: 'description', content: context.title.replace(' | 赤子英金 - 梦想只是开始，探索永不止步','') + (htmlToTextWithRegex(context.content).slice(0, 50)) }]] 
+    return [ ['meta', { name: 'description', content: context.title.replace(' | 赤子英金 - 梦想只是开始，探索永不止步','') + (htmlToTextWithRegex(context.content).slice(0, 100))+'...' }]] 
  
   }  
   // transformPageData: (pageData,u) => {
