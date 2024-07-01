@@ -1,5 +1,7 @@
 import { defineConfig } from 'vitepress'
 // Import our custom CSS
+import { searchZH } from './zh'
+import { searchEN } from './en'
 
 export const shared = defineConfig({
   title: "赤子英金 - 梦想只是开始，探索永不止步",
@@ -14,7 +16,7 @@ export const shared = defineConfig({
     }
   },
   head: [
-    ['meta', { name:'description', content:''} ],
+    ['meta', { name:'description', content:'赤子英金 - 梦想只是开始，探索永不止步'} ],
     ['link', { rel: 'icon', type: 'image/png', href: 'https://www.chiziingiin.top/logo.png' }],
     ['meta', { name: 'theme-color', content: '#5f67ee' }],
     ['meta', { property: 'og:type', content: 'website' }],
@@ -78,8 +80,52 @@ export const shared = defineConfig({
       options: {
         appId: '01EE2AO7BT',
         apiKey: 'd8a788d0a445edc6ac28bd4fdddbd02e',
-        indexName: 'chiziingiin'
-      }
+        indexName: 'chiziingiin',
+        locales: {
+          root: {
+            placeholder: '搜索文档',
+            translations: {
+              button: {
+                buttonText: '搜索文档',
+                buttonAriaLabel: '搜索文档'
+              },
+              modal: {
+                searchBox: {
+                  resetButtonTitle: '清除查询条件',
+                  resetButtonAriaLabel: '清除查询条件',
+                  cancelButtonText: '取消',
+                  cancelButtonAriaLabel: '取消'
+                },
+                startScreen: {
+                  recentSearchesTitle: '搜索历史',
+                  noRecentSearchesText: '没有搜索历史',
+                  saveRecentSearchButtonTitle: '保存至搜索历史',
+                  removeRecentSearchButtonTitle: '从搜索历史中移除',
+                  favoriteSearchesTitle: '收藏',
+                  removeFavoriteSearchButtonTitle: '从收藏中移除'
+                },
+                errorScreen: {
+                  titleText: '无法获取结果',
+                  helpText: '你可能需要检查你的网络连接'
+                },
+                footer: {
+                  selectText: '选择',
+                  navigateText: '切换',
+                  closeText: '关闭',
+                  searchByText: '搜索提供者'
+                },
+                noResultsScreen: {
+                  noResultsText: '无法找到相关结果',
+                  suggestedQueryText: '你可以尝试查询',
+                  reportMissingResultsText: '你认为该查询应该有结果？',
+                  reportMissingResultsLinkText: '点击反馈'
+                }
+              }
+            }
+          },
+          ...searchEN
+        }
+      },
     },
     
     logo:'/logo_cn_en colored.png',

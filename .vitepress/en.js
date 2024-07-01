@@ -123,8 +123,8 @@ function sidebarAbout(){
   ]
 }
 
-export const search = {
-  zh: {
+export const searchEN = {
+  en: {
     placeholder: 'Search documents',
     translations: {
       button: {

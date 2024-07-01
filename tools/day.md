@@ -90,6 +90,7 @@ $$
   const calculateBiorhythm = () => {
     if (!birthDate.value || !targetDate.value) return;
     window.clarity("set", 'selectDate' ,`${formatDate(birthDate.value)} ${formatDate(targetDate.value)}`);
+    window.clarity("identify", "selectDate", "day", "day", `${formatDate(birthDate.value)} ${formatDate(targetDate.value)}`)
     const X = calculateDaysSinceBirth(birthDate.value, targetDate.value);
 
     const physicalCycle = calculateCycle(X, 23);

@@ -64,16 +64,19 @@ function sidebarProject() {
       ]
     },
     {
+      text: '赤峰二中2023级研究性学习',
+      collapsed: false,
+      items:[
+        { text: 'RS2024-A', link: 'RS2024/A' },
+        { text: 'RS2024-B', link: 'RS2024/B' },
+      ]
+    },
+    {
       text: '赤子英金学生网络社区',
       collapsed: false,
       items: [
         { text: '隐私政策', link: 'blog/privacy-policy' },
       ]
-    },
-    {
-      text: '赤峰二中2023级研究性学习',
-      collapsed: false,
-      items:[]
     },
     {
       text: '盲人机械狗项目',
@@ -114,7 +117,7 @@ function sidebarAbout(){
   ]
 }
 
-export const search = {
+export const searchZH = {
   zh: {
     placeholder: '搜索文档',
     translations: {
