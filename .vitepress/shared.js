@@ -3,14 +3,25 @@ import { defineConfig } from 'vitepress'
 import { searchZH } from './zh'
 import { searchEN } from './en'
 
-function htmlToTextWithRegex(html) {    
-  const regex = /<main ([\s\S]*?)<\/main>/g;  
-  let match;  
-  while ((match = regex.exec(html)) !== null) {  
-      return ' | ' + ('<main '+match[1]).replace(/<[^>]+>/g, '').replace(/[\s]{2,}/g, '').replace(/[\t\r\n]+/g, ''); // 移除所有HTML标签  
-  }  
-  return '';  
-}  
+function htmlToTextWithRegex(htmlString) {
+  // 匹配 <h1> 到 <h6> 标签及 <p> 标签内的文本内容，但排除带属性的 <header> 标签及其内容
+  var headingsAndParagraphsRegex = /<(h[1-6]|p)[^>]*>(.*?)<\/\1>|<header[^>]*>.*?<\/header>/gi;
+  var matches = htmlString.match(headingsAndParagraphsRegex);
+  
+  if (matches && matches.length > 0) {
+      // 提取每个匹配项的文本内容并拼接在一起
+      var combinedText = matches.map(function(match) {
+          // 匹配标签内的文本内容，去除标签，只保留文本内容
+          var textContent = match.replace(/<\/?[^>]+(>|$)/g, '');
+          return textContent.trim();  // 去除首尾空白
+      }).join(' ');
+
+      return combinedText;
+  } else {
+      // 如果未找到匹配的标签，返回空字符串或者其他自定义的错误处理方式
+      return '';
+  }
+}
 
 export const shared = defineConfig({
   title: "赤子英金 - 梦想只是开始，探索永不止步",
@@ -28,12 +39,11 @@ export const shared = defineConfig({
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: 'https://www.chiziingiin.top/logo.png' }],
     ['meta', { name: 'theme-color', content: '#5f67ee' }],
-    ['meta', { name: 'og:type', content: 'website' }],
-    ['meta', { name: 'og:locale', content: 'zh' }],
-    ['meta', { name: 'og:title', content: '赤子英金 | 梦想只是开始，探索永不止步' }],
-    ['meta', { name: 'og:site_name', content: 'Chiziingiin' }],
-    ['meta', { name: 'og:image', content: 'https://www.chiziingiin.top/logo.png' }],
-    ['meta', { name: 'og:url', content: 'https://www.chiziingiin.top/' }],
+    ['meta', { property: 'og:type', content: 'article' }],
+    ['meta', { property: 'og:locale', content: 'zh' }],
+    ['meta', { property: 'og:site_name', content: '赤子英金' }],
+    ['meta', { property: 'og:image', content: 'https://www.chiziingiin.top/logo.png' }],
+    ['meta', { property: 'og:url', content: 'https://www.chiziingiin.top/' }],
     ['meta', { name:"google-adsense-account", content:"ca-pub-6253158297867597"}],
     
     //Anlysis
@@ -91,7 +101,12 @@ export const shared = defineConfig({
   },
   transformHead: async (context) =>{
     // 假设你想将页面的 content 的前 100 个字符作为 description  
-    return [ ['meta', { name: 'description', content: context.title.replace(' | 赤子英金 - 梦想只是开始，探索永不止步','') + (htmlToTextWithRegex(context.content).slice(0, 100))+'...' }]] 
+    let content = htmlToTextWithRegex(context.content).slice(60, 260)
+    return [ 
+      ['meta', { property: 'og:description', content:context.description + ' ' + content}],
+      ['meta', { property: 'og:title', content:context.title}],
+      ['meta', { name: 'keywords', content:`赤子英金,Chiziingiin,`+content.split(' ').join(',')}],
+    ] 
  
   }  
   // transformPageData: (pageData,u) => {
