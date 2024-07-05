@@ -102,11 +102,18 @@ export const shared = defineConfig({
   transformHead: async (context) =>{
     // 假设你想将页面的 content 的前 100 个字符作为 description  
     let content = htmlToTextWithRegex(context.content).slice(60, 260)
-
+    function removeEmptyItems(arr) {
+      return arr.filter(item => item!== undefined && item!== null && item!== '');
+    }
+    function removeUnwantedCharacters(str){
+      return str.replace(/[^a-zA-Z0-9\u4e00-\u9fa5\,\.]/g, '');
+    }
     return [ 
       ['meta', { property: 'og:description', content:context.description + ' ' + content}],
       ['meta', { property: 'og:title', content:context.title}],
-      ['meta', { name: 'keywords', content:`赤子英金,Chiziingiin,`+content.split(/[，|\.|\s]/).slice(0,6).join(',')}],
+      ['meta', { name: 'keywords', content:`赤子英金,Chiziingiin,`
+        +removeUnwantedCharacters(removeEmptyItems(content.split(/[，|。|\,|\.|\s]/)).slice(0,6).join(','))
+      }],
     ] 
  
   }  
