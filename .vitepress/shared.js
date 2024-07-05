@@ -102,10 +102,11 @@ export const shared = defineConfig({
   transformHead: async (context) =>{
     // 假设你想将页面的 content 的前 100 个字符作为 description  
     let content = htmlToTextWithRegex(context.content).slice(60, 260)
+
     return [ 
       ['meta', { property: 'og:description', content:context.description + ' ' + content}],
       ['meta', { property: 'og:title', content:context.title}],
-      ['meta', { name: 'keywords', content:`赤子英金,Chiziingiin,`+content.split(' ').join(',')}],
+      ['meta', { name: 'keywords', content:`赤子英金,Chiziingiin,`+content.split(/[，|\.|\s]/).slice(0,6).join(',')}],
     ] 
  
   }  
