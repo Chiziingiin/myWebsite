@@ -16,7 +16,7 @@ export const en = defineConfig({
       '/en/about/': { base: '/en/about/', items: sidebarAbout() }
     },
     footer: {
-      message: 'Thanks to everyone who supports and follows us ❤️ This website is powered by Cloudfalre and VitePress',
+      message: 'Thanks to everyone who supports and follows us ❤️ This website is powered by Cloudflare and VitePress',
       copyright: `All rights reserved © 2022-${new Date().getFullYear()} Chiziingiin`
     },
     docFooter: {

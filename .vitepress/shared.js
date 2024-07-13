@@ -97,7 +97,7 @@ export const shared = defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/Chiziingiin/myWebsite/' }
     ],
-    logo:'/logo_cn_en colored.png',
+    logo:'/logo_cn_en colored_sm.png',
   },
   transformHead: async (context) =>{
     // 假设你想将页面的 content 的前 100 个字符作为 description  

@@ -15,7 +15,7 @@ export const zh = defineConfig({
       '/about/': { base: '/about/', items: sidebarAbout() }
     },
     footer: {
-      message: '感谢所有支持和关注我们的人 ❤️ 本网站由 Cloudfalre 和 VitePress 驱动',
+      message: '感谢所有支持和关注我们的人 ❤️ 本网站由 Cloudflare 和 VitePress 驱动',
       copyright: `版权所有 © 2022-${new Date().getFullYear()} Chiziingiin`
     },
     docFooter: {
