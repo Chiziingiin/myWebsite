@@ -38,6 +38,7 @@ export const shared = defineConfig({
   },
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: 'https://www.chiziingiin.top/logo.png' }],
+    ['link', { rel: 'shortcut icon', type: 'image/x-icon', href: 'https://www.chiziingiin.top/favicon.ico' }],
     ['meta', { name: 'theme-color', content: '#5f67ee' }],
     ['meta', { property: 'og:type', content: 'article' }],
     ['meta', { property: 'og:locale', content: 'zh' }],
