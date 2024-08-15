@@ -1,6 +1,6 @@
-# 零本创智：创新高效的项目解决方案
+# 零本智协：创新高效的项目解决方案
 
-**零本创智**
+**零本智协**
 
 是一款依托尖端 AI 技术驱动的软件，致力于为用户提供全面创新的市场项目解决方案。
 
@@ -26,9 +26,12 @@
 
 赤峰二中 2023 级 12 班的张新越、王严、宋鑫航、商航语、马世杰、姚懿轩（按照加入顺序排序）
 
+**更新日志**
+[https://lingben.chiziingiin.top/about/log](https://lingben.chiziingiin.top/about/log)
+
 **项目官网**
 
 [https://lingben.chiziingiin.top](https://lingben.chiziingiin.top)
 [https://lb.chiziingiin.top](https://lb.chiziingiin.top)
 
-梦想只是开始，探索永不止步，快来尝试零本创智！
+梦想只是开始，探索永不止步，快来尝试零本智协！
