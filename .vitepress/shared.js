@@ -4,7 +4,6 @@ import { searchZH } from './zh'
 import { searchEN } from './en'
 
 function htmlToTextWithRegex(htmlString) {
-  // 匹配 <h1> 到 <h6> 标签及 <p> 标签内的文本内容，但排除带属性的 <header> 标签及其内容
   var headingsAndParagraphsRegex = /<(h[1-6]|p)[^>]*>(.*?)<\/\1>|<header[^>]*>.*?<\/header>/gi;
   var matches = htmlString.match(headingsAndParagraphsRegex);
   
