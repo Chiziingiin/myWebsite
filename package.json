@@ -1,6 +1,9 @@
 {
   "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.3",
     "sass": "^1.77.5",
+    "tailwindcss": "^4.0.9",
     "vitepress": "^1.2.2"
   },
   "scripts": {
@@ -9,9 +12,9 @@
     "docs:preview": "vitepress preview"
   },
   "dependencies": {
+    "@popperjs/core": "npm:@sxzz/popperjs-es@^2.11.7",
     "echarts": "^5.5.0",
     "element-plus": "^2.5.5",
-    "markdown-it-mathjax3": "^4.3.2",
-    "@popperjs/core": "npm:@sxzz/popperjs-es@^2.11.7"
+    "markdown-it-mathjax3": "^4.3.2"
   }
 }

@@ -49,6 +49,17 @@ export const shared = defineConfig({
     //Anlysis
     [
       'script',
+      { src: 'https://cdn.tailwindcss.com' }
+    ],
+    [
+      'script',
+      {},
+      `tailwind.config = {
+        important:true,
+      }`
+    ],
+    [
+      'script',
       { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-090FBQC34B' }
     ],
     [
